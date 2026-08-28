@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EdMusys — Gestão de Escola de Música</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!--PAGINA LOGIN: Área responsável pela autenticação do administrador.O usuário informa seu usuário e senha para acessaro painel administrativo do EdMusys.-->
+<div id="login-screen">
+  <div class="login-card">
+    <!--IDENTIDADE VISUAL DO SISTEMA: Exibe o símbolo musical, nome EdMusys e identificaçãoda área administrativa.-->
+    <div class="login-brand">
+      <div class="staff">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#F0B90B" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      </div>
+      <h1>EdMusys</h1>
+      <p>Painel administrativo</p>
+    </div>
+    <!--FORMULÁRIO DE ACESSO: Contém os campos de usuário e senha, mensagem de erro e botão utilizado para entrar no sistema-->
+    <form class="login-form" id="login-form">
+      <div class="ifield"> <!--CAMPO DE USUÁRIO: Permite informar o usuário utilizado para acessaro painel administrativo.-->
+        <label for="login-user">Usuário</label>
+        <div class="icontainer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input id="login-user" autocomplete="username" placeholder="Informar usuário">
+        </div>
+      </div>
+      <div class="ifield"><!-- CAMPO DE SENHA: Permite informar a senha do administrador.-->
+        <label for="login-pass">Senha</label>
+        <div class="icontainer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input id="login-pass" type="password" autocomplete="current-password" placeholder="Digite sua senha">
+        </div>
+      </div>
+      <!-- MENSAGEM DE ERRO DO LOGIN: exibida quando os dados informados não correspondem a um administrador válido-->
+      <div class="login-error" id="login-error">Usuário ou senha inválidos.</div>
+      <button type="submit" class="login-submit">Entrar</button><!-- BOTÃO DE ACESSO:Envia os dados do formulário para que o JavaScript realize a validação das credenciais.-->
+    </form>
+    
+    <p class="login-hint">Cadastrar novo Usuário</p>
+    <!--Redireciona o administrador para a página cadastro.html-->
+    <button class="novo-usuario" onclick="window.location.href='cadastro.html'">
+      Novo Usuário
+    </button>
+  </div>
+</div>
+
+<!-- PAINEL PRINCIPAL DO SISTEMA: Contém toda a interface administrativa que será exibida depois que o login for realizado com sucesso. -->
+<div id="app" class="hidden">
+  <aside class="sidebar" id="sidebar"><!-- MENU LATERAL-Permite navegar entre as principais áreas do sistema:Visão Geral, Alunos, Professores e Agendamento.-->
+    <button class="brand-btn" id="brand-btn"> 
+      <!-- IDENTIDADE VISUAL DO PAINEL:Botão com a marca EdMusys. Também pode ser utilizado para retornar à Visão Geral-->
+      <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>
+      <span class="name">EdMusys</span>
+    </button>
+    <nav class="nav-group"> <!--Menu Lateral; botões responsáveis por trocar as telas exibidas no painel administrativo.-->
+      <button class="nav-btn" data-view="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg> Visão Geral</button>
+      <button class="nav-btn" data-view="alunos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg> Alunos</button>
+      <button class="nav-btn" data-view="professores"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg> Professores</button>
+      <button class="nav-btn" data-view="horarios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> Agendamento</button>
+    </nav> <!-- fecha tag menu lateral -->
+    <div class="sidebar-foot">
+      <button class="logout-btn" id="logout-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg> Sair</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="menu-toggle" id="menu-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+        <div>
+          <h2 id="view-title">Visão Geral</h2>
+          <div class="sub" id="view-sub">Resumo da escola</div>
+        </div>
+      </div>
+      <div id="topbar-actions"></div>
+    </div>
+    <div class="view" id="view-container"></div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab hidden" id="fab-calendar" aria-label="Abrir calendário">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+</button>
+
+<!-- Calendar overlay -->
+<div id="calendar-overlay" class="hidden"></div>
+
+<!-- Modal root -->
+<div id="modal-root"></div>
+
+<!-- Profile overlay root -->
+<div id="profile-root"></div>
+
+  <script src="js/script.js"></script>
+
+</body>
+</html>
