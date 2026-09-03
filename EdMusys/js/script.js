@@ -1,4 +1,4 @@
-(function(){
+        (function(){
 "use strict";
 
 /* ============================================================
@@ -126,6 +126,19 @@ const loginPass = $('#login-pass');
   });
 });
 
+// ==========================================================
+// ACESSIBILIDADE DO LOGIN
+// Ao pressionar Enter no campo Usuário,
+// o foco passa automaticamente para o campo Senha.
+// ==========================================================
+
+loginUser.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    loginPass.focus();
+  }
+});
+
 $('#login-form').addEventListener('submit', e => {
 
   e.preventDefault();
@@ -151,7 +164,10 @@ $('#login-form').addEventListener('submit', e => {
   // ==========================================================
 
   const administradores =
-    JSON.parse(localStorage.getItem('edmusys_admins')) || [];
+    JSON.parse(localStorage.getItem('edmusys_admins')) || []; 
+    /**
+     * configurar para API
+     */
 
 
   // ==========================================================
