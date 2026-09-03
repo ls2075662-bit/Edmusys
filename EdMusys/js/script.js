@@ -460,8 +460,10 @@ function attachPhoneEmailValidation(root, phoneId, emailId, errPhoneId, errEmail
   }
   return validate;
 }
-
-function openModalNovoAluno(){ /*pedir cpf aqui tambem| OK*/
+/**
+ * botão forms adicionar novo professor
+ */
+function openModalNovoAluno(){
   const dias=[], horas=[];
   const html = `<div class="modal-overlay" id="modal-overlay">
     <div class="modal">
@@ -532,14 +534,17 @@ function openModalNovoAluno(){ /*pedir cpf aqui tambem| OK*/
   });
 }
 
-function openModalNovoProfessor(){/*form ja pedindo cpf|OK*/
+/**
+ * botão forms adicionar novo professor
+ */
+function openModalNovoProfessor(){ 
   const dias=[], horas=[];
   const html = `<div class="modal-overlay" id="modal-overlay">
     <div class="modal">
       <div class="modal-head"><h3>Novo professor</h3><button class="modal-close" id="modal-close">${ICON.x}</button></div>
       <div class="modal-body">
         ${ifield({id:'np-nome', label:'Nome', icon:ICON.user})}
-        ${ifield({id:'np-cpf', label:'CPF', icon:ICON.user, placeholder:'000.000.000-00'})}
+        ${ifield({id:'np-cpf', label:'CPF', icon:ICON.user, placeholder:'000.000.000-00', errorId:'err-np-cpf'})}
         ${ifield({id:'np-nascimento', label:'Data de nascimento', icon:ICON.cake, type:'date'})}
         ${ifield({id:'np-telefone', label:'Telefone', icon:ICON.phone, type:'tel', placeholder:'(84) 90000-0000', errorId:'err-np-telefone'})}
         ${ifield({id:'np-email', label:'E-mail (opcional)', icon:ICON.mail, type:'email', errorId:'err-np-email'})}
@@ -668,7 +673,12 @@ function renderAlunoProfile(id){
         <h4>${ICON.user} Dados pessoais</h4>
         <div class="field-row">
           ${ifield({id:'pf-nome', label:'Nome', icon:ICON.user, value:a.nome})}
-          ${ifield({id:'qf-cpf', label:'CPF', icon:ICON.user, value:a.cpf||'', placeholder:'000.000.000-00'})}
+          ${ifield({id:'qf-cpf', 
+                    label:'CPF',
+                    icon:ICON.user, 
+                    value:a.cpf||'', 
+                    placeholder:'000.000.000-00', 
+                    errorId:'err-qf-cpf'})}
           ${ifield({id:'pf-nascimento', label:'Data de nascimento', icon:ICON.cake, type:'date', value:a.nascimento})}
         </div>
         <div class="field-row">
@@ -708,6 +718,46 @@ function renderAlunoProfile(id){
     err.classList.toggle('show', digits.length>0 && digits.length<11);
     err.textContent='Telefone incompleto — informe os 11 dígitos.';
   });
+
+  $('#qf-cpf',root).addEventListener('input', ()=>{
+    const inp = $('#qf-cpf',root);
+    const err = $('#err-qf-cpf',root);
+
+    // Remove tudo que não for número
+    let digits = inp.value.replace(/\D/g, '');
+
+    // Limita o CPF a 11 números
+    digits = digits.slice(0, 11);
+
+    // Aplica a máscara do CPF
+    if(digits.length > 9){
+        inp.value = digits.replace(
+            /(\d{3})(\d{3})(\d{3})(\d{2})/,
+            '$1.$2.$3-$4'
+        );
+    }else if(digits.length > 6){
+        inp.value = digits.replace(
+            /(\d{3})(\d{3})(\d{1,3})/,
+            '$1.$2.$3'
+        );
+    }else if(digits.length > 3){
+        inp.value = digits.replace(
+            /(\d{3})(\d{1,3})/,
+            '$1.$2'
+        );
+    }else{
+        inp.value = digits;
+    }
+
+    // Mostra o erro enquanto estiver incompleto
+    err.classList.toggle(
+        'show',
+        digits.length > 0 && digits.length < 11
+    );
+
+    err.textContent = 'CPF incompleto — informe os 11 dígitos.';
+});
+
   $('#pf-email',root).addEventListener('input', ()=>{
     const v=$('#pf-email',root).value; const err=$('#err-pf-email',root);
     err.classList.toggle('show', v.length>0 && !isValidEmail(v));
