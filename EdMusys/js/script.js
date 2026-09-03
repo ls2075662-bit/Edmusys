@@ -461,17 +461,18 @@ function attachPhoneEmailValidation(root, phoneId, emailId, errPhoneId, errEmail
   return validate;
 }
 
-function openModalNovoAluno(){
+function openModalNovoAluno(){ /*pedir cpf aqui tambem| OK*/
   const dias=[], horas=[];
   const html = `<div class="modal-overlay" id="modal-overlay">
     <div class="modal">
       <div class="modal-head"><h3>Novo aluno</h3><button class="modal-close" id="modal-close">${ICON.x}</button></div>
       <div class="modal-body">
         ${ifield({id:'na-nome', label:'Nome', icon:ICON.user})}
-        ${ifield({id:'na-instrumento', label:'Instrumento', icon:ICON.music})}
+        ${ifield({id:'np-cpf', label:'CPF', icon:ICON.user, placeholder:'000.000.000-00'})}
         ${ifield({id:'na-nascimento', label:'Data de nascimento', icon:ICON.cake, type:'date'})}
         ${ifield({id:'na-telefone', label:'Telefone', icon:ICON.phone, type:'tel', placeholder:'(84) 90000-0000', errorId:'err-na-telefone'})}
-        ${ifield({id:'na-email', label:'E-mail (opcional)', icon:ICON.mail, type:'email', errorId:'err-na-email'})}
+        ${ifield({id:'na-email', label:'E-mail', icon:ICON.mail, type:'email', errorId:'err-na-email'})}
+        ${ifield({id:'na-instrumento', label:'Instrumento', icon:ICON.music})}
         <div>
           <div class="field-group-lbl" style="margin-bottom:8px;">Dias disponíveis</div>
           ${pillGroup('dias', DIAS, dias)}
@@ -516,6 +517,7 @@ function openModalNovoAluno(){
     const novo = {
       id: nextId(),
       nome: nomeInp.value.trim(),
+      cpf: $('#np-cpf',root).value.trim(),
       instrumento: $('#na-instrumento',root).value.trim() || 'A definir',
       dias: selDias, horarios: selHoras,
       telefone: phoneDigits($('#na-telefone',root).value),
@@ -530,17 +532,18 @@ function openModalNovoAluno(){
   });
 }
 
-function openModalNovoProfessor(){
+function openModalNovoProfessor(){/*form ja pedindo cpf|OK*/
   const dias=[], horas=[];
   const html = `<div class="modal-overlay" id="modal-overlay">
     <div class="modal">
       <div class="modal-head"><h3>Novo professor</h3><button class="modal-close" id="modal-close">${ICON.x}</button></div>
       <div class="modal-body">
         ${ifield({id:'np-nome', label:'Nome', icon:ICON.user})}
-        ${ifield({id:'np-instrumento', label:'Especialidade', icon:ICON.music})}
+        ${ifield({id:'np-cpf', label:'CPF', icon:ICON.user, placeholder:'000.000.000-00'})}
         ${ifield({id:'np-nascimento', label:'Data de nascimento', icon:ICON.cake, type:'date'})}
         ${ifield({id:'np-telefone', label:'Telefone', icon:ICON.phone, type:'tel', placeholder:'(84) 90000-0000', errorId:'err-np-telefone'})}
         ${ifield({id:'np-email', label:'E-mail (opcional)', icon:ICON.mail, type:'email', errorId:'err-np-email'})}
+        ${ifield({id:'np-instrumento', label:'Especialidade', icon:ICON.music})}
         <div>
           <div class="field-group-lbl" style="margin-bottom:8px;">Dias disponíveis</div>
           ${pillGroup('dias', DIAS, dias)}
@@ -575,6 +578,7 @@ function openModalNovoProfessor(){
     const novo = {
       id: nextId(),
       nome: nomeInp.value.trim(),
+      cpf: $('#np-cpf',root).value.trim(),
       instrumento: $('#np-instrumento',root).value.trim() || 'A definir',
       dias: selDias, horarios: selHoras,
       telefone: phoneDigits($('#np-telefone',root).value),
