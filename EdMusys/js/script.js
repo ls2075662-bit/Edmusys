@@ -668,6 +668,7 @@ function renderAlunoProfile(id){
         <h4>${ICON.user} Dados pessoais</h4>
         <div class="field-row">
           ${ifield({id:'pf-nome', label:'Nome', icon:ICON.user, value:a.nome})}
+          ${ifield({id:'qf-cpf', label:'CPF', icon:ICON.user, value:a.cpf||'', placeholder:'000.000.000-00'})}
           ${ifield({id:'pf-nascimento', label:'Data de nascimento', icon:ICON.cake, type:'date', value:a.nascimento})}
         </div>
         <div class="field-row">
@@ -719,6 +720,7 @@ function renderAlunoProfile(id){
 
   saveBtn.addEventListener('click', ()=>{
     a.nome = $('#pf-nome',root).value.trim() || a.nome;
+    a.cpf = $('#qf-cpf',root).value.trim();
     a.nascimento = $('#pf-nascimento',root).value;
     a.telefone = phoneDigits($('#pf-telefone',root).value) || a.telefone;
     a.email = $('#pf-email',root).value.trim();
@@ -750,6 +752,7 @@ function renderProfessorProfile(id){
         <h4>${ICON.user} Dados pessoais</h4>
         <div class="field-row">
           ${ifield({id:'qf-nome', label:'Nome completo', icon:ICON.user, value:p.nome})}
+          ${ifield({id:'qf-cpf', label:'CPF', icon:ICON.user, value:p.cpf})}
           ${ifield({id:'qf-instrumento', label:'Instrumento / especialidade', icon:ICON.music, value:p.instrumento})}
         </div>
         <div class="field-row">
@@ -796,6 +799,7 @@ function renderProfessorProfile(id){
 
   saveBtn.addEventListener('click', ()=>{
     p.nome = $('#qf-nome',root).value.trim() || p.nome;
+    p.cpf = $('#qf-cpf',root).value.trim();
     p.instrumento = $('#qf-instrumento',root).value.trim() || p.instrumento;
     p.nascimento = $('#qf-nascimento',root).value;
     p.telefone = phoneDigits($('#qf-telefone',root).value) || p.telefone;
