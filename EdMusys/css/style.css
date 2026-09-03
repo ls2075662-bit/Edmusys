@@ -75,11 +75,10 @@ input,select{font-family:inherit;}
 .login-submit:hover{ background:#000; transform:translateY(-1px);}
 .login-hint{ text-align:center; margin-top:18px; font-size:12px; color:var(--muted);}
 
-.login-submit-right{ /*Botão de cadastro novo adm*/
+.novo-usuario{ /*Botão de cadastro novo adm*/
   display:block;
   width:fit-content;
-  margin-left:auto;
-  margin-top:6px;
+  margin:6px auto 0;
 }
 
 
