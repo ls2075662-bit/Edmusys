@@ -148,13 +148,6 @@ $('#login-form').addEventListener('submit', e => {
 
   const err = $('#login-error');
 
-
-  // ==========================================================
-  // LOGIN PADRÃO DO SISTEMA
-  // Usuário: admin
-  // Senha: admin
-  // ==========================================================
-
   const loginPadrao =
     u === 'admin' && p === 'admin';
 
