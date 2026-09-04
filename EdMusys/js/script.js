@@ -37,30 +37,11 @@ const PLANOS = {1:{label:'1x / semana', valor:60}, 2:{label:'2x / semana', valor
 let uid = 1000;
 const nextId = () => (++uid).toString(36);
 
-let alunos = [
-  {id:'a1', nome:'Marina Costa', instrumento:'Violão', dias:['Segunda','Quarta'], horarios:['15:00','16:00'], telefone:'84991234567', email:'marina.costa@email.com', nascimento:'2011-03-14', plano:2, pago:true},
-  {id:'a2', nome:'Bento Alves', instrumento:'Piano', dias:['Terça','Quinta','Sábado'], horarios:['09:00','09:00','10:00'], telefone:'84998765432', email:'bento.alves@email.com', nascimento:'2014-07-02', plano:3, pago:false},
-  {id:'a3', nome:'Yasmin Rocha', instrumento:'Bateria', dias:['Sexta'], horarios:['17:00'], telefone:'84987654321', email:'', nascimento:'2009-11-21', plano:1, pago:true},
-  {id:'a4', nome:'Davi Nunes', instrumento:'Canto', dias:['Segunda','Sexta'], horarios:['18:00','18:00'], telefone:'84996655443', email:'davi.nunes@email.com', nascimento:'2013-01-09', plano:2, pago:true},
-];
+let alunos = [];
 
-let professores = [
-  {id:'p1', nome:'Renato Souza', instrumento:'Violão', dias:['Segunda','Quarta'], horarios:['15:00','16:00'], telefone:'84991112222', email:'renato.souza@edmusys.com', nascimento:'1988-05-12'},
-  {id:'p2', nome:'Camila Duarte', instrumento:'Piano', dias:['Terça','Quinta','Sábado'], horarios:['09:00','09:00','10:00'], telefone:'84993334444', email:'camila.duarte@edmusys.com', nascimento:'1991-09-30'},
-  {id:'p3', nome:'João Prado', instrumento:'Bateria', dias:['Sexta'], horarios:['17:00'], telefone:'84995556666', email:'joao.prado@edmusys.com', nascimento:'1985-12-04'},
-  {id:'p4', nome:'Larissa Melo', instrumento:'Canto', dias:['Segunda','Sexta'], horarios:['18:00','18:00'], telefone:'84997778888', email:'larissa.melo@edmusys.com', nascimento:'1993-02-18'},
-];
+let professores = [];
 
-let horarios = [
-  {id:'h1', dia:'Segunda', hora:'15:00', instrumento:'Violão', alunoId:'a1', professorId:'p1'},
-  {id:'h2', dia:'Quarta', hora:'16:00', instrumento:'Violão', alunoId:'a1', professorId:'p1'},
-  {id:'h3', dia:'Terça', hora:'09:00', instrumento:'Piano', alunoId:'a2', professorId:'p2'},
-  {id:'h4', dia:'Quinta', hora:'09:00', instrumento:'Piano', alunoId:'a2', professorId:'p2'},
-  {id:'h5', dia:'Sábado', hora:'10:00', instrumento:'Piano', alunoId:'a2', professorId:'p2'},
-  {id:'h6', dia:'Sexta', hora:'17:00', instrumento:'Bateria', alunoId:'a3', professorId:'p3'},
-  {id:'h7', dia:'Segunda', hora:'18:00', instrumento:'Canto', alunoId:'a4', professorId:'p4'},
-  {id:'h8', dia:'Sexta', hora:'18:00', instrumento:'Canto', alunoId:'a4', professorId:'p4'},
-];
+let horarios = [];
 
 /* ============================================================
    ESTADO DA APLICAÇÃO
