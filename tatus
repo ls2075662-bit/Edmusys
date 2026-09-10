@@ -1,0 +1,81 @@
+[33mcommit 1988a3aaf344a47b9708a9c19c81e6909e43239b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: JuniorSilvaDEV <juniordasilva92@gmail.com>
+Date:   Fri Sep 4 13:30:45 2026 -0300
+
+    Adiciona estrutura inicial das páginas web
+
+[33mcommit ce1c1e347c991982c45e2321bd27fc1cce3f8c5b[m
+Author: Luan M. <ls2075662@gmail.com>
+Date:   Thu Sep 3 16:06:07 2026 -0300
+
+    Fix HTML comments in cadastro.html
+
+[33mcommit c2f474849a1e159ca466b3eece80c02b53d96299[m
+Author: Luan M. <ls2075662@gmail.com>
+Date:   Thu Sep 3 15:58:12 2026 -0300
+
+    Change button class for new user registration
+
+[33mcommit 1c50b57d43606b46272d859e79aa814cd67acb14[m
+Author: Luan M. <ls2075662@gmail.com>
+Date:   Thu Sep 3 15:56:10 2026 -0300
+
+    Refactor login accessibility and localStorage handling
+
+[33mcommit e6e64da55f7a211781ca78eae8f1b4068944d470[m
+Author: Luan M. <ls2075662@gmail.com>
+Date:   Thu Sep 3 15:55:12 2026 -0300
+
+    Remove empty line in style.css
+
+[33mcommit f9d4e3bec0d418e175f11c6389425b936e17fffb[m
+Author: Luan M. <ls2075662@gmail.com>
+Date:   Thu Sep 3 15:54:49 2026 -0300
+
+    Update cadastro.html
+
+[33mcommit 19bfb86e26b14e44e47843744e9cad18751a1150[m
+Author: Luan M. <ls2075662@gmail.com>
+Date:   Thu Sep 3 14:10:10 2026 -0300
+
+    botao de novo usuário corrigido
+
+[33mcommit a2bb315eff42cb601f138fdd0aac5737cee8c71e[m
+Author: Luan M. <ls2075662@gmail.com>
+Date:   Thu Sep 3 13:27:23 2026 -0300
+
+    Update print statement from 'Hello' to 'Goodbye'
+
+[33mcommit 7cf4cbe6a02bab107d9cc9b820399e7cf167dec0[m
+Author: Luan M. <ls2075662@gmail.com>
+Date:   Thu Sep 3 13:25:46 2026 -0300
+
+    Update fmt.Println message from 'Hello' to 'Goodbye'
+
+[33mcommit 4f613c047fa23ce1109ec3a67bcbd98ce5de60de[m
+Author: Luan M. <ls2075662@gmail.com>
+Date:   Thu Sep 3 11:23:08 2026 -0300
+
+    Add error handling for CPF input fields
+
+[33mcommit f2163857958631b72106279fb767fe3a8a4cfa5f[m
+Author: Luan M. <ls2075662@gmail.com>
+Date:   Thu Sep 3 10:32:33 2026 -0300
+
+    Add CPF field to personal data forms
+
+[33mcommit d7ab4d80c5469927a1897efeb8bd6cea769d54b7[m
+Author: Luan M. <ls2075662@gmail.com>
+Date:   Thu Sep 3 09:16:57 2026 -0300
+
+    pedir cpf OK
+    
+    caixas de texto pedindo o cpf ao registrar um novo professor/aluno.
+
+[33mcommit b0eea1cf6b3a369b7e3a6c1c02577854ef18cbb8[m
+Author: Luan M. <ls2075662@gmail.com>
+Date:   Fri Aug 28 13:50:52 2026 -0300
+
+    armazenando sistema em um novo repositório
+    
+    apenas para organização.
