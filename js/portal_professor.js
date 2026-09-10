@@ -86,11 +86,29 @@ let currentTab = 'horarios';
 let selectedDay = 'Segunda';
 
 function doLogin() {
-  const v = sel.value;
-  if (!v) { document.getElementById('login-err').classList.add('show'); return; }
-  currentProfId = v;
+
+  // Cria um professor temporário apenas para testes
+  if (professores.length === 0) {
+    professores.push({
+      id: 'teste',
+      nome: 'Professor de Teste',
+      telefone: '(84) 99999-9999',
+      email: 'professor@teste.com',
+      instrumento: 'Violão',
+      nascimento: '01/01/2000'
+    });
+  }
+
+  // Entra automaticamente com o primeiro professor
+  currentProfId = professores[0].id;
+
+  // Esconde o login
   document.getElementById('login-screen').classList.add('hidden');
+
+  // Mostra o portal
   document.getElementById('app').classList.remove('hidden');
+
+  // Carrega o sistema
   render();
 }
 
