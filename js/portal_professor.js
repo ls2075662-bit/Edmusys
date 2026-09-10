@@ -29,16 +29,7 @@ const maskPhone = v => {
 // ── DATA (mirrors script.js seed) ─────────────────────────────
 let alunos = [];
 let professores = [];
-let horarios = [
-  {id:'h1',dia:'Segunda',hora:'15:00',instrumento:'Violão',alunoId:'a1',professorId:'p1'},
-  {id:'h2',dia:'Quarta',hora:'16:00',instrumento:'Violão',alunoId:'a1',professorId:'p1'},
-  {id:'h3',dia:'Terça',hora:'09:00',instrumento:'Piano',alunoId:'a2',professorId:'p2'},
-  {id:'h4',dia:'Quinta',hora:'09:00',instrumento:'Piano',alunoId:'a2',professorId:'p2'},
-  {id:'h5',dia:'Sábado',hora:'10:00',instrumento:'Piano',alunoId:'a2',professorId:'p2'},
-  {id:'h6',dia:'Sexta',hora:'17:00',instrumento:'Bateria',alunoId:'a3',professorId:'p3'},
-  {id:'h7',dia:'Segunda',hora:'18:00',instrumento:'Canto',alunoId:'a4',professorId:'p4'},
-  {id:'h8',dia:'Sexta',hora:'18:00',instrumento:'Canto',alunoId:'a4',professorId:'p4'},
-];
+let horarios = [];
 
 function sidebar(activeTab) {
   return `<aside class="sidebar" id="sidebar">
