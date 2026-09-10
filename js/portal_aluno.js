@@ -85,12 +85,30 @@ let currentTab = 'agenda';
 let selectedDay = 'Segunda';
 
 function doLogin() {
-  const v = sel.value;
-  if (!v) { document.getElementById('login-err').classList.add('show'); return; }
-  currentAlunoId = v;
-  document.getElementById('login-screen').classList.add('hidden');
-  document.getElementById('app').classList.remove('hidden');
-  render();
+
+    // Se não existir aluno, cria um usuário temporário para teste
+    if (alunos.length === 0) {
+        alunos.push({
+            id: 'teste',
+            nome: 'Aluno de Teste',
+            telefone: '(84) 99999-9999',
+            email: 'teste@email.com',
+            instrumento: 'Violão',
+            plano: 1,
+            pago: true,
+            nascimento: '01/01/2000'
+        });
+    }
+
+    // Seleciona o primeiro aluno
+    currentAlunoId = alunos[0].id;
+
+    // Entra no portal
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+
+    // Renderiza
+    render();
 }
 
 function showTab(t) { currentTab = t; render(); }
