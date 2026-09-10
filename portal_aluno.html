@@ -22,9 +22,16 @@
       <label>Aluno</label>
       <div class="icontainer">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>
-        <select id="sel-aluno"><option value="">Selecione seu nome...</option></select>
+        <input type="text" id="usuario" placeholder="Digite seu usuario">
       </div>
     </div>
+<div class="ifield">
+  <label>senha</label>
+  <div class="icontainer">
+    <input type="password" id="senha" placeholder="Digite sua senha">
+  </div>
+</div>
+
     <div class="login-error" id="login-err">Selecione seu nome para entrar.</div>
     <button class="login-submit" onclick="doLogin()">Entrar no portal</button>
     <p class="login-hint">Acesso exclusivo para alunos matriculados</p>
