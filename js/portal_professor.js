@@ -27,12 +27,7 @@ const maskPhone = v => {
 };
 
 // ── DATA (mirrors script.js seed) ─────────────────────────────
-let alunos = [
-  {id:'a1',nome:'Marina Costa',instrumento:'Violão',dias:['Segunda','Quarta'],horarios:['15:00','16:00'],telefone:'84991234567',email:'marina.costa@email.com',nascimento:'2011-03-14',plano:2,pago:true},
-  {id:'a2',nome:'Bento Alves',instrumento:'Piano',dias:['Terça','Quinta','Sábado'],horarios:['09:00','09:00','10:00'],telefone:'84998765432',email:'bento.alves@email.com',nascimento:'2014-07-02',plano:3,pago:false},
-  {id:'a3',nome:'Yasmin Rocha',instrumento:'Bateria',dias:['Sexta'],horarios:['17:00'],telefone:'84987654321',email:'',nascimento:'2009-11-21',plano:1,pago:true},
-  {id:'a4',nome:'Davi Nunes',instrumento:'Canto',dias:['Segunda','Sexta'],horarios:['18:00','18:00'],telefone:'84996655443',email:'davi.nunes@email.com',nascimento:'2013-01-09',plano:2,pago:true},
-];
+let alunos = [];
 let professores = [
   {id:'p1',nome:'Renato Souza',instrumento:'Violão',dias:['Segunda','Quarta'],horarios:['15:00','16:00'],telefone:'84991112222',email:'renato.souza@edmusys.com',nascimento:'1988-05-12'},
   {id:'p2',nome:'Camila Duarte',instrumento:'Piano',dias:['Terça','Quinta','Sábado'],horarios:['09:00','09:00','10:00'],telefone:'84993334444',email:'camila.duarte@edmusys.com',nascimento:'1991-09-30'},
