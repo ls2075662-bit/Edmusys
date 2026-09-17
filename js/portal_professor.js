@@ -83,13 +83,21 @@ professores.forEach(p => {
 });
 
 let currentProfId = null;
+
+const professorLogado =
+  JSON.parse(localStorage.getItem("edmusys_professor_logado"));
+
+if (!professorLogado) {
+  window.location.href = "EdMusys-home-page.html";
+}
+
 let currentTab = 'horarios';
 let selectedDay = 'Segunda';
 
 function doLogin() {
 
   // Entra automaticamente com o primeiro professor
-  currentProfId = professores[0].id;
+  currentProfId = professorLogado.id;
 
   // Esconde o login
   document.getElementById('login-screen').classList.add('hidden');
