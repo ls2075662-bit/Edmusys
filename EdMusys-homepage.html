@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EdMusys - Sistema de Gestão</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#121110;
+  --black-soft:#1C1B18;
+  --black-elev:#242220;
+  --white:#FFFFFF;
+  --cream:#FBF9F4;
+  --cream-dim:#F1EDE3;
+  --gold:#F0B90B;
+  --gold-deep:#C99400;
+  --gold-pale:#FCE9A8;
+  --line:#33312B;
+  --line-light:#E4DFD1;
+  --muted:#8A8579;
+  --muted-dark:#B9B4A6;
+  --danger:#E5484D;
+  --success:#3FB25E;
+  --radius-lg:18px;
+  --radius-md:12px;
+  --radius-sm:8px;
+  --font-display:'Fraunces',serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --shadow-card:0 1px 2px rgba(18,17,16,.06), 0 8px 24px -12px rgba(18,17,16,.18);
+  --shadow-pop:0 20px 60px -20px rgba(18,17,16,.45);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  font-family:var(--font-body);
+  background:var(--cream);
+  color:var(--black);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit; cursor:pointer;}
+input,select{font-family:inherit;}
+::selection{background:var(--gold-pale); color:var(--black);}
+:focus-visible{outline:2px solid var(--gold-deep); outline-offset:2px;}
+
+/* ============ LOGIN ============ */
+#login-screen{
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(240,185,11,.10), transparent 60%),
+    linear-gradient(180deg,var(--black) 0%, var(--black-soft) 100%);
+  padding:24px;
+}
+.login-card{
+  width:100%; max-width:400px; background:var(--cream);
+  border-radius:var(--radius-lg); padding:44px 36px 36px;
+  box-shadow:var(--shadow-pop);
+  position:relative; overflow:hidden;
+}
+.login-card::before{
+  content:""; position:absolute; top:0; left:0; right:0; height:6px;
+  background:linear-gradient(90deg,var(--gold-deep),var(--gold) 50%,var(--gold-deep));
+}
+.login-brand{ text-align:center; margin-bottom:8px;}
+.login-brand .staff{
+  width:56px; height:56px; margin:0 auto 14px; border-radius:14px;
+  background:var(--black); display:flex; align-items:center; justify-content:center;
+}
+.login-brand .staff svg{width:28px; height:28px;}
+.login-brand h1{ font-family:var(--font-display); font-weight:700; font-size:28px; letter-spacing:-.01em;}
+.login-brand p{ color:var(--muted); font-size:13px; margin-top:4px; letter-spacing:.04em; text-transform:uppercase;}
+.login-form{ margin-top:32px; display:flex; flex-direction:column; gap:16px;}
+.login-error{ display:none; background:#FBEAEA; color:var(--danger); font-size:13px; padding:10px 12px; border-radius:var(--radius-sm); font-weight:600;}
+.login-error.show{display:block;}
+.login-submit{
+  margin-top:6px; background:var(--black); color:var(--gold);
+  border:none; border-radius:var(--radius-md); padding:14px; font-weight:700;
+  font-size:15px; letter-spacing:.02em; transition:transform .15s ease, background .15s ease;
+  width:100%;
+}
+.login-submit:hover{ background:#000; transform:translateY(-1px);}
+.login-hint{ text-align:center; margin-top:18px; font-size:12px; color:var(--muted);}
+
+.novo-usuario{
+  display:block;
+  width:fit-content;
+  margin:6px auto 0;
+}
+
+/* ============ IField component ============ */
+.ifield{ display:flex; flex-direction:column; gap:6px; }
+.ifield label{
+  font-size:10.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--muted); padding-left:2px;
+}
+.ifield .icontainer{
+  display:flex; align-items:center; gap:8px;
+  border:1.5px solid var(--line-light); border-radius:var(--radius-sm);
+  background:var(--white); padding:0 12px; transition:border-color .15s ease, box-shadow .15s ease;
+}
+.ifield .icontainer:focus-within{
+  border-color:var(--gold-deep); box-shadow:0 0 0 3px rgba(240,185,11,.22);
+}
+.ifield .icontainer input, .ifield .icontainer select{
+  flex:1; border:none; outline:none; background:transparent;
+  padding:11px 0; font-size:14.5px; color:var(--black); min-width:0;
+  appearance:none; -webkit-appearance:none;
+}
+.ifield .icontainer select{
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238A8579' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat:no-repeat; background-position:right 2px center; padding-right:20px; cursor:pointer;
+}
+.ifield .icontainer svg.leading{ width:17px; height:17px; color:var(--muted); flex-shrink:0;}
+.ifield .icontainer:focus-within svg.leading{ color:var(--gold-deep); }
+.ifield .err{ font-size:11.5px; color:var(--danger); font-weight:600; padding-left:2px; display:none;}
+.ifield .err.show{display:block;}
+
+/* ============ Pill select (role picker) ============ */
+.field-group-lbl{ font-size:10.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); padding-left:2px; margin-bottom:8px; display:block;}
+.pill-select{ display:flex; flex-wrap:wrap; gap:7px;}
+.pill-opt{
+  flex:1; text-align:center;
+  border:1.5px solid var(--line-light); background:var(--white); border-radius:99px; padding:9px 13px;
+  font-size:12.5px; font-weight:700; color:var(--muted-dark); transition:all .15s ease;
+}
+.pill-opt.on{ background:var(--black); border-color:var(--black); color:var(--gold);}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="staff">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="pickGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FCE9A8"/>
+              <stop offset="100%" stop-color="#F0B90B"/>
+            </linearGradient>
+          </defs>
+          <path d="M50 5 C75 5 88 30 82 55 C77 75 62 92 50 95 C38 92 23 75 18 55 C12 30 25 5 50 5 Z" fill="url(#pickGrad)"/>
+          <g stroke="#121110" stroke-width="2" fill="none" opacity="0.55">
+            <line x1="35" y1="35" x2="65" y2="35"/>
+            <line x1="32" y1="42" x2="68" y2="42"/>
+            <line x1="30" y1="49" x2="70" y2="49"/>
+            <line x1="32" y1="56" x2="68" y2="56"/>
+            <line x1="36" y1="63" x2="64" y2="63"/>
+            <line x1="41" y1="70" x2="59" y2="70"/>
+            <line x1="35" y1="35" x2="30" y2="49"/>
+            <line x1="45" y1="35" x2="41" y2="70"/>
+            <line x1="55" y1="35" x2="59" y2="70"/>
+            <line x1="65" y1="35" x2="70" y2="49"/>
+          </g>
+        </svg>
+      </div>
+      <h1>Educação Musical</h1>
+      <p>Sistema de Gestão</p>
+    </div>
+
+    <form class="login-form" id="loginForm">
+      <div class="login-error" id="loginError">Selecione seu nome antes de entrar.</div>
+
+      <div>
+        <span class="field-group-lbl">Entrar como</span>
+        <div class="pill-select" id="roleGroup">
+          <button type="button" class="pill-opt" id="btn-administrador">Administrador</button>
+          <button type="button" class="pill-opt on" data-role="professor">Professor</button>
+          <button type="button" class="pill-opt" data-role="aluno">Aluno</button>
+        </div>
+      </div>
+
+      <div class="ifield" id="userLoginFields">
+        <label for="personSelect">Nome, CPF ou E-mail</label>
+        <div class="icontainer">
+          <input type="text" id="userLogin" placeholder="Digite seu nome, CPF ou e-mail">
+        </div>
+        <label for="userPassword">Senha</label>
+        <div class="icontainer">
+          <input
+            type="password"
+            id="userPassword"
+            placeholder="Digite sua senha"
+          >
+        </div>
+      </div>
+
+      <div class="ifield" id="adminLoginFields" style="display: none;">
+
+        <label for="adminUser">Nome, CPF ou E-mail</label>
+        <div class="icontainer">
+            <input type="text" id="adminUser" placeholder="Digite seu nome, CPF ou e-mail">
+        </div>
+    
+        <label for="adminPass">Senha</label>
+        <div class="icontainer">
+            <input type="password" id="adminPass" placeholder="Digite sua senha">
+        </div>
+    
+    </div>
+
+      <button type="submit" class="login-submit" id="enterBtn">Entrar no sistema</button>
+    </form>
+
+    <p class="login-hint">Dados salvos localmente no navegador</p>
+  </div>
+</div>
+
+<script>
+  const professoresSalvos =
+  JSON.parse(localStorage.getItem("edmusys_professores")) || [];
+
+  const roleData = {
+    administrador: ["Ana Costa", "Bruno Lima"],
+    professor: professoresSalvos.map(professor => professor.nome),
+    aluno: ["Fábio Alves", "Gabriela Moraes", "Henrique Dias"]
+  };
+
+  const roleLabels = {
+    administrador: "Selecione o administrador",
+    professor: "Selecione o professor",
+    aluno: "Selecione o aluno"
+  };
+
+  const roleButtons = document.querySelectorAll(".pill-opt");
+  const selectLabel = document.getElementById("selectLabel");
+  const personSelect = document.getElementById("personSelect");
+  
+  function populateSelect(role) {
+    personSelect.innerHTML = '<option value="" selected disabled>Escolha seu nome...</option>';
+    (roleData[role] || []).forEach(name => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      personSelect.appendChild(opt);
+    });
+    selectLabel.textContent = roleLabels[role];
+  }
+
+  roleButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      roleButtons.forEach(b => b.classList.remove("on"));
+      btn.classList.add("on");
+      populateSelect(btn.dataset.role);
+      loginError.classList.remove("show");
+    });
+  });
+
+
+
+  // Inicializa com professor selecionado
+  populateSelect("professor");
+
+  const btnAdministrador = document.getElementById("btn-administrador");
+  const adminLoginFields = document.getElementById("adminLoginFields");
+  const userLoginFields = document.getElementById("userLoginFields");
+
+  const adminUser = document.getElementById("adminUser");
+  const adminPass = document.getElementById("adminPass");
+
+  const enterBtn = document.getElementById("enterBtn");
+
+  enterBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    const usuario = adminUser.value;
+    const senha = adminPass.value;
+
+  const administradores =
+    JSON.parse(localStorage.getItem("edmusys_admins")) || [];
+
+  const administradorCadastrado = administradores.some(admin => {
+    const nome = (admin.nome || "").trim().toLowerCase();
+    const email = (admin.email || "").trim().toLowerCase();
+    const cpf = (admin.cpf || "").replace(/\D/g, "");
+
+    const identificador = usuario.trim().toLowerCase();
+    const cpfDigitado = usuario.replace(/\D/g, "");
+
+    return (
+        (
+            nome === identificador ||
+            email === identificador ||
+            (cpfDigitado.length === 11 && cpf === cpfDigitado)
+        ) &&
+        admin.senha === senha
+    );
+  });
+
+if (
+    (usuario === "admin" && senha === "admin") ||
+    administradorCadastrado
+) {
+    localStorage.setItem("adminLogado", "true");
+    window.location.href = "index.html";
+} else {
+    alert("Usuário ou senha incorretos!");
+}
+});
+
+  btnAdministrador.addEventListener("click", () => {
+    adminLoginFields.style.display = "block";
+    userLoginFields.style.display = "none";
+  });
+
+  document.querySelector('[data-role="professor"]').addEventListener("click", () => {
+  adminLoginFields.style.display = "none";
+  userLoginFields.style.display = "block";
+});
+
+document.querySelector('[data-role="aluno"]').addEventListener("click", () => {
+  adminLoginFields.style.display = "none";
+  userLoginFields.style.display = "block";
+});
+</script>
+
+</body>
+</html>
