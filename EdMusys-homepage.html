@@ -210,50 +210,20 @@ input,select{font-family:inherit;}
 </div>
 
 <script>
-  const professoresSalvos =
-  JSON.parse(localStorage.getItem("edmusys_professores")) || [];
-
-  const roleData = {
-    administrador: ["Ana Costa", "Bruno Lima"],
-    professor: professoresSalvos.map(professor => professor.nome),
-    aluno: ["Fábio Alves", "Gabriela Moraes", "Henrique Dias"]
-  };
-
-  const roleLabels = {
-    administrador: "Selecione o administrador",
-    professor: "Selecione o professor",
-    aluno: "Selecione o aluno"
-  };
-
   const roleButtons = document.querySelectorAll(".pill-opt");
-  const selectLabel = document.getElementById("selectLabel");
-  const personSelect = document.getElementById("personSelect");
-  
-  function populateSelect(role) {
-    personSelect.innerHTML = '<option value="" selected disabled>Escolha seu nome...</option>';
-    (roleData[role] || []).forEach(name => {
-      const opt = document.createElement("option");
-      opt.value = name;
-      opt.textContent = name;
-      personSelect.appendChild(opt);
-    });
-    selectLabel.textContent = roleLabels[role];
-  }
 
   roleButtons.forEach(btn => {
     btn.addEventListener("click", () => {
       roleButtons.forEach(b => b.classList.remove("on"));
       btn.classList.add("on");
-      populateSelect(btn.dataset.role);
+
+      perfilSelecionado = btn.dataset.role || "administrador"
+
       loginError.classList.remove("show");
     });
   });
 
-
-
-  // Inicializa com professor selecionado
-  populateSelect("professor");
-
+  //iniciar com professor selecionado
   const btnAdministrador = document.getElementById("btn-administrador");
   const adminLoginFields = document.getElementById("adminLoginFields");
   const userLoginFields = document.getElementById("userLoginFields");
@@ -261,44 +231,116 @@ input,select{font-family:inherit;}
   const adminUser = document.getElementById("adminUser");
   const adminPass = document.getElementById("adminPass");
 
+  const userLogin = document.getElementById("userLogin");
+  const userPassword = document.getElementById("userPassword");
+
   const enterBtn = document.getElementById("enterBtn");
+  let perfilSelecionado = "professor";
 
   enterBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    const usuario = adminUser.value;
-    const senha = adminPass.value;
+  e.preventDefault();
 
-  const administradores =
-    JSON.parse(localStorage.getItem("edmusys_admins")) || [];
+  // LOGIN DO PROFESSOR
+  if (perfilSelecionado === "professor") {
 
-  const administradorCadastrado = administradores.some(admin => {
-    const nome = (admin.nome || "").trim().toLowerCase();
-    const email = (admin.email || "").trim().toLowerCase();
-    const cpf = (admin.cpf || "").replace(/\D/g, "");
+    const usuario = userLogin.value;
+    const senha = userPassword.value;
+
+    const professores =
+      JSON.parse(localStorage.getItem("edmusys_professores")) || [];
 
     const identificador = usuario.trim().toLowerCase();
     const cpfDigitado = usuario.replace(/\D/g, "");
 
-    return (
+    const professorLogado = professores.find(professor => {
+
+      const nome = (professor.nome || "").trim().toLowerCase();
+      const email = (professor.email || "").trim().toLowerCase();
+      const cpf = (professor.cpf || "").replace(/\D/g, "");
+
+      return (
         (
-            nome === identificador ||
-            email === identificador ||
-            (cpfDigitado.length === 11 && cpf === cpfDigitado)
+          nome === identificador ||
+          email === identificador ||
+          (cpfDigitado.length === 11 && cpf === cpfDigitado)
+        ) &&
+        professor.senha === senha
+      );
+    });
+
+    if (professorLogado) {
+
+      localStorage.setItem(
+        "edmusys_professor_logado",
+        JSON.stringify(professorLogado)
+      );
+
+      window.location.href = "portal_professor.html";
+
+    } else {
+
+      alert("Nome, CPF, e-mail ou senha incorretos!");
+
+    }
+
+    return;
+  }
+
+
+  // LOGIN DO ADMINISTRADOR
+  if (perfilSelecionado === "administrador") {
+
+    const usuario = adminUser.value;
+    const senha = adminPass.value;
+
+    const administradores =
+      JSON.parse(localStorage.getItem("edmusys_admins")) || [];
+
+    const administradorCadastrado = administradores.some(admin => {
+
+      const nome = (admin.nome || "").trim().toLowerCase();
+      const email = (admin.email || "").trim().toLowerCase();
+      const cpf = (admin.cpf || "").replace(/\D/g, "");
+
+      const identificador = usuario.trim().toLowerCase();
+      const cpfDigitado = usuario.replace(/\D/g, "");
+
+      return (
+        (
+          nome === identificador ||
+          email === identificador ||
+          (cpfDigitado.length === 11 && cpf === cpfDigitado)
         ) &&
         admin.senha === senha
-    );
-  });
+      );
+    });
 
-if (
-    (usuario === "admin" && senha === "admin") ||
-    administradorCadastrado
-) {
-    localStorage.setItem("adminLogado", "true");
-    window.location.href = "index.html";
-} else {
-    alert("Usuário ou senha incorretos!");
-}
+    if (
+      (usuario === "admin" && senha === "admin") ||
+      administradorCadastrado
+    ) {
+
+      localStorage.setItem("adminLogado", "true");
+
+      window.location.href = "index.html";
+
+    } else {
+
+      alert("Usuário ou senha incorretos!");
+
+    }
+
+    return;
+  }
+
+
+  // ALUNO — ainda será implementado
+  if (perfilSelecionado === "aluno") {
+    alert("Login de aluno ainda não implementado.");
+  }
+
 });
+
 
   btnAdministrador.addEventListener("click", () => {
     adminLoginFields.style.display = "block";
