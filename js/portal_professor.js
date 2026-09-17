@@ -28,7 +28,7 @@ const maskPhone = v => {
 
 // ── DATA (mirrors script.js seed) ─────────────────────────────
 let alunos = [];
-let professores = [];
+let professores = JSON.parse(localStorage.getItem("edmusys_professores")) || [];
 let horarios = [];
 
 function sidebar(activeTab) {
@@ -75,6 +75,7 @@ function toggleSidebar(){
 
 // ── LOGIN ──────────────────────────────────────────────
 const sel = document.getElementById('sel-prof');
+console.log("Professores carregados:", professores);
 professores.forEach(p => {
   const o = document.createElement('option');
   o.value = p.id; o.textContent = p.nome;
@@ -86,18 +87,6 @@ let currentTab = 'horarios';
 let selectedDay = 'Segunda';
 
 function doLogin() {
-
-  // Cria um professor temporário apenas para testes
-  if (professores.length === 0) {
-    professores.push({
-      id: 'teste',
-      nome: 'Professor de Teste',
-      telefone: '(84) 99999-9999',
-      email: 'professor@teste.com',
-      instrumento: 'Violão',
-      nascimento: '01/01/2000'
-    });
-  }
 
   // Entra automaticamente com o primeiro professor
   currentProfId = professores[0].id;
