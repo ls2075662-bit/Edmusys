@@ -212,6 +212,7 @@ input,select{font-family:inherit;}
 <script>
   const roleButtons = document.querySelectorAll(".pill-opt");
   const loginError = document.getElementById("loginError");
+  let perfilSelecionado = "professor";
 
   roleButtons.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -236,7 +237,6 @@ input,select{font-family:inherit;}
   const userPassword = document.getElementById("userPassword");
 
   const enterBtn = document.getElementById("enterBtn");
-  let perfilSelecionado = "professor";
 
   enterBtn.addEventListener("click", (e) => {
   e.preventDefault();
@@ -334,11 +334,51 @@ input,select{font-family:inherit;}
     return;
   }
 
+  // LOGIN DO ALUNO
+if (perfilSelecionado === "aluno") {
 
-  // ALUNO — ainda será implementado
-  if (perfilSelecionado === "aluno") {
-    alert("Login de aluno ainda não implementado.");
-  }
+const usuario = userLogin.value;
+const senha = userPassword.value;
+
+const alunos =
+  JSON.parse(localStorage.getItem("edmusys_alunos")) || [];
+
+const identificador = usuario.trim().toLowerCase();
+const cpfDigitado = usuario.replace(/\D/g, "");
+
+const alunoLogado = alunos.find(aluno => {
+
+  const nome = (aluno.nome || "").trim().toLowerCase();
+  const email = (aluno.email || "").trim().toLowerCase();
+  const cpf = (aluno.cpf || "").replace(/\D/g, "");
+
+  return (
+    (
+      nome === identificador ||
+      email === identificador ||
+      (cpfDigitado.length === 11 && cpf === cpfDigitado)
+    ) &&
+    aluno.senha === senha
+  );
+});
+
+if (alunoLogado) {
+
+  localStorage.setItem(
+    "edmusys_aluno_logado",
+    JSON.stringify(alunoLogado)
+  );
+
+  window.location.href = "portal_aluno.html";
+
+} else {
+
+  alert("Nome, CPF, e-mail ou senha incorretos!");
+
+}
+
+return;
+}
 
 });
 
