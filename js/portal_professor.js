@@ -74,38 +74,22 @@ function toggleSidebar(){
 
 
 // ── LOGIN ──────────────────────────────────────────────
-const sel = document.getElementById('sel-prof');
-console.log("Professores carregados:", professores);
-professores.forEach(p => {
-  const o = document.createElement('option');
-  o.value = p.id; o.textContent = p.nome;
-  sel.appendChild(o);
-});
+
 
 let currentProfId = null;
+
+let currentTab = 'horarios';
+let selectedDay = 'Segunda';
 
 const professorLogado =
   JSON.parse(localStorage.getItem("edmusys_professor_logado"));
 
 if (!professorLogado) {
   window.location.href = "EdMusys-home-page.html";
-}
-
-let currentTab = 'horarios';
-let selectedDay = 'Segunda';
-
-function doLogin() {
-
-  // Entra automaticamente com o primeiro professor
+} else {
   currentProfId = professorLogado.id;
-
-  // Esconde o login
   document.getElementById('login-screen').classList.add('hidden');
-
-  // Mostra o portal
   document.getElementById('app').classList.remove('hidden');
-
-  // Carrega o sistema
   render();
 }
 
