@@ -27,9 +27,9 @@ const maskPhone = v => {
 };
 
 // ── DATA (mirrors script.js seed) ─────────────────────────────
-let alunos = [];
-let professores = [];
-let horarios = [];
+let alunos = JSON.parse(localStorage.getItem("edmusys_alunos")) || [];
+let professores = JSON.parse(localStorage.getItem("edmusys_professores")) || [];
+let horarios = JSON.parse(localStorage.getItem("edmusys_horarios")) || [];
 
 function sidebar(activeTab) {
   return `<aside class="sidebar" id="sidebar">
@@ -73,43 +73,42 @@ function toggleSidebar(){
 }
 
 
-const sel = document.getElementById('sel-aluno');
-alunos.forEach(a => {
-  const o = document.createElement('option');
-  o.value = a.id; o.textContent = a.nome;
-  sel.appendChild(o);
-});
+
 
 let currentAlunoId = null;
 let currentTab = 'agenda';
 let selectedDay = 'Segunda';
 
-function doLogin() {
+const alunoLogado =
+  JSON.parse(localStorage.getItem("edmusys_aluno_logado"));
 
-    // Se não existir aluno, cria um usuário temporário para teste
-    if (alunos.length === 0) {
-        alunos.push({
-            id: 'teste',
-            nome: 'Aluno de Teste',
-            telefone: '(84) 99999-9999',
-            email: 'teste@email.com',
-            instrumento: 'Violão',
-            plano: 1,
-            pago: true,
-            nascimento: '01/01/2000'
-        });
+  function doLogin() {
+
+    if (!alunoLogado) {
+      window.location.href = "EdMusys-homepage.html";
+      return;
     }
-
-    // Seleciona o primeiro aluno
-    currentAlunoId = alunos[0].id;
-
-    // Entra no portal
+  
+    const alunoEncontrado =
+      alunos.find(aluno => aluno.id === alunoLogado.id);
+  
+    if (!alunoEncontrado) {
+      localStorage.removeItem("edmusys_aluno_logado");
+      window.location.href = "EdMusys-homepage.html";
+      return;
+    }
+  
+    currentAlunoId = alunoEncontrado.id;
+  
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
-
-    // Renderiza
+  
     render();
-}
+  }
+
+  if (alunoLogado) {
+    doLogin();
+  }
 
 function showTab(t) { currentTab = t; render(); }
 
