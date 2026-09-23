@@ -86,8 +86,23 @@ input,select{font-family:inherit;}
 
 .novo-usuario{
   display:block;
-  width:fit-content;
-  margin:6px auto 0;
+  width:100%;
+  margin:2px auto 0;
+  padding:12px;
+  border:1.5px solid var(--gold-deep);
+  border-radius:var(--radius-md);
+  background:transparent;
+  color:var(--black);
+  font-family:var(--font-body);
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .15s ease;
+}
+
+.novo-usuario:hover{
+  background:var(--gold-pale);
+  transform:translateY(-1px);
 }
 
 /* ============ IField component ============ */
