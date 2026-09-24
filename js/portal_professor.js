@@ -27,9 +27,9 @@ const maskPhone = v => {
 };
 
 // ── DATA (mirrors script.js seed) ─────────────────────────────
-let alunos = [];
+let alunos = JSON.parse(localStorage.getItem("edmusys_alunos")) || [];
 let professores = JSON.parse(localStorage.getItem("edmusys_professores")) || [];
-let horarios = [];
+let horarios = JSON.parse(localStorage.getItem("edmusys_horarios")) || [];
 
 function sidebar(activeTab) {
   return `<aside class="sidebar" id="sidebar">
@@ -66,38 +66,32 @@ function sidebarAluno(activeTab) {
   </aside>`;
 }
 
-function goHome(){ window.location.href='index.html'; }
-function doLogout(){ window.location.href='index.html'; }
+function goHome(){ window.location.href='EdMusys-homepage.html'; }
+function doLogout(){
+  localStorage.removeItem("edmusys_professor_logado");
+  window.location.href = "Edmusys-homepage.html";
+}
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
 }
 
 
 // ── LOGIN ──────────────────────────────────────────────
-const sel = document.getElementById('sel-prof');
-console.log("Professores carregados:", professores);
-professores.forEach(p => {
-  const o = document.createElement('option');
-  o.value = p.id; o.textContent = p.nome;
-  sel.appendChild(o);
-});
+
 
 let currentProfId = null;
+
 let currentTab = 'horarios';
 let selectedDay = 'Segunda';
 
-function doLogin() {
+const professorLogado =
+  JSON.parse(localStorage.getItem("edmusys_professor_logado"));
 
-  // Entra automaticamente com o primeiro professor
-  currentProfId = professores[0].id;
-
-  // Esconde o login
-  document.getElementById('login-screen').classList.add('hidden');
-
-  // Mostra o portal
+if (!professorLogado) {
+  window.location.href = "EdMusys-homepage.html";
+} else {
+  currentProfId = professorLogado.id;
   document.getElementById('app').classList.remove('hidden');
-
-  // Carrega o sistema
   render();
 }
 

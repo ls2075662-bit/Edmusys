@@ -35,13 +35,30 @@ const PLANOS = {1:{label:'1x / semana', valor:60}, 2:{label:'2x / semana', valor
    professores e horários da escola.
    ============================================================ */
 let uid = 1000;
-const nextId = () => (++uid).toString(36);
+const nextId = () => {
+  let id;
 
-let alunos = [];
+  const alunosExistentes =
+      JSON.parse(localStorage.getItem("edmusys_alunos")) || [];
 
-let professores = [];
+    const professoresExistentes =
+    JSON.parse(localStorage.getItem("edmusys_professores")) || [];
 
-let horarios = [];
+    do {
+      id = (++uid).toString(36);
+    } while (
+      alunosExistentes.some(a => a.id === id) ||
+      professoresExistentes.some(p => p.id === id)
+    );
+  
+    return id;
+  };
+
+let alunos = JSON.parse(localStorage.getItem("edmusys_alunos")) || [];
+
+let professores = JSON.parse(localStorage.getItem("edmusys_professores")) || [];
+
+let horarios = JSON.parse(localStorage.getItem("edmusys_horarios")) || [];
 
 /* ============================================================
    ESTADO DA APLICAÇÃO
@@ -56,6 +73,17 @@ let state = {
 
 const $ = (sel,root=document)=>root.querySelector(sel);
 const $$ = (sel,root=document)=>[...root.querySelectorAll(sel)];
+
+function protegerPainel() {
+  if (localStorage.getItem("adminLogado") !== "true") {
+    window.location.replace("EdMusys-homepage.html");
+  }
+}
+
+protegerPainel();
+
+window.addEventListener("pageshow", protegerPainel);
+
 const escapeHtml = (s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const initials = (name='')=> name.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
 
@@ -92,109 +120,12 @@ function ifield({id, label, icon, type='text', value='', placeholder='', dark=fa
 }
 
 /* ============================================================
-   LOGIN
-   ============================================================ */
-const loginUser = $('#login-user');
-const loginPass = $('#login-pass');
-
-[loginUser, loginPass].forEach(inp => {
-  inp.addEventListener('input', () => {
-    const clean = inp.value.replace(/\s/g, '');
-
-    if (clean !== inp.value) {
-      inp.value = clean;
-    }
-  });
-});
-
-// ==========================================================
-// ACESSIBILIDADE DO LOGIN
-// Ao pressionar Enter no campo Usuário,
-// o foco passa automaticamente para o campo Senha.
-// ==========================================================
-
-loginUser.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    loginPass.focus();
-  }
-});
-
-$('#login-form').addEventListener('submit', e => {
-
-  e.preventDefault();
-
-  const u = loginUser.value.trim().toLowerCase();
-  const p = loginPass.value.trim();
-
-  const err = $('#login-error');
-
-  const loginPadrao =
-    u === 'admin' && p === 'admin';
-
-
-  // ==========================================================
-  // BUSCAR ADMINISTRADORES CADASTRADOS
-  // ==========================================================
-
-  const administradores =
-    JSON.parse(localStorage.getItem('edmusys_admins')) || []; 
-    /**
-     * configurar para API
-     */
-
-
-  // ==========================================================
-  // VERIFICAR ADMINISTRADOR CADASTRADO
-  // ==========================================================
-
-  const administradorCadastrado =
-    administradores.some(admin =>
-      admin.email === u &&
-      admin.senha === p
-    );
-
-
-  // ==========================================================
-  // VALIDAR LOGIN
-  // ==========================================================
-
-  if (loginPadrao || administradorCadastrado) {
-
-    // Login correto
-    err.classList.remove('show');
-
-    // Esconde tela de login
-    $('#login-screen').classList.add('hidden');
-
-    // Mostra o sistema
-    $('#app').classList.remove('hidden');
-
-    // Mostra calendário
-    $('#fab-calendar').classList.remove('hidden');
-
-    // Carrega página inicial
-    renderView();
-
-  } else {
-
-    // Login incorreto
-    err.classList.add('show');
-
-  }
-
-})//atualizacao daqui pra cima//alteracoes daqui pra cima.OK
-
-/* ============================================================
    navagação do sistema-Controla logout, menu lateral, botão do menu responsivo,
    retorno à Visão Geral e abertura do calendário.
    ============================================================ */
 $('#logout-btn').addEventListener('click', ()=>{
-  $('#app').classList.add('hidden');
-  $('#fab-calendar').classList.add('hidden');
-  $('#calendar-overlay').classList.add('hidden');
-  $('#login-screen').classList.remove('hidden');
-  loginPass.value=''; loginUser.value='';
+    localStorage.removeItem("adminLogado");
+    window.location.replace("EdMusys-homepage.html");
 });
 $$('.nav-btn').forEach(btn=>btn.addEventListener('click', ()=>{
   state.view = btn.dataset.view;
@@ -392,6 +323,8 @@ function attachViewHandlers(){
     if(confirm('Excluir este aluno? As aulas vinculadas também serão removidas.')){
       alunos = alunos.filter(a=>a.id!==b.dataset.id);
       horarios = horarios.filter(h=>h.alunoId!==b.dataset.id);
+
+      localStorage.setItem("edmusys_alunos", JSON.stringify(alunos));
       renderView();
     }
   }));
@@ -399,6 +332,9 @@ function attachViewHandlers(){
     if(confirm('Excluir este professor? As aulas vinculadas também serão removidas.')){
       professores = professores.filter(p=>p.id!==b.dataset.id);
       horarios = horarios.filter(h=>h.professorId!==b.dataset.id);
+
+      localStorage.setItem("edmusys_professores", JSON.stringify(professores));
+
       renderView();
     }
   }));
@@ -408,7 +344,11 @@ function attachViewHandlers(){
   $$('[data-cancel-edit]').forEach(b=> b.addEventListener('click', ()=>{ state.editingHorarioId=null; renderView(); }));
   $$('[data-del-horario]').forEach(b=> b.addEventListener('click', ()=>{
     const id = b.dataset.delHorario;
-    if(confirm('Excluir este horário?')){ horarios = horarios.filter(h=>h.id!==id); state.editingHorarioId=null; renderView(); }
+    if(confirm('Excluir este horário?')){ 
+      horarios = horarios.filter(h=>h.id!==id); 
+      localStorage.setItem("edmusys_horarios", JSON.stringify(horarios));
+      state.editingHorarioId=null; 
+      renderView(); }
   }));
   $$('[data-save-edit]').forEach(b=> b.addEventListener('click', ()=>{
     const id = b.dataset.saveEdit;
@@ -418,6 +358,7 @@ function attachViewHandlers(){
     h.instrumento = $(`#e-instr-${id}`).value.trim() || h.instrumento;
     h.alunoId = $(`#e-aluno-${id}`).value;
     h.professorId = $(`#e-prof-${id}`).value;
+    localStorage.setItem("edmusys_horarios", JSON.stringify(horarios));
     state.editingHorarioId = null;
     renderView();
   }));
@@ -464,6 +405,7 @@ function openModalNovoAluno(){
         ${ifield({id:'na-nascimento', label:'Data de nascimento', icon:ICON.cake, type:'date'})}
         ${ifield({id:'na-telefone', label:'Telefone', icon:ICON.phone, type:'tel', placeholder:'(84) 90000-0000', errorId:'err-na-telefone'})}
         ${ifield({id:'na-email', label:'E-mail', icon:ICON.mail, type:'email', errorId:'err-na-email'})}
+        ${ifield({id:'na-senha', label:'Senha', icon:ICON.user, type:'password'})}
         ${ifield({id:'na-instrumento', label:'Instrumento', icon:ICON.music})}
         <div>
           <div class="field-group-lbl" style="margin-bottom:8px;">Dias disponíveis</div>
@@ -514,13 +456,16 @@ function openModalNovoAluno(){
       dias: selDias, horarios: selHoras,
       telefone: phoneDigits($('#na-telefone',root).value),
       email: $('#na-email',root).value.trim(),
+      senha: $('#na-senha',root).value,
       nascimento: $('#na-nascimento',root).value,
       plano: Number($('#na-plano',root).value),
       pago:false,
     };
     alunos.push(novo);
+    localStorage.setItem("edmusys_alunos", JSON.stringify(alunos));
     closeModal();
-    state.view='alunos'; renderView();
+    state.view='alunos'; 
+    renderView();
   });
 }
 
@@ -538,6 +483,7 @@ function openModalNovoProfessor(){
         ${ifield({id:'np-nascimento', label:'Data de nascimento', icon:ICON.cake, type:'date'})}
         ${ifield({id:'np-telefone', label:'Telefone', icon:ICON.phone, type:'tel', placeholder:'(84) 90000-0000', errorId:'err-np-telefone'})}
         ${ifield({id:'np-email', label:'E-mail (opcional)', icon:ICON.mail, type:'email', errorId:'err-np-email'})}
+        ${ifield({id:'np-senha', label:'Senha', icon:ICON.user, type:'password', placeholder:'Digite uma senha'})}
         ${ifield({id:'np-instrumento', label:'Especialidade', icon:ICON.music})}
         <div>
           <div class="field-group-lbl" style="margin-bottom:8px;">Dias disponíveis</div>
@@ -578,9 +524,11 @@ function openModalNovoProfessor(){
       dias: selDias, horarios: selHoras,
       telefone: phoneDigits($('#np-telefone',root).value),
       email: $('#np-email',root).value.trim(),
+      senha: $('#np-senha',root).value,
       nascimento: $('#np-nascimento',root).value,
     };
     professores.push(novo);
+    localStorage.setItem("edmusys_professores", JSON.stringify(professores));
     closeModal();
     state.view='professores'; renderView();
   });
@@ -625,6 +573,7 @@ function openModalNovoHorario(defaultDia){
       alunoId: alunoSel.value,
       professorId: $('#nh-professor',root).value,
     });
+    localStorage.setItem("edmusys_horarios", JSON.stringify(horarios));
     closeModal();
     state.view='horarios'; state.selectedDay = $('#nh-dia',root)?.value || state.selectedDay;
     renderView();
@@ -768,6 +717,7 @@ function renderAlunoProfile(id){
     a.pago = $('#pf-pago',root).checked;
     a.dias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(p=>p.dataset.val);
     a.horarios = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(p=>p.dataset.val);
+    localStorage.setItem("edmusys_alunos", JSON.stringify(alunos));
     closeProfile();
     renderView();
   });
@@ -846,6 +796,7 @@ function renderProfessorProfile(id){
     p.email = $('#qf-email',root).value.trim();
     p.dias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(pl=>pl.dataset.val);
     p.horarios = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(pl=>pl.dataset.val);
+    localStorage.setItem("edmusys_professores", JSON.stringify(professores));
     closeProfile();
     renderView();
   });
@@ -878,5 +829,7 @@ function renderCalendarOverlay(){
   cal.classList.remove('hidden');
   $('#cal-close').addEventListener('click', ()=> cal.classList.add('hidden'));
 }
+
+renderView();
 
 })();
