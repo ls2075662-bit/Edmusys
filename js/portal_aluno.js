@@ -100,7 +100,6 @@ const alunoLogado =
   
     currentAlunoId = alunoEncontrado.id;
   
-    document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
   
     render();
