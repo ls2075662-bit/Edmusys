@@ -66,10 +66,10 @@ function sidebarAluno(activeTab) {
   </aside>`;
 }
 
-function goHome(){ window.location.href='index.html'; }
+function goHome(){ window.location.href='EdMusys-homepage.html'; }
 function doLogout(){
   localStorage.removeItem("edmusys_professor_logado");
-  window.location.href = "index.html";
+  window.location.href = "Edmusys-homepage.html";
 }
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
