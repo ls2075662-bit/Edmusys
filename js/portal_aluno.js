@@ -66,7 +66,7 @@ function sidebarAluno(activeTab) {
   </aside>`;
 }
 
-function goHome(){ window.location.href='index.html'; }
+function goHome(){ window.location.href='EdMusys-homepage.html'; }
 function doLogout(){
   localStorage.removeItem("edmusys_aluno_logado");
   window.location.href = "EdMusys-homepage.html";
