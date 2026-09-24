@@ -29,7 +29,7 @@ const maskPhone = v => {
 // ── DATA (mirrors script.js seed) ─────────────────────────────
 let alunos = JSON.parse(localStorage.getItem("edmusys_alunos")) || [];
 let professores = JSON.parse(localStorage.getItem("edmusys_professores")) || [];
-let horarios = horarios = JSON.parse(localStorage.getItem("edmusys_horarios")) || [];
+let horarios = JSON.parse(localStorage.getItem("edmusys_horarios")) || [];
 
 function sidebar(activeTab) {
   return `<aside class="sidebar" id="sidebar">
