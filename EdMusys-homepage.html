@@ -218,7 +218,7 @@ input,select{font-family:inherit;}
     </div>
 
       <button type="submit" class="login-submit" id="enterBtn">Entrar no sistema</button>
-      <button type="button" class="novo-usuario" onclick="window.location.href='cadastro.html'">
+      <button type="button" class="novo-usuario" id="novoAdmin" style="display: none;" onclick="window.location.href='cadastro.html'">
       Cadastrar novo administrador
       </button>
     </form>
@@ -255,6 +255,7 @@ input,select{font-family:inherit;}
   const userPassword = document.getElementById("userPassword");
 
   const enterBtn = document.getElementById("enterBtn");
+  const novoAdminBtn = document.getElementById("novoAdmin");
 
   enterBtn.addEventListener("click", (e) => {
   e.preventDefault();
@@ -404,16 +405,19 @@ return;
   btnAdministrador.addEventListener("click", () => {
     adminLoginFields.style.display = "block";
     userLoginFields.style.display = "none";
+    novoAdminBtn.style.display = "block";
   });
 
-  document.querySelector('[data-role="professor"]').addEventListener("click", () => {
+document.querySelector('[data-role="professor"]').addEventListener("click", () => {
   adminLoginFields.style.display = "none";
   userLoginFields.style.display = "block";
+  novoAdminBtn.style.display = "none";
 });
 
 document.querySelector('[data-role="aluno"]').addEventListener("click", () => {
   adminLoginFields.style.display = "none";
   userLoginFields.style.display = "block";
+  novoAdminBtn.style.display = "none";
 });
 </script>
 
