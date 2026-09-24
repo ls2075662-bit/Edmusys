@@ -67,7 +67,10 @@ function sidebarAluno(activeTab) {
 }
 
 function goHome(){ window.location.href='index.html'; }
-function doLogout(){ window.location.href='index.html'; }
+function doLogout(){
+  localStorage.removeItem("edmusys_aluno_logado");
+  window.location.href = "EdMusys-homepage.html";
+}
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
 }
@@ -105,7 +108,9 @@ const alunoLogado =
     render();
   }
 
-  if (alunoLogado) {
+  if (!alunoLogado) {
+    window.location.href = "EdMusys-homepage.html";
+  }else{
     doLogin();
   }
 
