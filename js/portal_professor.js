@@ -88,7 +88,6 @@ if (!professorLogado) {
   window.location.href = "EdMusys-home-page.html";
 } else {
   currentProfId = professorLogado.id;
-  document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   render();
 }
