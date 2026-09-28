@@ -512,7 +512,7 @@ function openModalNovoAluno(){
   
     const ok =
       nomeInp.value.trim().length >= 3 &&
-      cpf.length > 0 &&
+      phoneDigits(cpf).length === 11 &&
       nascimento.length > 0 &&
       telefone.length === 11 &&
       email.length > 0 &&
