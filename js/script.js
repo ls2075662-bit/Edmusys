@@ -96,6 +96,62 @@ function maskPhone(v){
   return '';
 }
 function phoneDigits(v){ return (v||'').replace(/\D/g,''); }
+
+function maskCpf(v){
+  let d = (v || '').replace(/\D/g,'').slice(0,11);
+
+  if(d.length > 9){
+    return d.replace(
+      /(\d{3})(\d{3})(\d{3})(\d{0,2})/,
+      (m,a,b,c,e) => `${a}.${b}.${c}-${e}`
+    );
+  }
+
+  if(d.length > 6){
+    return d.replace(
+      /(\d{3})(\d{3})(\d{0,3})/,
+      (m,a,b,c) => `${a}.${b}.${c}`
+    );
+  }
+
+  if(d.length > 3){
+    return d.replace(
+      /(\d{3})(\d{0,3})/,
+      (m,a,b) => `${a}.${b}`
+    );
+  }
+
+  return d;
+}
+
+function configurarCpf(root, inputId, errorId){
+  const input = $(`#${inputId}`, root);
+  const erro = $(`#${errorId}`, root);
+
+  if(!input) return;
+
+  input.setAttribute('inputmode', 'numeric');
+  input.setAttribute('maxlength', '14');
+
+  input.addEventListener('input', () => {
+    const valorDigitado = input.value;
+
+    // Verifica se foi digitado algo que não seja número
+    const possuiCaracterInvalido = /[^\d.-]/.test(valorDigitado);
+
+    if(possuiCaracterInvalido){
+      erro.textContent = 'O CPF deve conter somente números.';
+      erro.style.display = 'block';
+    }else{
+      erro.textContent = '';
+      erro.style.display = 'none';
+    }
+
+    // Aplica a máscara automaticamente
+    input.value = maskCpf(valorDigitado);
+  });
+}
+
 function isValidEmail(v){
   if(!v) return true;
   return /^[^\s@]+@[^\s@]+\.com([.\w-]*)?$/i.test(v.trim());
@@ -110,7 +166,7 @@ function ifield({id, label, icon, type='text', value='', placeholder='', dark=fa
   if(options){
     control = `<select id="${id}" ${readonly?'disabled':''}>${options.map(o=>`<option value="${escapeHtml(o.value)}" ${String(o.value)===String(value)?'selected':''}>${escapeHtml(o.label)}</option>`).join('')}</select>`;
   } else {
-    control = `<input id="${id}" type="${type}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" ${readonly?'readonly':''} ${type==='tel'?'inputmode="numeric"':''} autocomplete="off">`;
+    control = `<input id="${id}" type="${type}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" ${readonly?'readonly':''} ${type==='tel'?'inputmode="numeric"':''} ${id==='np-cpf'?'maxlength="11" inputmode="numeric"':''} autocomplete="off">`;
   }
   return `<div class="${cls.join(' ')}">
     <label for="${id}">${label}</label>
@@ -401,7 +457,7 @@ function openModalNovoAluno(){
       <div class="modal-head"><h3>Novo aluno</h3><button class="modal-close" id="modal-close">${ICON.x}</button></div>
       <div class="modal-body">
         ${ifield({id:'na-nome', label:'Nome', icon:ICON.user})}
-        ${ifield({id:'np-cpf', label:'CPF', icon:ICON.user, placeholder:'000.000.000-00'})}
+        ${ifield({id:'np-cpf', label:'CPF', icon:ICON.user, placeholder:'000.000.000-00', errorId:'err-na-cpf'})}
         ${ifield({id:'na-nascimento', label:'Data de nascimento', icon:ICON.cake, type:'date'})}
         ${ifield({id:'na-telefone', label:'Telefone', icon:ICON.phone, type:'tel', placeholder:'(84) 90000-0000', errorId:'err-na-telefone'})}
         ${ifield({id:'na-email', label:'E-mail', icon:ICON.mail, type:'email', errorId:'err-na-email'})}
@@ -472,6 +528,8 @@ function openModalNovoAluno(){
   }
   nomeInp.addEventListener('input', checkValid);
   attachPhoneEmailValidation(root,'na-telefone','na-email','err-na-telefone','err-na-email', checkValid);
+
+  configurarCpf(root, 'np-cpf', 'err-na-cpf');
 
   ['np-cpf', 'na-nascimento', 'na-senha', 'na-instrumento'].forEach(id => {
     const campo = $(`#${id}`, root);
@@ -547,6 +605,8 @@ function openModalNovoProfessor(){
   }
   nomeInp.addEventListener('input', checkValid);
   attachPhoneEmailValidation(root,'np-telefone','np-email','err-np-telefone','err-np-email', checkValid);
+
+  configurarCpf(root, 'np-cpf', 'err-np-cpf');
 
   $('#np-submit',root).addEventListener('click', ()=>{
     const selDias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(p=>p.dataset.val);
