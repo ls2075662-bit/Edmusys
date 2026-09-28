@@ -433,17 +433,52 @@ function openModalNovoAluno(){
   $('#na-plano',root).addEventListener('change', ()=>{
     const v = $('#na-plano',root).value;
     $('#na-mensalidade',root).value = 'R$ ' + PLANOS[v].valor;
+    checkValid();
   });
 
   const nomeInp = $('#na-nome',root);
   function checkValid(){
-    const digits = phoneDigits($('#na-telefone',root).value);
-    const emailOk = isValidEmail($('#na-email',root).value);
-    const nomeOk = nomeInp.value.trim().length>0;
-    $('#na-submit',root).disabled = !(nomeOk && digits.length===11 && emailOk);
+    const cpf = $('#np-cpf', root).value.trim();
+    const nascimento = $('#na-nascimento', root).value;
+    const telefone = phoneDigits($('#na-telefone', root).value);
+    const email = $('#na-email', root).value.trim();
+    const senha = $('#na-senha', root).value;
+    const instrumento = $('#na-instrumento', root).value.trim();
+  
+    const diasSelecionados =
+      $$('.pill-select[data-group="dias"] .pill-opt.on', root);
+  
+    const horariosSelecionados =
+      $$('.pill-select[data-group="horas"] .pill-opt.on', root);
+  
+    const plano = $('#na-plano', root).value;
+    const mensalidade = $('#na-mensalidade', root).value.trim();
+  
+    const ok =
+      nomeInp.value.trim().length >= 3 &&
+      cpf.length > 0 &&
+      nascimento.length > 0 &&
+      telefone.length === 11 &&
+      email.length > 0 &&
+      isValidEmail(email) &&
+      senha.length > 0 &&
+      instrumento.length > 0 &&
+      diasSelecionados.length > 0 &&
+      horariosSelecionados.length > 0 &&
+      plano !== '' &&
+      mensalidade !== '';
+  
+    $('#na-submit', root).disabled = !ok;
   }
   nomeInp.addEventListener('input', checkValid);
   attachPhoneEmailValidation(root,'na-telefone','na-email','err-na-telefone','err-na-email', checkValid);
+
+  ['np-cpf', 'na-nascimento', 'na-senha', 'na-instrumento'].forEach(id => {
+    const campo = $(`#${id}`, root);
+  
+    campo.addEventListener('input', checkValid);
+    campo.addEventListener('change', checkValid);
+  });
 
   $('#na-submit',root).addEventListener('click', ()=>{
     const selDias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(p=>p.dataset.val);
