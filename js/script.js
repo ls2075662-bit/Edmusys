@@ -517,7 +517,7 @@ function openModalNovoAluno(){
       telefone.length === 11 &&
       email.length > 0 &&
       isValidEmail(email) &&
-      senha.length > 0 &&
+      senha.length >= 8 &&
       instrumento.length > 0 &&
       diasSelecionados.length > 0 &&
       horariosSelecionados.length > 0 &&
@@ -600,10 +600,12 @@ function openModalNovoProfessor(){
   function checkValid(){
     const digits = phoneDigits($('#np-telefone',root).value);
     const emailOk = isValidEmail($('#np-email',root).value);
+    const senha = $('#np-senha',root).value;
     const nomeOk = nomeInp.value.trim().length>0;
-    $('#np-submit',root).disabled = !(nomeOk && digits.length===11 && emailOk);
+    $('#np-submit',root).disabled = !(nomeOk && digits.length===11 && emailOk && senha.length>=8);
   }
   nomeInp.addEventListener('input', checkValid);
+  $('#np-senha',root).addEventListener('input', checkValid);
   attachPhoneEmailValidation(root,'np-telefone','np-email','err-np-telefone','err-np-email', checkValid);
 
   configurarCpf(root, 'np-cpf', 'err-np-cpf');
