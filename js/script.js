@@ -22,18 +22,12 @@ const ICON = {
   back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
 };
 
-/* ============================================================
-   constantes do sistema-Define dias da semana, horários disponíveis e planos
-   de mensalidade utilizados pelo sistema.
-   ============================================================ */
+/* configuração do sistema*/
 const DIAS = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
 const HORAS = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 const PLANOS = {1:{label:'1x / semana', valor:60}, 2:{label:'2x / semana', valor:120}, 3:{label:'3x / semana', valor:180}};
 
-/* ============================================================
-   dados iniciais-Contém os dados utilizados inicialmente para alunos,
-   professores e horários da escola.
-   ============================================================ */
+/* dados do sistema*/
 let uid = 1000;
 const nextId = () => {
   let id;
@@ -60,17 +54,13 @@ let professores = JSON.parse(localStorage.getItem("edmusys_professores")) || [];
 
 let horarios = JSON.parse(localStorage.getItem("edmusys_horarios")) || [];
 
-/* ============================================================
-   ESTADO DA APLICAÇÃO
-   Armazena informações temporárias sobre a tela atual,
-   dia selecionado e horário em edição.
-   ============================================================ */
+/* estado da aplicação*/
 let state = {
   view:'overview',
   selectedDay:'Segunda',
   editingHorarioId:null,
 };
-
+/* funções utilitárias */
 const $ = (sel,root=document)=>root.querySelector(sel);
 const $$ = (sel,root=document)=>[...root.querySelectorAll(sel)];
 
@@ -151,15 +141,12 @@ function configurarCpf(root, inputId, errorId){
     input.value = maskCpf(valorDigitado);
   });
 }
-
+/*validaçoes*/
 function isValidEmail(v){
   if(!v) return true;
   return /^[^\s@]+@[^\s@]+\.com([.\w-]*)?$/i.test(v.trim());
 }
 
-/* ============================================================
-   IField builder
-   ============================================================ */
 function ifield({id, label, icon, type='text', value='', placeholder='', dark=false, readonly=false, options=null, errorId=null}){
   const cls = ['ifield']; if(dark) cls.push('dark'); if(readonly) cls.push('readonly');
   let control;
@@ -175,10 +162,8 @@ function ifield({id, label, icon, type='text', value='', placeholder='', dark=fa
   </div>`;
 }
 
-/* ============================================================
-   navagação do sistema-Controla logout, menu lateral, botão do menu responsivo,
-   retorno à Visão Geral e abertura do calendário.
-   ============================================================ */
+/*navagação do sistema-Controla logout, menu lateral, botão do menu responsivo,
+   retorno à Visão Geral e abertura do calendário.*/
 $('#logout-btn').addEventListener('click', ()=>{
     localStorage.removeItem("adminLogado");
     window.location.replace("EdMusys-homepage.html");
@@ -196,9 +181,7 @@ $('#brand-btn').addEventListener('click', ()=>{
 });
 $('#fab-calendar').addEventListener('click', renderCalendarOverlay);
 
-/* ============================================================
-   VIEW ROUTER
-   ============================================================ */
+/* renderização das telas*/
 const TITLES = {
   overview:['Visão Geral','Resumo da escola de música'],
   alunos:['Alunos','Cadastro e agenda dos alunos'],
@@ -225,7 +208,7 @@ function renderView(){
   attachViewHandlers();
 }
 
-/* ---------------- OVERVIEW ---------------- */
+/* OVERVIEW */
 function viewOverview(){
   const totalMensal = alunos.reduce((s,a)=> s + (PLANOS[a.plano]?.valor||0), 0);
   const pendentes = alunos.filter(a=>!a.pago).length;
@@ -251,7 +234,7 @@ function viewOverview(){
   </div>`;
 }
 
-/* ---------------- ALUNOS ---------------- */
+/* ALUNOS */
 function viewAlunos(){
   if(alunos.length===0) return emptyState('Nenhum aluno cadastrado ainda.','btn-novo-aluno-empty','Cadastrar aluno');
   return `<div class="people-grid">${alunos.map(a=>{
@@ -276,7 +259,7 @@ function viewAlunos(){
   }).join('')}</div>`;
 }
 
-/* ---------------- PROFESSORES ---------------- */
+/*PROFESSORES */
 function viewProfessores(){
   if(professores.length===0) return emptyState('Nenhum professor cadastrado ainda.','btn-novo-professor-empty','Cadastrar professor');
   return `<div class="people-grid">${professores.map(p=>{
@@ -300,7 +283,7 @@ function viewProfessores(){
   }).join('')}</div>`;
 }
 
-/* ---------------- HORARIOS ---------------- */
+/*HORARIOS*/
 function viewHorarios(){
   const countByDay = d => horarios.filter(h=>h.dia===d).length;
   const pills = DIAS.map(d=>`<button class="day-pill ${state.selectedDay===d?'active':''}" data-day="${d}">${d} <span class="cnt">${countByDay(d)}</span></button>`).join('');
@@ -420,9 +403,7 @@ function attachViewHandlers(){
   }));
 }
 
-/* ============================================================
-   MODALS
-   ============================================================ */
+/* MODAIS*/
 function closeModal(){ $('#modal-root').innerHTML=''; }
 
 function pillGroup(name, opts, selected){
@@ -447,9 +428,7 @@ function attachPhoneEmailValidation(root, phoneId, emailId, errPhoneId, errEmail
   }
   return validate;
 }
-/**
- * botão forms adicionar novo professor
- */
+/* botão forms adicionar novo professor*/
 function openModalNovoAluno(){
   const dias=[], horas=[];
   const html = `<div class="modal-overlay" id="modal-overlay">
@@ -600,20 +579,28 @@ function openModalNovoProfessor(){
     const emailOk = isValidEmail($('#np-email',root).value);
     const senha = $('#np-senha',root).value;
     const nomeOk = nomeInp.value.trim().length>0;
-
+    const cpf = phoneDigits($('#np-cpf',root).value);
     const diasSelecionados =
   $$('.pill-select[data-group="dias"] .pill-opt.on', root);
 
-const horariosSelecionados =
-  $$('.pill-select[data-group="horas"] .pill-opt.on', root);
+const horariosSelecionados = $$('.pill-select[data-group="horas"] .pill-opt.on', root);
 
-    $('#np-submit',root).disabled = !(nomeOk && digits.length===11 && emailOk && senha.length>=8 && diasSelecionados.length>0 && horariosSelecionados.length>0);
-  }
+$('#np-submit',root).disabled = !(
+  nomeOk &&
+  cpf.length === 11 &&
+  digits.length === 11 &&
+  emailOk &&
+  senha.length >= 8 &&
+  diasSelecionados.length > 0 &&
+  horariosSelecionados.length > 0
+);
+}
   nomeInp.addEventListener('input', checkValid);
   $('#np-senha',root).addEventListener('input', checkValid);
   attachPhoneEmailValidation(root,'np-telefone','np-email','err-np-telefone','err-np-email', checkValid);
 
   configurarCpf(root, 'np-cpf', 'err-np-cpf');
+  $('#np-cpf',root).addEventListener('input', checkValid);
 
   $('#np-submit',root).addEventListener('click', ()=>{
     const selDias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(p=>p.dataset.val);
@@ -682,9 +669,7 @@ function openModalNovoHorario(defaultDia){
   });
 }
 
-/* ============================================================
-   PROFILE (FULLSCREEN)
-   ============================================================ */
+/* perfis*/
 function closeProfile(){ $('#profile-root').innerHTML=''; }
 
 function openProfile(type, id){
@@ -904,9 +889,7 @@ function renderProfessorProfile(id){
   });
 }
 
-/* ============================================================
-   CALENDAR OVERLAY
-   ============================================================ */
+/* CALENDAR OVERLAY */
 function renderCalendarOverlay(){
   const cal = $('#calendar-overlay');
   cal.innerHTML = `
