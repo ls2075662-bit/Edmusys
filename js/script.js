@@ -562,9 +562,7 @@ function openModalNovoAluno(){
   });
 }
 
-/**
- * botão forms adicionar novo professor
- */
+/*botão forms adicionar novo professor*/
 function openModalNovoProfessor(){ 
   const dias=[], horas=[];
   const html = `<div class="modal-overlay" id="modal-overlay">
@@ -594,7 +592,7 @@ function openModalNovoProfessor(){
   const root = $('#modal-root');
   $('#modal-close',root).addEventListener('click', closeModal);
   $('#modal-overlay',root).addEventListener('click', e=>{ if(e.target.id==='modal-overlay') closeModal(); });
-  $$('.pill-opt', root).forEach(p=> p.addEventListener('click', ()=>{ p.classList.toggle('on'); }));
+  $$('.pill-opt', root).forEach(p=> p.addEventListener('click', ()=>{ p.classList.toggle('on'); checkValid() }));
 
   const nomeInp = $('#np-nome',root);
   function checkValid(){
@@ -602,7 +600,14 @@ function openModalNovoProfessor(){
     const emailOk = isValidEmail($('#np-email',root).value);
     const senha = $('#np-senha',root).value;
     const nomeOk = nomeInp.value.trim().length>0;
-    $('#np-submit',root).disabled = !(nomeOk && digits.length===11 && emailOk && senha.length>=8);
+
+    const diasSelecionados =
+  $$('.pill-select[data-group="dias"] .pill-opt.on', root);
+
+const horariosSelecionados =
+  $$('.pill-select[data-group="horas"] .pill-opt.on', root);
+
+    $('#np-submit',root).disabled = !(nomeOk && digits.length===11 && emailOk && senha.length>=8 && diasSelecionados.length>0 && horariosSelecionados.length>0);
   }
   nomeInp.addEventListener('input', checkValid);
   $('#np-senha',root).addEventListener('input', checkValid);
