@@ -1,10 +1,7 @@
         (function(){
 "use strict";
 
-/* ============================================================
-   icones do sistema-Armazena os SVGs utilizados pelos botões e componentes
-   da interface para evitar repetição de código.
-   ============================================================ */
+/* 1. icones do sistema*/
 const ICON = {
   music:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
   calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
@@ -22,12 +19,12 @@ const ICON = {
   back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
 };
 
-/* configuração do sistema*/
+/* 2. constsntes do sistema*/
 const DIAS = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
 const HORAS = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 const PLANOS = {1:{label:'1x / semana', valor:60}, 2:{label:'2x / semana', valor:120}, 3:{label:'3x / semana', valor:180}};
 
-/* dados do sistema*/
+/* 3. dados e estado inicial*/
 let uid = 1000;
 const nextId = () => {
   let id;
@@ -54,13 +51,14 @@ let professores = JSON.parse(localStorage.getItem("edmusys_professores")) || [];
 
 let horarios = JSON.parse(localStorage.getItem("edmusys_horarios")) || [];
 
-/* estado da aplicação*/
+/* 4. estado da aplicação*/
 let state = {
   view:'overview',
   selectedDay:'Segunda',
   editingHorarioId:null,
 };
-/* funções utilitárias */
+
+/* 5. funções utilitárias */
 const $ = (sel,root=document)=>root.querySelector(sel);
 const $$ = (sel,root=document)=>[...root.querySelectorAll(sel)];
 
@@ -114,6 +112,7 @@ function maskCpf(v){
   return d;
 }
 
+/*06. validações */
 function configurarCpf(root, inputId, errorId){
   const input = $(`#${inputId}`, root);
   const erro = $(`#${errorId}`, root);
@@ -141,7 +140,7 @@ function configurarCpf(root, inputId, errorId){
     input.value = maskCpf(valorDigitado);
   });
 }
-/*validaçoes*/
+
 function isValidEmail(v){
   if(!v) return true;
   return /^[^\s@]+@[^\s@]+\.com([.\w-]*)?$/i.test(v.trim());
