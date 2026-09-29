@@ -62,16 +62,6 @@ let state = {
 const $ = (sel,root=document)=>root.querySelector(sel);
 const $$ = (sel,root=document)=>[...root.querySelectorAll(sel)];
 
-function protegerPainel() {
-  if (localStorage.getItem("adminLogado") !== "true") {
-    window.location.replace("EdMusys-homepage.html");
-  }
-}
-
-protegerPainel();
-
-window.addEventListener("pageshow", protegerPainel);
-
 const escapeHtml = (s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const initials = (name='')=> name.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
 
@@ -112,7 +102,20 @@ function maskCpf(v){
   return d;
 }
 
-/*06. validações */
+/* 6. segurança e navegação global */
+function protegerPainel() {
+  if (localStorage.getItem("adminLogado") !== "true") {
+    window.location.replace("EdMusys-homepage.html");
+  }
+}
+
+protegerPainel();
+
+window.addEventListener("pageshow", protegerPainel);
+
+
+
+/*7. validações */
 function configurarCpf(root, inputId, errorId){
   const input = $(`#${inputId}`, root);
   const erro = $(`#${errorId}`, root);
@@ -146,6 +149,7 @@ function isValidEmail(v){
   return /^[^\s@]+@[^\s@]+\.com([.\w-]*)?$/i.test(v.trim());
 }
 
+/* 8. componentes html */
 function ifield({id, label, icon, type='text', value='', placeholder='', dark=false, readonly=false, options=null, errorId=null}){
   const cls = ['ifield']; if(dark) cls.push('dark'); if(readonly) cls.push('readonly');
   let control;
