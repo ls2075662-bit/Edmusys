@@ -65,12 +65,22 @@
   .scr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
   :focus-visible { outline: 2px solid var(--gold-deep); outline-offset: 2px; }
   
-  /*3. APP SHELL & ESTRUTURA GERAL*/
+  /*3. APP SHELL & ESTRUTURA GERAL (MENU FIXO)*/
   #app { display: flex; min-height: 100vh; }
   
   .sidebar {
-    width: 236px; flex-shrink: 0; background: var(--black); color: var(--cream);
-    display: flex; flex-direction: column; padding: 22px 16px; position: sticky; top: 0; height: 100vh;
+    width: 236px;
+    flex-shrink: 0;
+    background: var(--black);
+    color: var(--cream);
+    display: flex;
+    flex-direction: column;
+    padding: 22px 16px;
+    position: fixed; /* Trava o menu na tela permanentemente */
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 50;
   }
   
   .brand-btn {
@@ -99,7 +109,14 @@
   .logout-btn:hover { background: var(--black-elev); color: var(--danger);}
   .logout-btn svg { width: 15px; height: 15px;}
   
-  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; position: relative;}
+  .main { 
+    flex: 1; 
+    min-width: 0; 
+    margin-left: 236px; /* Offset para respeitar a largura da sidebar fixa */
+    display: flex; 
+    flex-direction: column; 
+    position: relative;
+  }
   
   /* TOPBAR */
   .topbar {
@@ -297,12 +314,15 @@
     background: var(--bg-surface); color: var(--text-main); border-radius: var(--radius-lg); width: 100%; max-width: 440px; max-height: 88vh;
     overflow-y: auto; box-shadow: var(--shadow-pop); border: 1px solid var(--border-main);
   }
-  .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 22px; border-bottom: 1px solid var(--border-main); position: sticky; top: 0; background: var(--bg-surface);}
+  .modal.modal-wide { max-width: 580px; }
+  .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 22px; border-bottom: 1px solid var(--border-main); position: sticky; top: 0; background: var(--bg-surface); z-index: 2;}
   .modal-head h3 { font-family: var(--font-display); font-size: 19px; color: var(--text-main);}
   .modal-close { background: none; border: none; color: var(--text-sub); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%;}
   .modal-close:hover { background: var(--black-elev); color: var(--text-main);}
   .modal-close svg { width: 17px; height: 17px;}
   .modal-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px;}
+  .modal-foot { padding: 16px 22px; border-top: 1px solid var(--border-main); display: flex; align-items: center; justify-content: flex-end; gap: 10px; background: var(--bg-surface); position: sticky; bottom: 0; z-index: 2;}
+  .modal-foot-between { justify-content: space-between; }
   
   /*7. REGRAS RESPONSIVAS (MEDIA QUERIES)*/
   @media (max-width: 900px) {
@@ -310,8 +330,15 @@
   }
   
   @media (max-width: 860px) {
-    .sidebar { position: fixed; z-index: 50; transform: translateX(-100%); transition: transform .2s ease; box-shadow: var(--shadow-pop);}
+    .sidebar { 
+      position: fixed; 
+      z-index: 50; 
+      transform: translateX(-100%); 
+      transition: transform .2s ease; 
+      box-shadow: var(--shadow-pop);
+    }
     .sidebar.open { transform: translateX(0);}
+    .main { margin-left: 0; }
     .topbar { padding: 18px 18px;}
     .view { padding: 20px 18px 60px;}
     .menu-toggle { display: flex !important;}
@@ -321,7 +348,7 @@
   .menu-toggle { display: none; background: var(--black); color: var(--gold); border: none; width: 38px; height: 38px; border-radius: var(--radius-sm); align-items: center; justify-content: center;}
   .menu-toggle svg { width: 18px; height: 18px;}
   
-  /*8. ESTILOS DO MODAL DE EDIÇÃO DO PERFIL (RECTÂNGULO CENTRAL)*/
+  /*8. ESTILOS DO MODAL DE EDIÇÃO DO PERFIL*/
   #profile-root:not(:empty) {
     position: fixed;
     inset: 0;
@@ -355,7 +382,6 @@
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
   
-  /* Restrição estrita de tamanho de SVGs dentro do perfil para não estourarem */
   .profile-head svg,
   .profile-panel svg,
   .ifield .icontainer svg {
