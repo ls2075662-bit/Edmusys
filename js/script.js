@@ -1,9 +1,7 @@
 (function () {
   "use strict";
 
-  /* ============================================================
-     1. CONSTANTES E CONFIGURAÇÕES GLOBAIS
-     ============================================================ */
+  /* 1. CONSTANTES E CONFIGURAÇÕES GLOBAIS*/
   const ICON = {
     music: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
     calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
@@ -25,9 +23,7 @@
   const HORAS = ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
   const PLANOS = { 1: { label: '1x / semana', valor: 60 }, 2: { label: '2x / semana', valor: 120 }, 3: { label: '3x / semana', valor: 180 } };
 
-  /* ============================================================
-     2. ESTADO DA APLICAÇÃO E DADOS DE ARMAZENAMENTO
-     ============================================================ */
+  /*2. ESTADO DA APLICAÇÃO E DADOS DE ARMAZENAMENTO*/
   let uid = 1000;
   let alunos = JSON.parse(localStorage.getItem("edmusys_alunos")) || [];
   let professores = JSON.parse(localStorage.getItem("edmusys_professores")) || [];
@@ -52,9 +48,7 @@
 
   const saveData = (key, val) => localStorage.setItem(key, JSON.stringify(val));
 
-  /* ============================================================
-     3. UTILITÁRIOS, MÁSCARAS E VALIDAÇÕES
-     ============================================================ */
+  /*3. UTILITÁRIOS, MÁSCARAS E VALIDAÇÕES*/
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
@@ -135,9 +129,7 @@
     return validate;
   }
 
-  /* ============================================================
-     4. GERENCIAMENTO DE TEMA (DARK / LIGHT MODE)
-     ============================================================ */
+  /*4. GERENCIAMENTO DE TEMA (DARK / LIGHT MODE)*/
   const themeToggleBtn = document.getElementById('theme-toggle');
   const themeToggleIcon = document.getElementById('theme-toggle-icon');
   const themeToggleText = document.getElementById('theme-toggle-text');
@@ -164,18 +156,14 @@
     }
   }
 
-  /* ============================================================
-     5. SEGURANÇA E GERENCIAMENTO DE NAVEGAÇÃO
-     ============================================================ */
+  /*5. SEGURANÇA E GERENCIAMENTO DE NAVEGAÇÃO*/
   function protegerPainel() {
     if (localStorage.getItem("adminLogado") !== "true") {
       window.location.replace("EdMusys-homepage.html");
     }
   }
 
-  /* ============================================================
-     6. COMPONENTES E REUTILIÇÃO HTML
-     ============================================================ */
+  /*6. COMPONENTES E REUTILIÇÃO HTML*/
   function ifield({ id, label, icon, type = 'text', value = '', placeholder = '', dark = false, readonly = false, options = null, errorId = null }) {
     const cls = ['ifield']; if (dark) cls.push('dark'); if (readonly) cls.push('readonly');
     let control;
@@ -199,9 +187,7 @@
     return `<div class="empty-state">${ICON.calendar}<p>${msg}</p><button class="btn btn-dark" id="${btnId}">${ICON.plus} ${btnLabel}</button></div>`;
   }
 
-  /* ============================================================
-     7. RENDERS DAS VISÕES (OVERVIEW, ALUNOS, PROFESSORES, HORÁRIOS)
-     ============================================================ */
+  /*7. RENDERS DAS VISÕES (OVERVIEW, ALUNOS, PROFESSORES, HORÁRIOS)*/
   const TITLES = {
     overview: ['Visão Geral', 'Resumo da escola de música'],
     alunos: ['Alunos', 'Cadastro e agenda dos alunos'],
@@ -358,9 +344,7 @@
     </div>`;
   }
 
-  /* ============================================================
-     8. MANIPULADORES DE EVENTOS DAS VISÕES
-     ============================================================ */
+  /*8. MANIPULADORES DE EVENTOS DAS VISÕES*/
   function attachViewHandlers() {
     $('#btn-novo-aluno')?.addEventListener('click', () => openModalNovoAluno());
     $('#btn-novo-aluno-empty')?.addEventListener('click', () => openModalNovoAluno());
@@ -380,28 +364,36 @@
     }));
 
     $$('.del-professor').forEach(b => b.addEventListener('click', () => {       if (confirm('Excluir este professor? As aulas vinculadas também serão removidas.')) {         professores = professores.filter(p => p.id !== b.dataset.id);         horarios = horarios.filter(h => h.professorId !== b.dataset.id);         saveData("edmusys_professores", professores);         saveData("edmusys_horarios", horarios);         renderView();       }     }));      $$
-('.day-pill').forEach(b => b.addEventListener('click', () => { state.selectedDay = b.dataset.day; state.editingHorarioId = null; renderView(); }));
-    $$('[data-edit-horario]').forEach(b => b.addEventListener('click', () => { state.editingHorarioId = b.dataset.editHorario; renderView(); }));$$
-('[data-cancel-edit]').forEach(b => b.addEventListener('click', () => { state.editingHorarioId = null; renderView(); }));
+('.day-pill').forEach(b => b.addEventListener('click', () => {
+      state.selectedDay = b.dataset.day;
+      state.editingHorarioId = null;
+      renderView();
+    }));
+
+    $$('[data-edit-horario]').forEach(b => b.addEventListener('click', () => {       state.editingHorarioId = b.dataset.editHorario;       renderView();     }));      $$
+('[data-cancel-edit]').forEach(b => b.addEventListener('click', () => {
+      state.editingHorarioId = null;
+      renderView();
+    }));
 
     $$('[data-del-horario]').forEach(b => b.addEventListener('click', () => {       const id = b.dataset.delHorario;       if (confirm('Excluir este horário?')) {         horarios = horarios.filter(h => h.id !== id);         saveData("edmusys_horarios", horarios);         state.editingHorarioId = null;         renderView();       }     }));      $$
 ('[data-save-edit]').forEach(b => b.addEventListener('click', () => {
       const id = b.dataset.saveEdit;
       const h = horarios.find(x => x.id === id);
-      h.hora = $(`#e-hora-${id}`).value || h.hora;
-      h.dia = $(`#e-dia-${id}`).value;
-      h.instrumento = $(`#e-instr-${id}`).value.trim() || h.instrumento;
-      h.alunoId = $(`#e-aluno-${id}`).value;
-      h.professorId = $(`#e-prof-${id}`).value;
-      saveData("edmusys_horarios", horarios);
+      if (h) {
+        h.hora = $(`#e-hora-${id}`).value || h.hora;
+        h.dia = $(`#e-dia-${id}`).value;
+        h.instrumento = $(`#e-instr-${id}`).value.trim() || h.instrumento;
+        h.alunoId = $(`#e-aluno-${id}`).value;
+        h.professorId = $(`#e-prof-${id}`).value;
+        saveData("edmusys_horarios", horarios);
+      }
       state.editingHorarioId = null;
       renderView();
     }));
   }
 
-  /* ============================================================
-     9. MODAIS DE CADASTRO
-     ============================================================ */
+  /*9. MODAIS DE CADASTRO*/
   function closeModal() { $('#modal-root').innerHTML = ''; }
 
   function openModalNovoAluno() {
@@ -540,7 +532,7 @@
     $('#modal-root').innerHTML = html;
     const root = $('#modal-root');
     $('#modal-close', root).addEventListener('click', closeModal);
-    $('#modal-overlay', root).addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });     $$('.pill-opt', root).forEach(p => p.addEventListener('click', () => { p.classList.toggle('on'); checkValid(); }));
+    $('#modal-overlay', root).addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });      $$('.pill-opt', root).forEach(p => p.addEventListener('click', () => { p.classList.toggle('on'); checkValid(); }));
 
     const nomeInp = $('#np-nome', root);
 
@@ -643,9 +635,7 @@
     });
   }
 
-  /* ============================================================
-     10. PAINÉIS DE PERFIL
-     ============================================================ */
+  /*10. PAINÉIS DE PERFIL (EDITAR DADOS)*/
   function closeProfile() { $('#profile-root').innerHTML = ''; }
 
   function openProfile(type, id) {
@@ -658,12 +648,12 @@
     if (!a) return;
     const html = `<div id="profile-overlay">
       <div class="profile-head">
-        <button class="profile-back" id="profile-back">${ICON.back}</button>
+        <button class="profile-back" id="profile-back" aria-label="Voltar">${ICON.back}</button>
         <div class="profile-id">
           <div class="profile-avatar">${initials(a.nome)}</div>
           <div>
             <h2>${escapeHtml(a.nome)}</h2>
-            <span class="badge">${PLANOS[a.plano].label}</span>
+            <span class="badge">${PLANOS[a.plano]?.label || '1x / semana'}</span>
           </div>
         </div>
       </div>
@@ -685,18 +675,18 @@
           </div>
           <div class="field-row">
             ${ifield({ id: 'pf-plano', label: 'Plano', icon: ICON.tag, options: Object.entries(PLANOS).map(([k, v]) => ({ value: k, label: v.label })), value: a.plano })}
-            ${ifield({ id: 'pf-mensalidade', label: 'Mensalidade', icon: ICON.cash, readonly: true, value: 'R$ ' + PLANOS[a.plano].valor })}
+            ${ifield({ id: 'pf-mensalidade', label: 'Mensalidade', icon: ICON.cash, readonly: true, value: 'R$ ' + (PLANOS[a.plano]?.valor || 60) })}
           </div>
         </div>
         <div class="profile-panel">
           <h4>${ICON.calendar} Disponibilidade</h4>
           <div class="field-group-lbl" style="margin-bottom:8px;">Dias disponíveis</div>
-          ${pillGroup('dias', DIAS, a.dias)}
+          ${pillGroup('dias', DIAS, a.dias || [])}
           <div class="field-group-lbl" style="margin:16px 0 8px;">Horários disponíveis</div>
-          ${pillGroup('horas', HORAS, a.horarios)}
+          ${pillGroup('horas', HORAS, a.horarios || [])}
         </div>
         <div class="profile-save-bar">
-          <button class="btn btn-dark" id="pf-save" disabled>Salvar alterações</button>
+          <button class="btn btn-gold" id="pf-save" disabled>Salvar alterações</button>
         </div>
       </div>
     </div>`;
@@ -707,8 +697,12 @@
 
     const saveBtn = $('#pf-save', root);
     function markDirty() { saveBtn.disabled = false; }
-    $$('input, select', root).forEach(inp => { inp.addEventListener('input', markDirty); inp.addEventListener('change', markDirty); });$$
-('.pill-opt', root).forEach(p => p.addEventListener('click', () => { p.classList.toggle('on'); markDirty(); }));
+    
+    $$('input, select', root).forEach(inp => {        inp.addEventListener('input', markDirty);        inp.addEventListener('change', markDirty);      });$$
+('.pill-opt', root).forEach(p => p.addEventListener('click', () => { 
+      p.classList.toggle('on'); 
+      markDirty(); 
+    }));
 
     configurarCpf(root, 'pf-cpf', 'err-pf-cpf');
     attachPhoneEmailValidation(root, 'pf-telefone', 'pf-email', 'err-pf-telefone', 'err-pf-email', markDirty);
@@ -716,6 +710,7 @@
     $('#pf-plano', root).addEventListener('change', () => {
       const v = $('#pf-plano', root).value;
       $('#pf-mensalidade', root).value = 'R$ ' + PLANOS[v].valor;
+      markDirty();
     });
 
     saveBtn.addEventListener('click', () => {
@@ -738,7 +733,7 @@
     if (!p) return;
     const html = `<div id="profile-overlay">
       <div class="profile-head">
-        <button class="profile-back" id="profile-back">${ICON.back}</button>
+        <button class="profile-back" id="profile-back" aria-label="Voltar">${ICON.back}</button>
         <div class="profile-id">
           <div class="profile-avatar">${initials(p.nome)}</div>
           <div>
@@ -752,7 +747,7 @@
           <h4>${ICON.user} Dados pessoais</h4>
           <div class="field-row">
             ${ifield({ id: 'qf-nome', label: 'Nome completo', icon: ICON.user, value: p.nome })}
-            ${ifield({ id: 'qf-cpf', label: 'CPF', icon: ICON.user, value: p.cpf, placeholder: '000.000.000-00', errorId: 'err-qf-cpf' })}
+            ${ifield({ id: 'qf-cpf', label: 'CPF', icon: ICON.user, value: p.cpf || '', placeholder: '000.000.000-00', errorId: 'err-qf-cpf' })}
             ${ifield({ id: 'qf-instrumento', label: 'Instrumento / especialidade', icon: ICON.music, value: p.instrumento })}
           </div>
           <div class="field-row">
@@ -766,12 +761,12 @@
         <div class="profile-panel">
           <h4>${ICON.calendar} Disponibilidade</h4>
           <div class="field-group-lbl" style="margin-bottom:8px;">Dias disponíveis</div>
-          ${pillGroup('dias', DIAS, p.dias)}
+          ${pillGroup('dias', DIAS, p.dias || [])}
           <div class="field-group-lbl" style="margin:16px 0 8px;">Horários disponíveis</div>
-          ${pillGroup('horas', HORAS, p.horarios)}
+          ${pillGroup('horas', HORAS, p.horarios || [])}
         </div>
         <div class="profile-save-bar">
-          <button class="btn btn-dark" id="qf-save" disabled>Salvar alterações</button>
+          <button class="btn btn-gold" id="qf-save" disabled>Salvar alterações</button>
         </div>
       </div>
     </div>`;
@@ -782,8 +777,12 @@
 
     const saveBtn = $('#qf-save', root);
     function markDirty() { saveBtn.disabled = false; }
-    $$('input, select', root).forEach(inp => { inp.addEventListener('input', markDirty); inp.addEventListener('change', markDirty); });$$
-('.pill-opt', root).forEach(pl => pl.addEventListener('click', () => { pl.classList.toggle('on'); markDirty(); }));
+    
+    $$('input, select', root).forEach(inp => {        inp.addEventListener('input', markDirty);        inp.addEventListener('change', markDirty);      });$$
+('.pill-opt', root).forEach(pl => pl.addEventListener('click', () => { 
+      pl.classList.toggle('on'); 
+      markDirty(); 
+    }));
 
     configurarCpf(root, 'qf-cpf', 'err-qf-cpf');
     attachPhoneEmailValidation(root, 'qf-telefone', 'qf-email', 'err-qf-telefone', 'err-qf-email', markDirty);
@@ -802,9 +801,7 @@
     });
   }
 
-  /* ============================================================
-     11. OVERLAYS E CALENDÁRIO
-     ============================================================ */
+  /*11. OVERLAYS E CALENDÁRIO*/
   function renderCalendarOverlay() {
     const cal = $('#calendar-overlay');
     cal.innerHTML = `
@@ -830,9 +827,7 @@
     $('#cal-close').addEventListener('click', () => cal.classList.add('hidden'));
   }
 
-  /* ============================================================
-     12. INICIALIZAÇÃO DOS EVENTOS GLOBAIS E EXECUÇÃO
-     ============================================================ */
+  /*12. INICIALIZAÇÃO DOS EVENTOS GLOBAIS E EXECUÇÃO*/
   function init() {
     protegerPainel();
     window.addEventListener("pageshow", protegerPainel);
