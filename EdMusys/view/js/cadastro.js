@@ -1,0 +1,237 @@
+const form = document.getElementById("formCadastro"); 
+    const cpfInput = document.getElementById("cpf");
+    const senha = document.getElementById("senha"); 
+    const confirmarSenha = document.getElementById("confirmarSenha"); 
+    const mensagem = document.getElementById("mensagem");
+    const erroCpf = document.getElementById("erroCpf");
+
+    // ==========================================================
+// VALIDAÇÃO DO CPF
+// ==========================================================
+
+// Remove pontos, traços e qualquer outro caractere
+function limparCPF(cpf) {
+  return cpf.replace(/\D/g, "");
+}
+
+
+// Verifica se o CPF possui uma sequência repetida,
+// como 111.111.111-11 ou 000.000.000-00
+function cpfTemDigitosIguais(cpf) {
+  return /^(\d)\1{10}$/.test(cpf);
+}
+
+
+// Verifica se os dois dígitos verificadores do CPF estão corretos
+function validarCPF(cpf) {
+
+  cpf = limparCPF(cpf);
+
+  // CPF precisa possuir exatamente 11 números
+  if (cpf.length !== 11) {
+    return false;
+  }
+
+  // Impede CPFs como 00000000000, 11111111111 etc.
+  if (cpfTemDigitosIguais(cpf)) {
+    return false;
+  }
+
+  // ==========================
+  // Primeiro dígito verificador
+  // ==========================
+
+  let soma = 0;
+
+  for (let i = 0; i < 9; i++) {
+    soma += Number(cpf.charAt(i)) * (10 - i);
+  }
+
+  let resto = soma % 11;
+  let primeiroDigito = resto < 2 ? 0 : 11 - resto;
+
+  if (primeiroDigito !== Number(cpf.charAt(9))) {
+    return false;
+  }
+
+  // ==========================
+  // Segundo dígito verificador
+  // ==========================
+
+  soma = 0;
+
+  for (let i = 0; i < 10; i++) {
+    soma += Number(cpf.charAt(i)) * (11 - i);
+  }
+
+  resto = soma % 11;
+  let segundoDigito = resto < 2 ? 0 : 11 - resto;
+
+  if (segundoDigito !== Number(cpf.charAt(10))) {
+    return false;
+  }
+
+  return true;
+}
+
+// ==========================================================
+// MÁSCARA DO CPF
+// Formato: 000.000.000-00
+// ==========================================================
+
+cpfInput.addEventListener("input", function() {
+
+let cpf = cpfInput.value.replace(/\D/g, "");
+
+// Limita a 11 números
+cpf = cpf.substring(0, 11);
+
+// Aplica a máscara
+if (cpf.length > 9) {
+
+  cpf = cpf.replace(
+    /(\d{3})(\d{3})(\d{3})(\d{2})/,
+    "$1.$2.$3-$4"
+  );
+
+} else if (cpf.length > 6) {
+
+  cpf = cpf.replace(
+    /(\d{3})(\d{3})(\d{1,3})/,
+    "$1.$2.$3"
+  );
+
+} else if (cpf.length > 3) {
+
+  cpf = cpf.replace(
+    /(\d{3})(\d{1,3})/,
+    "$1.$2"
+  );
+}
+
+cpfInput.value = cpf;
+
+// Validação em tempo real
+const cpfLimpo = limparCPF(cpf);
+
+if (cpfLimpo.length === 0) {
+
+  erroCpf.className = "mensagem";
+
+} else if (cpfLimpo.length < 11) {
+
+  erroCpf.textContent = "CPF incompleto. Informe os 11 números.";
+  erroCpf.className = "mensagem erro show";
+
+} else if (!validarCPF(cpfLimpo)) {
+
+  erroCpf.textContent = "CPF inválido. Verifique os números informados.";
+  erroCpf.className = "mensagem erro show";
+
+} else {
+
+  erroCpf.textContent = "";
+  erroCpf.className = "mensagem";
+}
+
+});
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      mensagem.className = "mensagem";
+      mensagem.textContent = "";
+
+      const cpf = document.getElementById("cpf").value.trim();
+      const cpfLimpo = limparCPF(cpf);
+
+      const nome = document.getElementById("nome").value.trim();
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      const senhaValor = senha.value;
+      const confirmarSenhaValor = confirmarSenha.value;
+
+      // ==========================================================
+      // VERIFICAR CPF
+      // ==========================================================
+
+      if (!validarCPF(cpfLimpo)) {
+
+      erroCpf.textContent = "CPF inválido. Informe um CPF válido.";
+      erroCpf.className = "mensagem erro show";
+
+      cpfInput.focus();
+
+      return;
+      }
+
+      //verifica o tamanho da senha
+      if (senha.value.length < 8) {
+        mensagem.textContent = "A senha deve possuir pelo menos 8 caracteres.";
+        mensagem.classList.add("erro");
+        return;
+      }
+
+      //verifica se as senhas são iguais
+      if (senha.value !== confirmarSenha.value) {
+        mensagem.textContent = "As senhas não são iguais.";
+        mensagem.classList.add("erro");
+        return;
+      }
+
+      // 3. Recupera os administradores já cadastrados
+    const administradores =
+        JSON.parse(localStorage.getItem("edmusys_admins")) || [];
+
+        // 4. Verifica se o e-mail já está cadastrado
+    const emailExiste = administradores.some(
+        admin => admin.email === email
+    );
+
+    if (emailExiste) {
+        mensagem.textContent =
+            "Este e-mail já está cadastrado.";
+
+        mensagem.classList.add("erro");
+        return;
+    }
+
+    const cpfExiste = administradores.some(
+    admin => limparCPF(admin.cpf || "") === cpfLimpo
+    );
+
+    if (cpfExiste) {
+      mensagem.textContent = "Este CPF já está cadastrado.";
+      mensagem.classList.add("erro");
+      cpfInput.focus();
+      return;
+    }
+
+    // 5. Cria o novo administrador
+    const novoAdministrador = {
+        cpf: cpfLimpo,
+        nome: nome,
+        email: email,
+        senha: senhaValor
+    };
+
+    // 6. Adiciona o administrador à lista
+    administradores.push(novoAdministrador);
+
+    // 7. Salva novamente no navegador
+    localStorage.setItem(
+        "edmusys_admins",
+        JSON.stringify(administradores)
+    );
+
+
+      mensagem.textContent = "Usuário cadastrado com sucesso!";
+      mensagem.classList.add("sucesso");
+
+      //limpa formulário
+      form.reset();
+
+      // 10. Depois de 1 segundo, volta para o login
+    setTimeout(function() {
+        window.location.href = "index.html";
+    }, 1000);
+    });
