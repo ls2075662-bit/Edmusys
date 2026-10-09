@@ -1,7 +1,9 @@
 (function () {
   "use strict";
 
-  /* 1. CONSTANTES E CONFIGURAÇÕES GLOBAIS*/
+  /* ============================================================
+     1. CONSTANTES E CONFIGURAÇÕES GLOBAIS
+     ============================================================ */
   const ICON = {
     music: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
     calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
@@ -23,7 +25,9 @@
   const HORAS = ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
   const PLANOS = { 1: { label: '1x / semana', valor: 60 }, 2: { label: '2x / semana', valor: 120 }, 3: { label: '3x / semana', valor: 180 } };
 
-  /*2. ESTADO DA APLICAÇÃO E DADOS DE ARMAZENAMENTO*/
+  /* ============================================================
+     2. ESTADO DA APLICAÇÃO E DADOS DE ARMAZENAMENTO
+     ============================================================ */
   let uid = 1000;
   let alunos = JSON.parse(localStorage.getItem("edmusys_alunos")) || [];
   let professores = JSON.parse(localStorage.getItem("edmusys_professores")) || [];
@@ -32,7 +36,6 @@
   let state = {
     view: 'overview',
     selectedDay: 'Segunda',
-    editingHorarioId: null,
   };
 
   const nextId = () => {
@@ -48,7 +51,9 @@
 
   const saveData = (key, val) => localStorage.setItem(key, JSON.stringify(val));
 
-  /*3. UTILITÁRIOS, MÁSCARAS E VALIDAÇÕES*/
+  /* ============================================================
+     3. UTILITÁRIOS, MÁSCARAS E VALIDAÇÕES
+     ============================================================ */
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
@@ -129,7 +134,9 @@
     return validate;
   }
 
-  /*4. GERENCIAMENTO DE TEMA (DARK / LIGHT MODE)*/
+  /* ============================================================
+     4. GERENCIAMENTO DE TEMA (DARK / LIGHT MODE)
+     ============================================================ */
   const themeToggleBtn = document.getElementById('theme-toggle');
   const themeToggleIcon = document.getElementById('theme-toggle-icon');
   const themeToggleText = document.getElementById('theme-toggle-text');
@@ -156,14 +163,18 @@
     }
   }
 
-  /*5. SEGURANÇA E GERENCIAMENTO DE NAVEGAÇÃO*/
+  /* ============================================================
+     5. SEGURANÇA E GERENCIAMENTO DE NAVEGAÇÃO
+     ============================================================ */
   function protegerPainel() {
     if (localStorage.getItem("adminLogado") !== "true") {
       window.location.replace("EdMusys-homepage.html");
     }
   }
 
-  /*6. COMPONENTES E REUTILIÇÃO HTML*/
+  /* ============================================================
+     6. COMPONENTES E REUTILIÇÃO HTML
+     ============================================================ */
   function ifield({ id, label, icon, type = 'text', value = '', placeholder = '', dark = false, readonly = false, options = null, errorId = null }) {
     const cls = ['ifield']; if (dark) cls.push('dark'); if (readonly) cls.push('readonly');
     let control;
@@ -187,7 +198,9 @@
     return `<div class="empty-state">${ICON.calendar}<p>${msg}</p><button class="btn btn-dark" id="${btnId}">${ICON.plus} ${btnLabel}</button></div>`;
   }
 
-  /*7. RENDERS DAS VISÕES (OVERVIEW, ALUNOS, PROFESSORES, HORÁRIOS)*/
+  /* ============================================================
+     7. RENDERS DAS VISÕES (OVERVIEW, ALUNOS, PROFESSORES, HORÁRIOS)
+     ============================================================ */
   const TITLES = {
     overview: ['Visão Geral', 'Resumo da escola de música'],
     alunos: ['Alunos', 'Cadastro e agenda dos alunos'],
@@ -305,27 +318,6 @@
   function renderTicket(h) {
     const al = alunos.find(a => a.id === h.alunoId);
     const pr = professores.find(p => p.id === h.professorId);
-    if (state.editingHorarioId === h.id) {
-      return `<div class="ticket-card ticket-edit" data-id="${h.id}">
-        <div class="ticket-edit-head">
-          <span>Editar horário</span>
-          <div class="ticket-edit-actions">
-            <button class="btn-sm cancel" data-cancel-edit="${h.id}">Cancelar</button>
-            <button class="btn-sm save" data-save-edit="${h.id}">Salvar</button>
-          </div>
-        </div>
-        <div class="ticket-edit-body">
-          ${ifield({ id: `e-hora-${h.id}`, label: 'Hora', icon: ICON.clock, type: 'time', value: h.hora, dark: true })}
-          ${ifield({ id: `e-dia-${h.id}`, label: 'Dia', icon: ICON.calendar, dark: true, options: DIAS.map(d => ({ value: d, label: d })), value: h.dia })}
-          ${ifield({ id: `e-instr-${h.id}`, label: 'Instrumento', icon: ICON.music, value: h.instrumento, dark: true })}
-          ${ifield({ id: `e-aluno-${h.id}`, label: 'Aluno', icon: ICON.user, dark: true, options: alunos.map(a => ({ value: a.id, label: a.nome })), value: h.alunoId })}
-          ${ifield({ id: `e-prof-${h.id}`, label: 'Professor', icon: ICON.user, dark: true, options: professores.map(p => ({ value: p.id, label: p.nome })), value: h.professorId })}
-        </div>
-        <div class="ticket-edit-foot">
-          <button class="link-danger" data-del-horario="${h.id}">${ICON.trash} Excluir este horário</button>
-        </div>
-      </div>`;
-    }
     return `<div class="ticket-card">
       <div class="ticket-band"><span class="day">${h.dia}</span><span class="time">${h.hora}</span></div>
       <div class="ticket-perf"></div>
@@ -337,14 +329,16 @@
           <div class="side"><div class="lbl">Professor</div><div class="val">${escapeHtml(pr ? pr.nome : '—')}</div></div>
         </div>
         <div class="ticket-actions">
-          <button class="icon-btn" data-edit-horario="${h.id}" aria-label="Editar">${ICON.edit}</button>
-          <button class="icon-btn danger" data-del-horario="${h.id}" aria-label="Excluir">${ICON.trash}</button>
+          <button class="icon-btn" data-edit-horario="${h.id}" aria-label="Editar horário">${ICON.edit}</button>
+          <button class="icon-btn danger" data-del-horario="${h.id}" aria-label="Excluir horário">${ICON.trash}</button>
         </div>
       </div>
     </div>`;
   }
 
-  /*8. MANIPULADORES DE EVENTOS DAS VISÕES*/
+  /* ============================================================
+     8. MANIPULADORES DE EVENTOS DAS VISÕES
+     ============================================================ */
   function attachViewHandlers() {
     $('#btn-novo-aluno')?.addEventListener('click', () => openModalNovoAluno());
     $('#btn-novo-aluno-empty')?.addEventListener('click', () => openModalNovoAluno());
@@ -366,35 +360,83 @@
     $$('.del-professor').forEach(b => b.addEventListener('click', () => {       if (confirm('Excluir este professor? As aulas vinculadas também serão removidas.')) {         professores = professores.filter(p => p.id !== b.dataset.id);         horarios = horarios.filter(h => h.professorId !== b.dataset.id);         saveData("edmusys_professores", professores);         saveData("edmusys_horarios", horarios);         renderView();       }     }));      $$
 ('.day-pill').forEach(b => b.addEventListener('click', () => {
       state.selectedDay = b.dataset.day;
-      state.editingHorarioId = null;
       renderView();
     }));
 
-    $$('[data-edit-horario]').forEach(b => b.addEventListener('click', () => {       state.editingHorarioId = b.dataset.editHorario;       renderView();     }));      $$
-('[data-cancel-edit]').forEach(b => b.addEventListener('click', () => {
-      state.editingHorarioId = null;
-      renderView();
-    }));
-
-    $$('[data-del-horario]').forEach(b => b.addEventListener('click', () => {       const id = b.dataset.delHorario;       if (confirm('Excluir este horário?')) {         horarios = horarios.filter(h => h.id !== id);         saveData("edmusys_horarios", horarios);         state.editingHorarioId = null;         renderView();       }     }));      $$
-('[data-save-edit]').forEach(b => b.addEventListener('click', () => {
-      const id = b.dataset.saveEdit;
-      const h = horarios.find(x => x.id === id);
-      if (h) {
-        h.hora = $(`#e-hora-${id}`).value || h.hora;
-        h.dia = $(`#e-dia-${id}`).value;
-        h.instrumento = $(`#e-instr-${id}`).value.trim() || h.instrumento;
-        h.alunoId = $(`#e-aluno-${id}`).value;
-        h.professorId = $(`#e-prof-${id}`).value;
+    $$('[data-edit-horario]').forEach(b => b.addEventListener('click', () => openModalEditarHorario(b.dataset.editHorario)));      $$
+('[data-del-horario]').forEach(b => b.addEventListener('click', () => {
+      const id = b.dataset.delHorario;
+      if (confirm('Excluir este horário?')) {
+        horarios = horarios.filter(h => h.id !== id);
         saveData("edmusys_horarios", horarios);
+        renderView();
       }
-      state.editingHorarioId = null;
-      renderView();
     }));
   }
 
-  /*9. MODAIS DE CADASTRO*/
+  /* ============================================================
+     9. MODAIS DE CADASTRO E EDIÇÃO DE HORÁRIOS
+     ============================================================ */
   function closeModal() { $('#modal-root').innerHTML = ''; }
+
+  function openModalEditarHorario(id) {
+    const h = horarios.find(x => x.id === id);
+    if (!h) return;
+
+    const html = `<div class="modal-overlay" id="modal-overlay">
+      <div class="modal modal-wide">
+        <div class="modal-head">
+          <h3>Editar horário</h3>
+          <button class="modal-close" id="modal-close">${ICON.x}</button>
+        </div>
+        <div class="modal-body">
+          <div class="field-row">
+            ${ifield({ id: 'eh-hora', label: 'Hora', icon: ICON.clock, type: 'time', value: h.hora })}
+            ${ifield({ id: 'eh-dia', label: 'Dia da Semana', icon: ICON.calendar, options: DIAS.map(d => ({ value: d, label: d })), value: h.dia })}
+          </div>
+          ${ifield({ id: 'eh-instrumento', label: 'Instrumento', icon: ICON.music, value: h.instrumento })}
+          <div class="field-row">
+            ${ifield({ id: 'eh-aluno', label: 'Aluno', icon: ICON.user, options: alunos.map(a => ({ value: a.id, label: a.nome })), value: h.alunoId })}
+            ${ifield({ id: 'eh-professor', label: 'Professor', icon: ICON.user, options: professores.map(p => ({ value: p.id, label: p.nome })), value: h.professorId })}
+          </div>
+        </div>
+        <div class="modal-foot modal-foot-between">
+          <button class="btn btn-danger" id="eh-delete">${ICON.trash} Excluir</button>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-ghost" id="eh-cancel">Cancelar</button>
+            <button class="btn btn-gold" id="eh-submit">Salvar alterações</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+    $('#modal-root').innerHTML = html;
+    const root = $('#modal-root');
+    $('#modal-close', root).addEventListener('click', closeModal);
+    $('#eh-cancel', root).addEventListener('click', closeModal);
+    $('#modal-overlay', root).addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
+
+    $('#eh-delete', root).addEventListener('click', () => {
+      if (confirm('Excluir este horário?')) {
+        horarios = horarios.filter(item => item.id !== id);
+        saveData("edmusys_horarios", horarios);
+        closeModal();
+        renderView();
+      }
+    });
+
+    $('#eh-submit', root).addEventListener('click', () => {
+      h.hora = $('#eh-hora', root).value || h.hora;
+      h.dia = $('#eh-dia', root).value;
+      h.instrumento = $('#eh-instrumento', root).value.trim() || h.instrumento;
+      h.alunoId = $('#eh-aluno', root).value;
+      h.professorId = $('#eh-professor', root).value;
+      saveData("edmusys_horarios", horarios);
+      state.selectedDay = h.dia;
+      closeModal();
+      renderView();
+    });
+  }
 
   function openModalNovoAluno() {
     const dias = [], horas = [];
@@ -635,7 +677,9 @@
     });
   }
 
-  /*10. PAINÉIS DE PERFIL (EDITAR DADOS)*/
+  /* ============================================================
+     10. PAINÉIS DE PERFIL (EDITAR ALUNO / PROFESSOR)
+     ============================================================ */
   function closeProfile() { $('#profile-root').innerHTML = ''; }
 
   function openProfile(type, id) {
@@ -801,7 +845,9 @@
     });
   }
 
-  /*11. OVERLAYS E CALENDÁRIO*/
+  /* ============================================================
+     11. OVERLAYS E CALENDÁRIO
+     ============================================================ */
   function renderCalendarOverlay() {
     const cal = $('#calendar-overlay');
     cal.innerHTML = `
@@ -827,7 +873,9 @@
     $('#cal-close').addEventListener('click', () => cal.classList.add('hidden'));
   }
 
-  /*12. INICIALIZAÇÃO DOS EVENTOS GLOBAIS E EXECUÇÃO*/
+  /* ============================================================
+     12. INICIALIZAÇÃO DOS EVENTOS GLOBAIS E EXECUÇÃO
+     ============================================================ */
   function init() {
     protegerPainel();
     window.addEventListener("pageshow", protegerPainel);
