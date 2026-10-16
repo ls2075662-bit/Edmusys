@@ -1,6 +1,4 @@
-/* ============================================================
-   1. VARIÁVEIS DE TEMA E DARK MODE
-   ============================================================ */
+/*1. VARIÁVEIS DE TEMA E DARK MODE*/
    :root {
     --black: #121110;
     --black-soft: #1C1B18;
@@ -48,9 +46,7 @@
     --border-chip: #404040;
   }
   
-  /* ============================================================
-     2. RESET E ESTILOS BASE
-     ============================================================ */
+  /*2. RESET E ESTILOS BASE*/
   * { box-sizing: border-box; margin: 0; padding: 0; }
   
   body {
@@ -69,9 +65,7 @@
   .scr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
   :focus-visible { outline: 2px solid var(--gold-deep); outline-offset: 2px; }
   
-  /* ============================================================
-     3. APP SHELL & ESTRUTURA GERAL (MENU FIXO)
-     ============================================================ */
+  /*3. APP SHELL & ESTRUTURA GERAL (MENU OCULTÁVEL / RETRÁTIL)*/
   #app { display: flex; min-height: 100vh; }
   
   .sidebar {
@@ -87,13 +81,18 @@
     left: 0;
     height: 100vh;
     z-index: 50;
+    transition: transform 0.3s ease;
+  }
+  
+  .sidebar.closed {
+    transform: translateX(-100%);
   }
   
   .brand-btn {
     display: flex; align-items: center; gap: 10px; background: none; border: none; color: var(--gold);
     padding: 6px 4px 22px; text-align: left; width: 100%;
   }
-  .brand-btn .mark { width: 34px; height: 34px; background: var(--gold); border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;}
+  .brand-btn .mark { width: 34px; height: 34px; background: var(--gold); border-radius: 99px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;}
   .brand-btn .mark svg { width: 19px; height: 19px; color: var(--black);}
   .brand-btn .name { font-family: var(--font-display); font-weight: 700; font-size: 19px; color: var(--white); letter-spacing: -.01em;}
   
@@ -122,6 +121,11 @@
     display: flex; 
     flex-direction: column; 
     position: relative;
+    transition: margin-left 0.3s ease;
+  }
+  
+  .main.full-width {
+    margin-left: 0;
   }
   
   /* TOPBAR */
@@ -138,9 +142,10 @@
   
   .view { padding: 28px 32px 60px; }
   
-  /* ============================================================
-     4. COMPONENTES GLOBAIS (BOTÕES, IFIELDS, CHIPS, BADGES)
-     ============================================================ */
+  .menu-toggle { display: flex !important; background: var(--black); color: var(--gold); border: none; width: 38px; height: 38px; border-radius: var(--radius-sm); align-items: center; justify-content: center; cursor: pointer;}
+  .menu-toggle svg { width: 18px; height: 18px;}
+  
+  /* 4. COMPONENTES GLOBAIS (BOTÕES, IFIELDS, CHIPS, BADGES)*/
   .btn {
     border: none; border-radius: var(--radius-sm); padding: 10px 16px;
     font-weight: 700; font-size: 13.5px; display: inline-flex; align-items: center; gap: 7px;
@@ -203,9 +208,7 @@
   .icon-btn:hover { border-color: var(--gold-deep); color: var(--gold-deep);}
   .icon-btn.danger:hover { border-color: var(--danger); color: var(--danger); background: #FBEAEA;}
   
-  /* ============================================================
-     5. ESTILOS DE VISÕES ESPECÍFICAS
-     ============================================================ */
+  /*5. ESTILOS DE VISÕES ESPECÍFICAS*/
   /* OVERVIEW */
   .stat-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 16px; margin-bottom: 28px;}
   .stat-card {
@@ -295,9 +298,7 @@
   .ticket-actions { display: flex; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-main);}
   .ticket-actions .icon-btn { margin-left: auto;}
   
-  /* ============================================================
-     6. MODAIS, OVERLAYS E FAB
-     ============================================================ */
+  /*6. MODAIS, OVERLAYS E FAB*/
   .fab {
     position: fixed; right: 30px; bottom: 30px; width: 64px; height: 64px; border-radius: 50%;
     background: var(--black); color: var(--gold); border: none; box-shadow: 0 12px 30px -8px rgba(18,17,16,.5);
@@ -327,7 +328,7 @@
     overflow-y: auto; box-shadow: var(--shadow-pop); border: 1px solid var(--border-main);
   }
   .modal.modal-wide { max-width: 580px; }
-  .modal.modal-xl { max-width: 840px; width: 92vw; } /* MODAL EXPANDIDO LADO A LADO */
+  .modal.modal-xl { max-width: 840px; width: 92vw; }
   
   .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 22px; border-bottom: 1px solid var(--border-main); position: sticky; top: 0; background: var(--bg-surface); z-index: 2;}
   .modal-head h3 { font-family: var(--font-display); font-size: 19px; color: var(--text-main);}
@@ -338,9 +339,7 @@
   .modal-foot { padding: 16px 22px; border-top: 1px solid var(--border-main); display: flex; align-items: center; justify-content: flex-end; gap: 10px; background: var(--bg-surface); position: sticky; bottom: 0; z-index: 2;}
   .modal-foot-between { justify-content: space-between; }
   
-  /* ============================================================
-     7. REGRAS RESPONSIVAS (MEDIA QUERIES)
-     ============================================================ */
+  /*7. REGRAS RESPONSIVAS (MEDIA QUERIES)*/
   @media (max-width: 900px) {
     .cal-grid { grid-template-columns: repeat(2, 1fr); }
   }
@@ -349,24 +348,15 @@
     .sidebar { 
       position: fixed; 
       z-index: 50; 
-      transform: translateX(-100%); 
-      transition: transform .2s ease; 
       box-shadow: var(--shadow-pop);
     }
-    .sidebar.open { transform: translateX(0);}
     .main { margin-left: 0; }
     .topbar { padding: 18px 18px;}
     .view { padding: 20px 18px 60px;}
-    .menu-toggle { display: flex !important;}
     .fab { right: 18px; bottom: 18px;}
   }
   
-  .menu-toggle { display: none; background: var(--black); color: var(--gold); border: none; width: 38px; height: 38px; border-radius: var(--radius-sm); align-items: center; justify-content: center;}
-  .menu-toggle svg { width: 18px; height: 18px;}
-  
-  /* ============================================================
-     8. ESTILOS DO MODAL DE EDIÇÃO DO PERFIL
-     ============================================================ */
+  /*8. ESTILOS DO MODAL DE EDIÇÃO DO PERFIL*/
   #profile-root:not(:empty) {
     position: fixed;
     inset: 0;
