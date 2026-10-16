@@ -232,12 +232,20 @@
       <h3>Próximas aulas</h3>
       ${proximas.map(h => {
         const al = alunos.find(a => a.id === h.alunoId), pr = professores.find(p => p.id === h.professorId);
-        return `<div class="mini-row"><span>${escapeHtml(al ? al.nome : '—')} · ${escapeHtml(h.instrumento)} com ${escapeHtml(pr ? pr.nome : '—')}</span><span class="tag">${h.dia} ${h.hora}</span></div>`;
+        return `<div class="mini-row"><span>${escapeHtml(al ? al.nome : '—')} · ${escapeHtml(h.instrumento)} com${escapeHtml(pr ? pr.nome : '—')}</span><span class="tag">${h.dia}${h.hora}</span></div>`;
       }).join('') || '<div class="mini-row">Nenhuma aula cadastrada.</div>'}
     </div>
     <div class="overview-sec">
       <h3>Tabela de mensalidades</h3>
       ${Object.entries(PLANOS).map(([k, v]) => `<div class="mini-row"><span>${v.label}</span><span class="tag">R$ ${v.valor}</span></div>`).join('')}
+    </div>
+    <div class="overview-sec">
+      <h3>Valores das aulas por instrumento</h3>
+      <div class="mini-row"><span>Aula de Violão</span><span class="tag">R$ 60</span></div>
+      <div class="mini-row"><span>Teclado</span><span class="tag">R$ 60</span></div>
+      <div class="mini-row"><span>Bateria</span><span class="tag">R$ 70</span></div>
+      <div class="mini-row"><span>Guitarra</span><span class="tag">R$ 60</span></div>
+      <div class="mini-row"><span>Violino</span><span class="tag">A definir</span></div>
     </div>`;
   }
 
