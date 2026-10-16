@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  /*1. CONSTANTES E CONFIGURAÇÕES GLOBAIS*/
+  /* 1. CONSTANTES E CONFIGURAÇÕES GLOBAIS */
   const ICON = {
     music: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
     calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
@@ -23,7 +23,7 @@
   const HORAS = ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
   const PLANOS = { 1: { label: '1x / semana', valor: 60 }, 2: { label: '2x / semana', valor: 120 }, 3: { label: '3x / semana', valor: 180 } };
 
-  /*2. ESTADO DA APLICAÇÃO E DADOS DE ARMAZENAMENTO*/
+  /* 2. ESTADO DA APLICAÇÃO E DADOS DE ARMAZENAMENTO */
   let uid = 1000;
   let alunos = JSON.parse(localStorage.getItem("edmusys_alunos")) || [];
   let professores = JSON.parse(localStorage.getItem("edmusys_professores")) || [];
@@ -47,7 +47,7 @@
 
   const saveData = (key, val) => localStorage.setItem(key, JSON.stringify(val));
 
-  /* 3. UTILITÁRIOS, MÁSCARAS E VALIDAÇÕES*/
+  /* 3. UTILITÁRIOS, MÁSCARAS E VALIDAÇÕES */
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
@@ -128,7 +128,7 @@
     return validate;
   }
 
-  /*4. GERENCIAMENTO DE TEMA (DARK / LIGHT MODE)*/
+  /* 4. GERENCIAMENTO DE TEMA (DARK / LIGHT MODE) */
   const themeToggleBtn = document.getElementById('theme-toggle');
   const themeToggleIcon = document.getElementById('theme-toggle-icon');
   const themeToggleText = document.getElementById('theme-toggle-text');
@@ -155,14 +155,14 @@
     }
   }
 
-  /*5. SEGURANÇA E GERENCIAMENTO DE NAVEGAÇÃO*/
+  /* 5. SEGURANÇA E GERENCIAMENTO DE NAVEGAÇÃO */
   function protegerPainel() {
     if (localStorage.getItem("adminLogado") !== "true") {
       window.location.replace("EdMusys-homepage.html");
     }
   }
 
-  /*6. COMPONENTES E REUTILIÇÃO HTML*/
+  /* 6. COMPONENTES E REUTILIZAÇÃO HTML */
   function ifield({ id, label, icon, type = 'text', value = '', placeholder = '', dark = false, readonly = false, options = null, errorId = null }) {
     const cls = ['ifield']; if (dark) cls.push('dark'); if (readonly) cls.push('readonly');
     let control;
@@ -186,9 +186,7 @@
     return `<div class="empty-state">${ICON.calendar}<p>${msg}</p><button class="btn btn-dark" id="${btnId}">${ICON.plus} ${btnLabel}</button></div>`;
   }
 
-  /* ============================================================
-     7. RENDERS DAS VISÕES (OVERVIEW, ALUNOS, PROFESSORES, HORÁRIOS)
-     ============================================================ */
+  /*7. RENDERS DAS VISÕES (OVERVIEW, ALUNOS, PROFESSORES, HORÁRIOS)*/
   const TITLES = {
     overview: ['Visão Geral', 'Resumo da escola de música'],
     alunos: ['Alunos', 'Cadastro e agenda dos alunos'],
@@ -232,7 +230,7 @@
       <h3>Próximas aulas</h3>
       ${proximas.map(h => {
         const al = alunos.find(a => a.id === h.alunoId), pr = professores.find(p => p.id === h.professorId);
-        return `<div class="mini-row"><span>${escapeHtml(al ? al.nome : '—')} · ${escapeHtml(h.instrumento)} com${escapeHtml(pr ? pr.nome : '—')}</span><span class="tag">${h.dia}${h.hora}</span></div>`;
+        return `<div class="mini-row"><span>${escapeHtml(al ? al.nome : '—')} · ${escapeHtml(h.instrumento)} com ${escapeHtml(pr ? pr.nome : '—')}</span><span class="tag">${h.dia} ${h.hora}</span></div>`;
       }).join('') || '<div class="mini-row">Nenhuma aula cadastrada.</div>'}
     </div>
     <div class="overview-sec">
@@ -244,7 +242,7 @@
   function viewAlunos() {
     if (alunos.length === 0) return emptyState('Nenhum aluno cadastrado ainda.', 'btn-novo-aluno-empty', 'Cadastrar aluno');
     return `<div class="people-grid">${alunos.map(a => {
-      const dc = a.dias.map((d, i) => `${d}${a.horarios[i] || ''}`).join(' · ');
+      const dc = a.dias.map((d, i) => `${d} ${a.horarios[i] || ''}`).join(' · ');
       return `<div class="person-card">
         <div class="person-top">
           <div class="avatar">${initials(a.nome)}</div>
@@ -268,7 +266,7 @@
   function viewProfessores() {
     if (professores.length === 0) return emptyState('Nenhum professor cadastrado ainda.', 'btn-novo-professor-empty', 'Cadastrar professor');
     return `<div class="people-grid">${professores.map(p => {
-      const dc = p.dias.map((d, i) => `${d}${p.horarios[i] || ''}`).join(' · ');
+      const dc = p.dias.map((d, i) => `${d} ${p.horarios[i] || ''}`).join(' · ');
       return `<div class="person-card">
         <div class="person-top">
           <div class="avatar">${initials(p.nome)}</div>
@@ -324,18 +322,19 @@
     </div>`;
   }
 
-  /* ============================================================
-     8. MANIPULADORES DE EVENTOS DAS VISÕES
-     ============================================================ */
+  /*8. MANIPULADORES DE EVENTOS DAS VISÕES*/
   function attachViewHandlers() {
     $('#btn-novo-aluno')?.addEventListener('click', () => openModalNovoAluno());
     $('#btn-novo-aluno-empty')?.addEventListener('click', () => openModalNovoAluno());
     $('#btn-novo-professor')?.addEventListener('click', () => openModalNovoProfessor());
     $('#btn-novo-professor-empty')?.addEventListener('click', () => openModalNovoProfessor());
     $('#btn-novo-horario')?.addEventListener('click', () => openModalNovoHorario());
-    $('#btn-agendar-dia')?.addEventListener('click', () => openModalNovoHorario(state.selectedDay));      $$('.edit-aluno').forEach(b => b.addEventListener('click', () => openProfile('aluno', b.dataset.id)));
-    $$('.edit-professor').forEach(b => b.addEventListener('click', () => openProfile('professor', b.dataset.id)));      $$
-('.del-aluno').forEach(b => b.addEventListener('click', () => {
+    $('#btn-agendar-dia')?.addEventListener('click', () => openModalNovoHorario(state.selectedDay));
+
+    $$('.edit-aluno').forEach(b => b.addEventListener('click', () => openProfile('aluno', b.dataset.id)));
+    $$('.edit-professor').forEach(b => b.addEventListener('click', () => openProfile('professor', b.dataset.id)));
+
+    $$('.del-aluno').forEach(b => b.addEventListener('click', () => {
       if (confirm('Excluir este aluno? As aulas vinculadas também serão removidas.')) {
         alunos = alunos.filter(a => a.id !== b.dataset.id);
         horarios = horarios.filter(h => h.alunoId !== b.dataset.id);
@@ -345,14 +344,24 @@
       }
     }));
 
-    $$('.del-professor').forEach(b => b.addEventListener('click', () => { if (confirm('Excluir este professor? As aulas vinculadas também serão removidas.')) { professores = professores.filter(p => p.id !== b.dataset.id); horarios = horarios.filter(h => h.professorId !== b.dataset.id); saveData("edmusys_professores", professores); saveData("edmusys_horarios", horarios); renderView(); } }));      $$
-('.day-pill').forEach(b => b.addEventListener('click', () => {
+    $$('.del-professor').forEach(b => b.addEventListener('click', () => {
+      if (confirm('Excluir este professor? As aulas vinculadas também serão removidas.')) {
+        professores = professores.filter(p => p.id !== b.dataset.id);
+        horarios = horarios.filter(h => h.professorId !== b.dataset.id);
+        saveData("edmusys_professores", professores);
+        saveData("edmusys_horarios", horarios);
+        renderView();
+      }
+    }));
+
+    $$('.day-pill').forEach(b => b.addEventListener('click', () => {
       state.selectedDay = b.dataset.day;
       renderView();
     }));
 
-    $$('[data-edit-horario]').forEach(b => b.addEventListener('click', () => openModalEditarHorario(b.dataset.editHorario)));      $$
-('[data-del-horario]').forEach(b => b.addEventListener('click', () => {
+    $$('[data-edit-horario]').forEach(b => b.addEventListener('click', () => openModalEditarHorario(b.dataset.editHorario)));
+
+    $$('[data-del-horario]').forEach(b => b.addEventListener('click', () => {
       const id = b.dataset.delHorario;
       if (confirm('Excluir este horário?')) {
         horarios = horarios.filter(h => h.id !== id);
@@ -362,9 +371,7 @@
     }));
   }
 
-  /* ============================================================
-     9. MODAIS DE CADASTRO E EDIÇÃO DE HORÁRIOS / ALUNOS / PROFESSORES
-     ============================================================ */
+  /*9. MODAIS DE CADASTRO E EDIÇÃO DE HORÁRIOS / ALUNOS / PROFESSORES*/
   function closeModal() { $('#modal-root').innerHTML = ''; }
 
   function openModalEditarHorario(id) {
@@ -471,7 +478,9 @@
     const root = $('#modal-root');
     $('#modal-close', root).addEventListener('click', closeModal);
     $('#na-cancel', root)?.addEventListener('click', closeModal);
-    $('#modal-overlay', root).addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });      $$('.pill-opt', root).forEach(p => p.addEventListener('click', () => {
+    $('#modal-overlay', root).addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
+
+    $$('.pill-opt', root).forEach(p => p.addEventListener('click', () => {
       p.classList.toggle('on');
       checkValid();
     }));
@@ -491,7 +500,8 @@
       const senha = $('#na-senha', root).value;
       const instrumento = $('#na-instrumento', root).value.trim();
 
-      const diasSelecionados = $$('.pill-select[data-group="dias"] .pill-opt.on', root); const horariosSelecionados = $$('.pill-select[data-group="horas"] .pill-opt.on', root);
+      const diasSelecionados = $$('.pill-select[data-group="dias"] .pill-opt.on', root);
+      const horariosSelecionados = $$('.pill-select[data-group="horas"] .pill-opt.on', root);
       const plano = $('#na-plano', root).value;
       const mensalidade = $('#na-mensalidade', root).value.trim();
 
@@ -525,7 +535,8 @@
     });
 
     $('#na-submit', root).addEventListener('click', () => {
-      const selDias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(p => p.dataset.val); const selHoras = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(p => p.dataset.val);
+      const selDias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(p => p.dataset.val);
+      const selHoras = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(p => p.dataset.val);
       const novo = {
         id: nextId(),
         nome: nomeInp.value.trim(),
@@ -588,7 +599,9 @@
     const root = $('#modal-root');
     $('#modal-close', root).addEventListener('click', closeModal);
     $('#np-cancel', root)?.addEventListener('click', closeModal);
-    $('#modal-overlay', root).addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });      $$('.pill-opt', root).forEach(p => p.addEventListener('click', () => { p.classList.toggle('on'); checkValid(); }));
+    $('#modal-overlay', root).addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
+
+    $$('.pill-opt', root).forEach(p => p.addEventListener('click', () => { p.classList.toggle('on'); checkValid(); }));
 
     const nomeInp = $('#np-nome', root);
 
@@ -598,7 +611,8 @@
       const senha = $('#np-senha', root).value;
       const nomeOk = nomeInp.value.trim().length > 0;
       const cpf = phoneDigits($('#np-cpf', root).value);
-      const diasSelecionados = $$('.pill-select[data-group="dias"] .pill-opt.on', root); const horariosSelecionados = $$('.pill-select[data-group="horas"] .pill-opt.on', root);
+      const diasSelecionados = $$('.pill-select[data-group="dias"] .pill-opt.on', root);
+      const horariosSelecionados = $$('.pill-select[data-group="horas"] .pill-opt.on', root);
 
       $('#np-submit', root).disabled = !(
         nomeOk &&
@@ -619,7 +633,8 @@
     $('#np-cpf', root).addEventListener('input', checkValid);
 
     $('#np-submit', root).addEventListener('click', () => {
-      const selDias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(p => p.dataset.val); const selHoras = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(p => p.dataset.val);
+      const selDias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(p => p.dataset.val);
+      const selHoras = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(p => p.dataset.val);
       const novo = {
         id: nextId(),
         nome: nomeInp.value.trim(),
@@ -691,9 +706,7 @@
     });
   }
 
-  /* ============================================================
-     10. PAINÉIS DE PERFIL (EDITAR ALUNO / PROFESSOR)
-     ============================================================ */
+  /*10. PAINÉIS DE PERFIL (EDITAR ALUNO / PROFESSOR)*/
   function closeProfile() { $('#profile-root').innerHTML = ''; }
 
   function openProfile(type, id) {
@@ -755,9 +768,9 @@
 
     const saveBtn = $('#pf-save', root);
     function markDirty() { saveBtn.disabled = false; }
-    
-    $$('input, select', root).forEach(inp => { inp.addEventListener('input', markDirty); inp.addEventListener('change', markDirty); });$$
-('.pill-opt', root).forEach(p => p.addEventListener('click', () => { 
+
+    $$('input, select', root).forEach(inp => { inp.addEventListener('input', markDirty); inp.addEventListener('change', markDirty); });
+    $$('.pill-opt', root).forEach(p => p.addEventListener('click', () => { 
       p.classList.toggle('on'); 
       markDirty(); 
     }));
@@ -779,7 +792,8 @@
       a.email = $('#pf-email', root).value.trim();
       a.plano = Number($('#pf-plano', root).value);
       a.pago = $('#pf-pago', root).checked;
-      a.dias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(p => p.dataset.val); a.horarios = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(p => p.dataset.val);
+      a.dias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(p => p.dataset.val);
+      a.horarios = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(p => p.dataset.val);
       saveData("edmusys_alunos", alunos);
       closeProfile();
       renderView();
@@ -835,9 +849,9 @@
 
     const saveBtn = $('#qf-save', root);
     function markDirty() { saveBtn.disabled = false; }
-    
-    $$('input, select', root).forEach(inp => { inp.addEventListener('input', markDirty); inp.addEventListener('change', markDirty); });$$
-('.pill-opt', root).forEach(pl => pl.addEventListener('click', () => { 
+
+    $$('input, select', root).forEach(inp => { inp.addEventListener('input', markDirty); inp.addEventListener('change', markDirty); });
+    $$('.pill-opt', root).forEach(pl => pl.addEventListener('click', () => { 
       pl.classList.toggle('on'); 
       markDirty(); 
     }));
@@ -852,16 +866,15 @@
       p.nascimento = $('#qf-nascimento', root).value;
       p.telefone = phoneDigits($('#qf-telefone', root).value) || p.telefone;
       p.email = $('#qf-email', root).value.trim();
-      p.dias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(pl => pl.dataset.val); p.horarios = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(pl => pl.dataset.val);
+      p.dias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(pl => pl.dataset.val);
+      p.horarios = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(pl => pl.dataset.val);
       saveData("edmusys_professores", professores);
       closeProfile();
       renderView();
     });
   }
 
-  /* ============================================================
-     11. OVERLAYS E CALENDÁRIO
-     ============================================================ */
+  /*11. OVERLAYS E CALENDÁRIO*/
   function renderCalendarOverlay() {
     const cal = $('#calendar-overlay');
     cal.innerHTML = `
@@ -887,22 +900,52 @@
     $('#cal-close').addEventListener('click', () => cal.classList.add('hidden'));
   }
 
-  /* ============================================================
-     12. INICIALIZAÇÃO DOS EVENTOS GLOBAIS E EXECUÇÃO
-     ============================================================ */
+  /*2. INICIALIZAÇÃO DOS EVENTOS GLOBAIS E EXECUÇÃO*/
   function init() {
     protegerPainel();
     window.addEventListener("pageshow", protegerPainel);
 
     initTheme();
 
-    $('#logout-btn')?.addEventListener('click', () => { localStorage.removeItem("adminLogado"); window.location.replace("EdMusys-homepage.html"); });      $$('.nav-btn').forEach(btn => btn.addEventListener('click', () => {
+    $('#logout-btn')?.addEventListener('click', () => { 
+      localStorage.removeItem("adminLogado"); 
+      window.location.replace("EdMusys-homepage.html"); 
+    });
+
+    $$('.nav-btn').forEach(btn => btn.addEventListener('click', () => {
       state.view = btn.dataset.view;
-      $('#sidebar').classList.remove('open');
+      
+      // Fecha a sidebar em telas menores ao navegar
+      if (window.innerWidth <= 860) {
+        $('#sidebar')?.classList.add('closed');
+        $('.main')?.classList.add('full-width');
+      }
+
       renderView();
     }));
 
-    $('#menu-toggle')?.addEventListener('click', () => $('#sidebar').classList.toggle('open'));
+    const sidebar = $('#sidebar');
+    const main = $('.main');
+    const menuToggle = $('#menu-toggle');
+
+    // 1. Clique no ícone superior esquerdo (Abre / Fecha o menu lateral)
+    menuToggle?.addEventListener('click', (e) => {
+      e.stopPropagation(); // Evita que o evento de fechar ao clicar fora seja disparado
+      sidebar?.classList.toggle('closed');
+      main?.classList.toggle('full-width');
+    });
+
+    // 2. Clique em qualquer lugar da tela para ocultar a sidebar se ela estiver visível
+    document.addEventListener('click', (e) => {
+      if (sidebar && !sidebar.classList.contains('closed')) {
+        // Se o clique NÃO for dentro da sidebar e NÃO for no botão toggle, oculta o menu
+        if (!sidebar.contains(e.target) && !menuToggle?.contains(e.target)) {
+          sidebar.classList.add('closed');
+          main?.classList.add('full-width');
+        }
+      }
+    });
+
     $('#brand-btn')?.addEventListener('click', () => {
       $('#calendar-overlay')?.classList.add('hidden');
       state.view = 'overview';
@@ -916,4 +959,4 @@
 
   init();
 
-})();vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+})();
