@@ -733,6 +733,8 @@
   function renderAlunoProfile(id) {
     const a = alunos.find(x => x.id === id);
     if (!a) return;
+    const planoInfo = PLANOS[a.plano] || { label: '1x / semana', valor: 60 };
+
     const html = `<div id="profile-overlay">
       <div class="profile-head">
         <button class="profile-back" id="profile-back" aria-label="Voltar">${ICON.back}</button>
@@ -740,16 +742,12 @@
           <div class="profile-avatar">${initials(a.nome)}</div>
           <div>
             <h2>${escapeHtml(a.nome)}</h2>
-            <span class="badge">${PLANOS[a.plano]?.label || '1x / semana'}</span>
+            <span class="badge">${planoInfo.label}</span>
           </div>
         </div>
       </div>
       <div class="profile-body">
         <div class="profile-panel">
-          <div class="pay-toggle-wrap">
-            <span>Situação da mensalidade</span>
-            <label class="switch"><input type="checkbox" id="pf-pago" ${a.pago ? 'checked' : ''}><span class="track"></span></label>
-          </div>
           <h4>${ICON.user} Dados pessoais</h4>
           <div class="field-row">
             ${ifield({ id: 'pf-nome', label: 'Nome', icon: ICON.user, value: a.nome })}
@@ -765,6 +763,7 @@
             ${ifield({ id: 'pf-mensalidade', label: 'Mensalidade', icon: ICON.cash, readonly: true, value: 'R$ ' + (PLANOS[a.plano]?.valor || 60) })}
           </div>
         </div>
+
         <div class="profile-panel">
           <h4>${ICON.calendar} Disponibilidade</h4>
           <div class="field-group-lbl" style="margin-bottom:8px;">Dias disponíveis</div>
@@ -772,6 +771,30 @@
           <div class="field-group-lbl" style="margin:16px 0 8px;">Horários disponíveis</div>
           ${pillGroup('horas', HORAS, a.horarios || [])}
         </div>
+
+        <!-- SEÇÃO DE PAGAMENTO ADICIONADA ABAIXO DAS INFORMAÇÕES -->
+        <div class="profile-panel">
+          <h4>${ICON.cash} Pagamento / Status da Mensalidade</h4>
+          <div class="field-group-lbl" style="margin-bottom:12px;">Selecione o status de pagamento do aluno:</div>
+          <div class="pay-status-options" style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:8px;padding:12px 18px;border:2px solid ${a.pago ? 'var(--gold, #E0A92A)' : '#ddd'};border-radius:10px;cursor:pointer;background:${a.pago ? '#FFFDF5' : 'transparent'};font-weight:600;">
+              <input type="radio" name="pf-pago-opt" value="pago" ${a.pago ? 'checked' : ''}>
+              <span style="color:#2E7D32;">✔ Opção 1: Mensalidade paga</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;padding:12px 18px;border:2px solid ${!a.pago ? 'var(--gold, #E0A92A)' : '#ddd'};border-radius:10px;cursor:pointer;background:${!a.pago ? '#FFFDF5' : 'transparent'};font-weight:600;">
+              <input type="radio" name="pf-pago-opt" value="pendente" ${!a.pago ? 'checked' : ''}>
+              <span style="color:#C62828;">⚠ Opção 2: Mensalidade pendente</span>
+            </label>
+          </div>
+
+          <div class="info-grid" style="margin-top:10px;padding-top:15px;border-top:1px solid #eee;">
+            <div class="info-item"><div class="lbl">Plano Atual</div><div class="val">${planoInfo.label}</div></div>
+            <div class="info-item"><div class="lbl">Valor Mensal</div><div class="val" style="font-weight:700;">R$ ${planoInfo.valor}</div></div>
+            <div class="info-item"><div class="lbl">Instrumento</div><div class="val">${escapeHtml(a.instrumento || '—')}</div></div>
+            <div class="info-item"><div class="lbl">Aulas por Semana</div><div class="val">${a.plano}x / semana</div></div>
+          </div>
+        </div>
+
         <div class="profile-save-bar">
           <button class="btn btn-gold" id="pf-save" disabled>Salvar alterações</button>
         </div>
@@ -782,7 +805,6 @@
     const root = $('#profile-root');
     $('#profile-back', root).addEventListener('click', closeProfile);
 
-    // Fechar ao clicar no fundo (overlay)
     root.addEventListener('click', (e) => {
       if (e.target.id === 'profile-root') closeProfile();
     });
@@ -790,8 +812,8 @@
     const saveBtn = $('#pf-save', root);
     function markDirty() { saveBtn.disabled = false; }
 
-    $$('input, select', root).forEach(inp => { inp.addEventListener('input', markDirty); inp.addEventListener('change', markDirty); });
-    $$('.pill-opt', root).forEach(p => p.addEventListener('click', () => { 
+    $$('input, select', root).forEach(inp => { inp.addEventListener('input', markDirty); inp.addEventListener('change', markDirty); });$$
+('.pill-opt', root).forEach(p => p.addEventListener('click', () => { 
       p.classList.toggle('on'); 
       markDirty(); 
     }));
@@ -812,9 +834,12 @@
       a.telefone = phoneDigits($('#pf-telefone', root).value) || a.telefone;
       a.email = $('#pf-email', root).value.trim();
       a.plano = Number($('#pf-plano', root).value);
-      a.pago = $('#pf-pago', root).checked;
-      a.dias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(p => p.dataset.val);
-      a.horarios = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(p => p.dataset.val);
+      
+      // Captura o status escolhido no rádio (Opção 1 ou Opção 2)
+      const statusPagoOpt = root.querySelector('input[name="pf-pago-opt"]:checked')?.value;
+      a.pago = statusPagoOpt === 'pago';
+
+      a.dias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(p => p.dataset.val); a.horarios = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(p => p.dataset.val);
       saveData("edmusys_alunos", alunos);
       closeProfile();
       renderView();
