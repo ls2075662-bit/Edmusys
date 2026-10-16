@@ -232,7 +232,7 @@ function renderMeusAlunos(prof, myAlunos, myHorarios) {
       </td>
       <td><span class="badge">${esc(a.instrumento)}</span></td>
       <td>
-        ${aulas.map(h => `<span style="font-family:var(--font-mono);font-size:12px;background:var(--gold-pale);color:var(--gold-deep);border-radius:6px;padding:3px 8px;margin:2px;display:inline-block;font-weight:700;">${h.dia} ${h.hora}</span>`).join('')}
+        ${aulas.map(h => `<span style="font-family:var(--font-mono);font-size:12px;background:var(--gold-pale);color:var(--gold-deep);border-radius:6px;padding:3px 8px;margin:2px;display:inline-block;font-weight:700;">${h.dia}${h.hora}</span>`).join('')}
       </td>
       <td><span class="plan-chip">${esc(plano?plano.label:'—')}</span></td>
       <td><span class="badge ${a.pago?'pago':'pendente'}">${a.pago?'PAGO':'PENDENTE'}</span></td>
@@ -252,29 +252,6 @@ function renderMeusAlunos(prof, myAlunos, myHorarios) {
         <tbody>${rows}</tbody>
       </table>
     </div>
-  </div>
-
-  <!-- CARDS ALUNOS -->
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:20px;">
-    ${myAlunos.map(a => {
-      const aulas = myHorarios.filter(h => h.alunoId === a.id);
-      return `<div style="background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:20px;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-          <div class="av" style="width:48px;height:48px;font-size:17px;border-radius:50%;background:var(--black);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;">${ini(a.nome)}</div>
-          <div>
-            <div style="font-weight:700;font-size:15px;">${esc(a.nome)}</div>
-            <span class="badge">${esc(a.instrumento)}</span>
-          </div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:7px;font-size:13px;">
-          <div style="display:flex;align-items:center;gap:8px;color:var(--muted);">${ICON.phone} ${maskPhone(a.telefone)}</div>
-          ${a.email?`<div style="display:flex;align-items:center;gap:8px;color:var(--muted);">${ICON.mail} ${esc(a.email)}</div>`:''}
-          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;padding-top:10px;border-top:1px solid var(--line-light);">
-            ${aulas.map(h=>`<span style="font-family:var(--font-mono);font-size:11px;background:var(--gold-pale);color:var(--gold-deep);border-radius:6px;padding:4px 9px;font-weight:700;">${h.dia} · ${h.hora}</span>`).join('')}
-          </div>
-        </div>
-      </div>`;
-    }).join('')}
   </div>`;
 }
 
