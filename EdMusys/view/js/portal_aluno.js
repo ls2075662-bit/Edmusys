@@ -57,13 +57,19 @@ function sidebarAluno(activeTab) {
     <nav class="nav-group">
       <button class="nav-btn ${activeTab==='agenda'?'active':''}" onclick="showTab('agenda')">${ICON.calendar} Minha Agenda</button>
       <button class="nav-btn ${activeTab==='professor'?'active':''}" onclick="showTab('professor')">${ICON.user} Meu Professor</button>
-      <button class="nav-btn ${activeTab==='pagamento'?'active':''}" onclick="showTab('pagamento')">${ICON.cash} Pagamento</button>
       <button class="nav-btn ${activeTab==='perfil'?'active':''}" onclick="showTab('perfil')">${ICON.tag} Meu Perfil</button>
     </nav>
     <div class="sidebar-foot">
       <button class="logout-btn" onclick="doLogout()">${ICON.logout} Sair</button>
     </div>
-  </aside>`;
+  </aside>`
+}
+
+function doLogin() {
+  if (!alunoLogado) {
+    window.location.href = "EdMusys-homepage.html";
+    return;
+ }
 }
 
 function goHome(){ window.location.href='EdMusys-homepage.html'; }
@@ -106,12 +112,68 @@ const alunoLogado =
     document.getElementById('app').classList.remove('hidden');
   
     render();
+    showPaymentStatusPopup(alunoEncontrado);
   }
 
   if (!alunoLogado) {
     window.location.href = "EdMusys-homepage.html";
   }else{
     doLogin();
+  }
+
+  function showPaymentStatusPopup(aluno) {
+    const plano = PLANOS[aluno.plano] || { label: '1x / semana', valor: 60 };
+    const isPago = aluno.pago;
+  
+    const statusColor = isPago ? '#2E7D32' : '#C62828';
+    const statusBg = isPago ? '#E8F5E9' : '#FFEBEE';
+    const statusLabel = isPago ? 'Mensalidade paga' : 'Mensalidade pendente';
+    const statusDesc = isPago 
+      ? 'Obrigado! Seu pagamento foi confirmado pelo administrador.' 
+      : 'Identificamos uma pendência na sua mensalidade. Por favor, entre em contato com a escola para regularizar.';
+  
+    const popupHTML = `
+    <div id="pay-popup-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;">
+      <div style="background:#fff;border-radius:16px;max-width:520px;width:100%;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.3);animation:popupFadeIn 0.3s ease;">
+        <div style="padding:24px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee;">
+          <h3 style="margin:0;font-family:var(--font-display);font-size:20px;color:#111;">Status da Mensalidade</h3>
+          <button onclick="closePaymentPopup()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#666;">✕</button>
+        </div>
+        <div style="padding:24px;">
+          <!-- CAIXA DE AVISO (PAGA / PENDENTE) -->
+          <div style="background:${statusBg};border-radius:12px;padding:18px 20px;display:flex;align-items:center;gap:14px;margin-bottom:20px;border:1px solid ${statusColor}33;">
+            <div style="width:42px;height:42px;border-radius:50%;background:${statusColor};display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;font-size:20px;font-weight:bold;">
+              ${isPago ? '✓' : '!'}
+            </div>
+            <div>
+              <div style="font-size:17px;font-weight:700;color:${statusColor};">${statusLabel}</div>
+              <div style="font-size:13.5px;color:#444;margin-top:2px;">${statusDesc}</div>
+            </div>
+          </div>
+  
+          <!-- DETALHES DO PLANO DO ALUNO -->
+          <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;background:#FAF8F5;padding:16px;border-radius:12px;">
+            <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Plano Atual</div><div style="font-weight:700;font-size:14px;">${esc(plano.label)}</div></div>
+            <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Valor Mensal</div><div style="font-weight:800;font-size:18px;color:#111;">R$ ${plano.valor}</div></div>
+            <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Instrumento</div><div style="font-weight:600;font-size:14px;">${esc(aluno.instrumento)}</div></div>
+            <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Aulas por Semana</div><div style="font-weight:600;font-size:14px;">${aluno.plano}x / semana</div></div>
+          </div>
+        </div>
+        <div style="padding:16px 24px;background:#FAF8F5;display:flex;justify-content:flex-end;border-top:1px solid #eee;">
+          <button onclick="closePaymentPopup()" class="btn btn-gold" style="padding:10px 24px;border-radius:8px;font-weight:700;cursor:pointer;background:#E0A92A;border:none;color:#111;">Entendi</button>
+        </div>
+      </div>
+    </div>`;
+  
+    const div = document.createElement('div');
+    div.id = 'pay-popup-root';
+    div.innerHTML = popupHTML;
+    document.body.appendChild(div);
+  }
+
+  function closePaymentPopup() {
+    const el = document.getElementById('pay-popup-root');
+    if (el) el.remove();
   }
 
 function showTab(t) { currentTab = t; render(); }
