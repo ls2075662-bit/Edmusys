@@ -83,7 +83,6 @@ alter table professor
 add constraint uq_professor_cpf unique (cpf),
 add constraint uq_professor_email unique (email);
 
-
 show tables;
 describe agendamento;
 
@@ -113,8 +112,8 @@ select * from professor;
 #delete from professor where id_professor in (1,4);
 
 insert into agendamento (instrumento, dia, horario, id_professor, id_aluno, id_administrador)
-values('piano', 'quarta', '16:00', '7','2', '1');
+values('piano', '2026-10-22', '16:00:00', '7','2', '1');
 
 select * from agendamento;
 
-# CORRIGIR: ERRO AO ADICIONAR AGENDAMENTO!!!!
+# CORRIGIR: ERRO AO ADICIONAR AGENDAMENTO!!!! OKKKKKKKKKKKKK
