@@ -186,7 +186,9 @@
     return `<div class="empty-state">${ICON.calendar}<p>${msg}</p><button class="btn btn-dark" id="${btnId}">${ICON.plus} ${btnLabel}</button></div>`;
   }
 
-  /*7. RENDERS DAS VISÕES (OVERVIEW, ALUNOS, PROFESSORES, HORÁRIOS)*/
+  /* ============================================================
+     7. RENDERS DAS VISÕES (OVERVIEW, ALUNOS, PROFESSORES, HORÁRIOS)
+     ============================================================ */
   const TITLES = {
     overview: ['Visão Geral', 'Resumo da escola de música'],
     alunos: ['Alunos', 'Cadastro e agenda dos alunos'],
@@ -322,7 +324,9 @@
     </div>`;
   }
 
-  /*8. MANIPULADORES DE EVENTOS DAS VISÕES*/
+  /* ============================================================
+     8. MANIPULADORES DE EVENTOS DAS VISÕES
+     ============================================================ */
   function attachViewHandlers() {
     $('#btn-novo-aluno')?.addEventListener('click', () => openModalNovoAluno());
     $('#btn-novo-aluno-empty')?.addEventListener('click', () => openModalNovoAluno());
@@ -371,7 +375,9 @@
     }));
   }
 
-  /*9. MODAIS DE CADASTRO E EDIÇÃO DE HORÁRIOS / ALUNOS / PROFESSORES*/
+  /* ============================================================
+     9. MODAIS DE CADASTRO E EDIÇÃO DE HORÁRIOS / ALUNOS / PROFESSORES
+     ============================================================ */
   function closeModal() { $('#modal-root').innerHTML = ''; }
 
   function openModalEditarHorario(id) {
@@ -706,7 +712,9 @@
     });
   }
 
-  /*10. PAINÉIS DE PERFIL (EDITAR ALUNO / PROFESSOR)*/
+  /* ============================================================
+     10. PAINÉIS DE PERFIL (EDITAR ALUNO / PROFESSOR)
+     ============================================================ */
   function closeProfile() { $('#profile-root').innerHTML = ''; }
 
   function openProfile(type, id) {
@@ -765,6 +773,11 @@
     $('#profile-root').innerHTML = html;
     const root = $('#profile-root');
     $('#profile-back', root).addEventListener('click', closeProfile);
+
+    // Fechar ao clicar no fundo (overlay)
+    root.addEventListener('click', (e) => {
+      if (e.target.id === 'profile-root') closeProfile();
+    });
 
     const saveBtn = $('#pf-save', root);
     function markDirty() { saveBtn.disabled = false; }
@@ -847,6 +860,11 @@
     const root = $('#profile-root');
     $('#profile-back', root).addEventListener('click', closeProfile);
 
+    // Fechar ao clicar no fundo (overlay)
+    root.addEventListener('click', (e) => {
+      if (e.target.id === 'profile-root') closeProfile();
+    });
+
     const saveBtn = $('#qf-save', root);
     function markDirty() { saveBtn.disabled = false; }
 
@@ -874,7 +892,9 @@
     });
   }
 
-  /*11. OVERLAYS E CALENDÁRIO*/
+  /* ============================================================
+     11. OVERLAYS E CALENDÁRIO
+     ============================================================ */
   function renderCalendarOverlay() {
     const cal = $('#calendar-overlay');
     cal.innerHTML = `
@@ -900,7 +920,9 @@
     $('#cal-close').addEventListener('click', () => cal.classList.add('hidden'));
   }
 
-  /*2. INICIALIZAÇÃO DOS EVENTOS GLOBAIS E EXECUÇÃO*/
+  /* ============================================================
+     12. INICIALIZAÇÃO DOS EVENTOS GLOBAIS E EXECUÇÃO
+     ============================================================ */
   function init() {
     protegerPainel();
     window.addEventListener("pageshow", protegerPainel);
