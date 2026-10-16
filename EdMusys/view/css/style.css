@@ -1,4 +1,6 @@
-/*1. VARIÁVEIS DE TEMA E DARK MODE*/
+/* ============================================================
+   1. VARIÁVEIS DE TEMA E DARK MODE
+   ============================================================ */
    :root {
     --black: #121110;
     --black-soft: #1C1B18;
@@ -46,7 +48,9 @@
     --border-chip: #404040;
   }
   
-  /*2. RESET E ESTILOS BASE*/
+  /* ============================================================
+     2. RESET E ESTILOS BASE
+     ============================================================ */
   * { box-sizing: border-box; margin: 0; padding: 0; }
   
   body {
@@ -65,7 +69,25 @@
   .scr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
   :focus-visible { outline: 2px solid var(--gold-deep); outline-offset: 2px; }
   
-  /*3. APP SHELL & ESTRUTURA GERAL (MENU OCULTÁVEL / RETRÁTIL)*/
+  /* Customização de Scrollbar Limpa e Discreta (Aparece apenas quando necessário) */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(138, 133, 121, 0.25);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--gold-deep);
+  }
+  
+  /* ============================================================
+     3. APP SHELL & ESTRUTURA GERAL (MENU OCULTÁVEL / RETRÁTIL)
+     ============================================================ */
   #app { display: flex; min-height: 100vh; }
   
   .sidebar {
@@ -145,7 +167,9 @@
   .menu-toggle { display: flex !important; background: var(--black); color: var(--gold); border: none; width: 38px; height: 38px; border-radius: var(--radius-sm); align-items: center; justify-content: center; cursor: pointer;}
   .menu-toggle svg { width: 18px; height: 18px;}
   
-  /* 4. COMPONENTES GLOBAIS (BOTÕES, IFIELDS, CHIPS, BADGES)*/
+  /* ============================================================
+     4. COMPONENTES GLOBAIS (BOTÕES, IFIELDS, CHIPS, BADGES)
+     ============================================================ */
   .btn {
     border: none; border-radius: var(--radius-sm); padding: 10px 16px;
     font-weight: 700; font-size: 13.5px; display: inline-flex; align-items: center; gap: 7px;
@@ -208,7 +232,9 @@
   .icon-btn:hover { border-color: var(--gold-deep); color: var(--gold-deep);}
   .icon-btn.danger:hover { border-color: var(--danger); color: var(--danger); background: #FBEAEA;}
   
-  /*5. ESTILOS DE VISÕES ESPECÍFICAS*/
+  /* ============================================================
+     5. ESTILOS DE VISÕES ESPECÍFICAS
+     ============================================================ */
   /* OVERVIEW */
   .stat-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 16px; margin-bottom: 28px;}
   .stat-card {
@@ -298,7 +324,9 @@
   .ticket-actions { display: flex; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-main);}
   .ticket-actions .icon-btn { margin-left: auto;}
   
-  /*6. MODAIS, OVERLAYS E FAB*/
+  /* ============================================================
+     6. MODAIS, OVERLAYS E FAB
+     ============================================================ */
   .fab {
     position: fixed; right: 30px; bottom: 30px; width: 64px; height: 64px; border-radius: 50%;
     background: var(--black); color: var(--gold); border: none; box-shadow: 0 12px 30px -8px rgba(18,17,16,.5);
@@ -318,7 +346,7 @@
   .cal-slot { font-family: var(--font-mono); font-size: 11px; background: var(--gold-pale); color: var(--gold-deep); border-radius: 6px; padding: 6px 7px; margin-bottom: 6px; font-weight: 700;}
   .cal-slot small { display: block; font-family: var(--font-body); font-weight: 600; color: var(--black); font-size: 11px; margin-top: 2px;}
   
-  /* MODAIS DE DIÁLOGO */
+  /* MODAIS DE DIÁLOGO GERAIS */
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(18,17,16,.55); backdrop-filter: blur(2px); z-index: 80;
     display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -326,6 +354,7 @@
   .modal {
     background: var(--bg-surface); color: var(--text-main); border-radius: var(--radius-lg); width: 100%; max-width: 440px; max-height: 88vh;
     overflow-y: auto; box-shadow: var(--shadow-pop); border: 1px solid var(--border-main);
+    scrollbar-width: thin;
   }
   .modal.modal-wide { max-width: 580px; }
   .modal.modal-xl { max-width: 840px; width: 92vw; }
@@ -339,7 +368,9 @@
   .modal-foot { padding: 16px 22px; border-top: 1px solid var(--border-main); display: flex; align-items: center; justify-content: flex-end; gap: 10px; background: var(--bg-surface); position: sticky; bottom: 0; z-index: 2;}
   .modal-foot-between { justify-content: space-between; }
   
-  /*7. REGRAS RESPONSIVAS (MEDIA QUERIES)*/
+  /* ============================================================
+     7. REGRAS RESPONSIVAS (MEDIA QUERIES)
+     ============================================================ */
   @media (max-width: 900px) {
     .cal-grid { grid-template-columns: repeat(2, 1fr); }
   }
@@ -356,7 +387,9 @@
     .fab { right: 18px; bottom: 18px;}
   }
   
-  /*8. ESTILOS DO MODAL DE EDIÇÃO DO PERFIL*/
+  /* ============================================================
+     8. ESTILOS DO PAINEL DE EDIÇÃO DO PERFIL (EXPANDIDO QUASE TELA CHEIA)
+     ============================================================ */
   #profile-root:not(:empty) {
     position: fixed;
     inset: 0;
@@ -366,7 +399,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 16px;
   }
   
   #profile-overlay {
@@ -374,15 +407,36 @@
     color: var(--text-main);
     border: 1px solid var(--border-main);
     border-radius: var(--radius-lg);
-    width: 100%;
-    max-width: 780px;
-    max-height: 88vh;
+    width: 95vw;
+    max-width: 1280px;
+    max-height: 92vh;
     overflow-y: auto;
     box-shadow: var(--shadow-pop);
     display: flex;
     flex-direction: column;
-    padding: 28px;
+    padding: 28px 32px;
     animation: profileModalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    
+    /* Scrollbar oculta e limpa (apenas visível suavemente se o conteúdo exceder a altura) */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(138, 133, 121, 0.3) transparent;
+  }
+  
+  #profile-overlay::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  #profile-overlay::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  #profile-overlay::-webkit-scrollbar-thumb {
+    background-color: rgba(138, 133, 121, 0.25);
+    border-radius: 99px;
+  }
+  
+  #profile-overlay::-webkit-scrollbar-thumb:hover {
+    background-color: var(--gold-deep);
   }
   
   @keyframes profileModalIn {
@@ -458,7 +512,7 @@
     background: var(--bg-page);
     border: 1px solid var(--border-main);
     border-radius: var(--radius-md);
-    padding: 20px;
+    padding: 22px 24px;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -475,8 +529,8 @@
   
   .field-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
   }
   
   .field-group-lbl {
