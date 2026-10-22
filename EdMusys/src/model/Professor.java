@@ -8,19 +8,22 @@ public class Professor {
     private String email;
     private String cpf;
     private String especialidade;
-    private String dias_disponiveis;
-    private String horarios_disponiveis;
+    private String diasDisponiveis;
+    private String horariosDisponiveis;
     private String plano;
     private LocalDate dataNascimento;
 
-    public Professor(String nome, String especialidade, String telefone, String email, String cpf, String dias_disponiveis, String horarios_disponiveis, String plano, LocalDate dataNascimento) {
+    public Professor() {
+    }
+
+    public Professor(String nome, String especialidade, String telefone, String email, String cpf, String diasDisponiveis, String horariosDisponiveis, String plano, LocalDate dataNascimento) {
         this.nome = nome;
+        this.especialidade = especialidade;
         this.telefone = telefone;
         this.email = email;
         this.cpf = cpf;
-        this.especialidade = especialidade;
-        this.dias_disponiveis = dias_disponiveis;
-        this.horarios_disponiveis = horarios_disponiveis;
+        this.diasDisponiveis = diasDisponiveis;
+        this.horariosDisponiveis = horariosDisponiveis;
         this.plano = plano;
         this.dataNascimento = dataNascimento;
     }
@@ -58,31 +61,42 @@ public class Professor {
     }
 
     public String getEspecialidade() {
-        return instrumento;
+        return especialidade;
     }
 
-    public void setEspecialidade(String instrumento) {
-        this.instrumento = instrumento;
+    public void setEspecialidade(String especialidade) {
+        this.especialidade = especialidade;
     }
 
-    public String getDiasdisponiveis() {
-        return dias_disponiveis;
+    public String getDiasDisponiveis() {
+        return diasDisponiveis;
     }
 
-    public void setDiasdisponiveis(String dias_disponiveis) {
-        this.dias_disponiveis = dias_disponiveis;
+    public void setDiasDisponiveis(String diasDisponiveis) {
+        this.diasDisponiveis = diasDisponiveis;
     }
 
-    public String getHorariosdisponiveis() {
-        return horarios_disponiveis;
+    public String getHorariosDisponiveis() {
+        return horariosDisponiveis;
     }
 
-    public void setHorariosdisponiveis(String horarios_disponiveis) {
-        this.horarios_disponiveis = horarios_disponiveis;
+    public void setHorariosDisponiveis(String horariosDisponiveis) {
+        this.horariosDisponiveis = horariosDisponiveis;
     }
 
-    public LocalDate getDataNascimento(){return dataNascimento;}
-    public void setDataNascimento(LocalDate dataNascimento){
+    public String getPlano() {
+        return plano;
+    }
+
+    public void setPlano(String plano) {
+        this.plano = plano;
+    }
+
+    public LocalDate getDataNascimento() {
+        return dataNascimento;
+    }
+
+    public void setDataNascimento(LocalDate dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
 }
