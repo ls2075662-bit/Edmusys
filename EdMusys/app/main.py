@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -16,25 +16,38 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Inclui os endpoints de API
+# 1. Inclui os endpoints da API (Back-end)
 app.include_router(aluno_router)
 
-# Caminho para a pasta view (Front-end)
+# Caminho absoluto para a pasta view (Front-end)
 base_dir = os.path.dirname(os.path.abspath(__file__))
-view_dir = os.path.join(base_dir, "..", "view")
+view_dir = os.path.abspath(os.path.join(base_dir, "..", "view"))
 
-# Mapeia os arquivos estáticos (CSS, JS, HTML)
+# 2. Mapeia as pastas estáticas de CSS e JS
 if os.path.exists(view_dir):
-    app.mount("/css", StaticFiles(directory=os.path.join(view_dir, "css")), name="css")
-    app.mount("/js", StaticFiles(directory=os.path.join(view_dir, "js")), name="js")
+    css_dir = os.path.join(view_dir, "css")
+    js_dir = os.path.join(view_dir, "js")
+    
+    if os.path.exists(css_dir):
+        app.mount("/css", StaticFiles(directory=css_dir), name="css")
+    if os.path.exists(js_dir):
+        app.mount("/js", StaticFiles(directory=js_dir), name="js")
 
-# Rota principal (ao acessar http://127.0.0.1:8080/)
+# 3. Rota principal (ao acessar http://127.0.0.1:8080/)
 @app.get("/")
 def read_root():
     homepage = os.path.join(view_dir, "EdMusys-homepage.html")
     if os.path.exists(homepage):
         return FileResponse(homepage)
     return {"mensagem": "API EdMusys rodando com sucesso!"}
+
+# 4. Rota dinâmica para QUALQUER página .html (index.html, cadastro.html, portal_aluno.html, etc.)
+@app.get("/{page_name}.html")
+def get_html_page(page_name: str):
+    file_path = os.path.join(view_dir, f"{page_name}.html")
+    if os.path.exists(file_path):
+        return FileResponse(file_path)
+    raise HTTPException(status_code=404, detail="Página não encontrada")
 
 if __name__ == "__main__":
     import uvicorn
