@@ -8,19 +8,22 @@ public class Aluno {
     private String email;
     private String cpf;
     private String instrumento;
-    private String dias_disponiveis;
-    private String horarios_disponiveis;
+    private String diasDisponiveis;
+    private String horariosDisponiveis;
     private String plano;
     private LocalDate dataNascimento;
 
-    public Aluno(String nome, String instrumento, String telefone, String email, String cpf, String dias_disponiveis, String horarios_disponiveis, String plano, LocalDate dataNascimento) {
+    public Aluno() {
+    }
+
+    public Aluno(String nome, String instrumento, String telefone, String email, String cpf, String diasDisponiveis, String horariosDisponiveis, String plano, LocalDate dataNascimento) {
         this.nome = nome;
-        this.tel = telefone;
+        this.instrumento = instrumento;
+        this.telefone = telefone;
         this.email = email;
         this.cpf = cpf;
-        this.instrumento = instrumento;
-        this.dias_disponiveis = dias_disponiveis;
-        this.horarios_disponiveis = horarios_disponiveis;
+        this.diasDisponiveis = diasDisponiveis;
+        this.horariosDisponiveis = horariosDisponiveis;
         this.plano = plano;
         this.dataNascimento = dataNascimento;
     }
@@ -37,7 +40,7 @@ public class Aluno {
         return telefone;
     }
 
-    public void setTel(String telefone) {
+    public void setTelefone(String telefone) {
         this.telefone = telefone;
     }
 
@@ -65,20 +68,20 @@ public class Aluno {
         this.instrumento = instrumento;
     }
 
-    public String getDiasdisponiveis() {
-        return dias_disponiveis;
+    public String getDiasDisponiveis() {
+        return diasDisponiveis;
     }
 
-    public void setDiasdisponiveis(String dias_disponiveis) {
-        this.dias_disponiveis = dias_disponiveis;
+    public void setDiasDisponiveis(String diasDisponiveis) {
+        this.diasDisponiveis = diasDisponiveis;
     }
 
-    public String getHorariosdisponiveis() {
-        return horarios_disponiveis;
+    public String getHorariosDisponiveis() {
+        return horariosDisponiveis;
     }
 
-    public void setHorariosdisponiveis(String horarios_disponiveis) {
-        this.horarios_disponiveis = horarios_disponiveis;
+    public void setHorariosDisponiveis(String horariosDisponiveis) {
+        this.horariosDisponiveis = horariosDisponiveis;
     }
 
     public String getPlano() {
@@ -89,11 +92,11 @@ public class Aluno {
         this.plano = plano;
     }
 
-    public LocalDate getDatanascimento() {
+    public LocalDate getDataNascimento() {
         return dataNascimento;
     }
 
-    public void setDatanascimento(LocalDate dataNascimento) {
+    public void setDataNascimento(LocalDate dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
 }
