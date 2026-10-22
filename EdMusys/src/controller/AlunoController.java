@@ -7,7 +7,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/alunos")
-@CrossOrigin(origins = "*") // Permite chamadas do front-end
+@CrossOrigin(origins = "*")
 public class AlunoController {
 
     private AlunoService alunoService = new AlunoService();
