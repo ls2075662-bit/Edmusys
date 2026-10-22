@@ -1,3 +1,5 @@
+package model;
+
 public class Administrador() {
     String nome;
     String email;
