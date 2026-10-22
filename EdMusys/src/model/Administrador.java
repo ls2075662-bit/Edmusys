@@ -1,10 +1,13 @@
 package model;
 
-public class Administrador() {
-    String nome;
-    String email;
-    String cpf;
-    String senha;
+public class Administrador {
+    private String nome;
+    private String email;
+    private String cpf;
+    private String senha;
+
+    public Administrador() {
+    }
 
     public Administrador(String nome, String email, String cpf, String senha) {
         this.nome = nome;
@@ -26,7 +29,7 @@ public class Administrador() {
     }
 
     public void setEmail(String email) {
-        this.nome = email;
+        this.email = email;
     }
 
     public String getCpf() {
@@ -34,10 +37,14 @@ public class Administrador() {
     }
 
     public void setCpf(String cpf) {
-        this.nome = cpf;
+        this.cpf = cpf;
+    }
+
+    public String getSenha() {
+        return senha;
     }
 
     public void setSenha(String senha) {
-        this.nome = senha;
+        this.senha = senha;
     }
 }
