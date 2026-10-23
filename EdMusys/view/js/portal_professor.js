@@ -75,9 +75,7 @@ function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
 }
 
-
 // ── LOGIN ──────────────────────────────────────────────
-
 
 let currentProfId = null;
 
