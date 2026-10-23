@@ -5,9 +5,7 @@ const form = document.getElementById("formCadastro");
     const mensagem = document.getElementById("mensagem");
     const erroCpf = document.getElementById("erroCpf");
 
-    // ==========================================================
 // VALIDAÇÃO DO CPF
-// ==========================================================
 
 // Remove pontos, traços e qualquer outro caractere
 function limparCPF(cpf) {
@@ -37,9 +35,7 @@ function validarCPF(cpf) {
     return false;
   }
 
-  // ==========================
   // Primeiro dígito verificador
-  // ==========================
 
   let soma = 0;
 
@@ -54,9 +50,7 @@ function validarCPF(cpf) {
     return false;
   }
 
-  // ==========================
   // Segundo dígito verificador
-  // ==========================
 
   soma = 0;
 
@@ -74,10 +68,8 @@ function validarCPF(cpf) {
   return true;
 }
 
-// ==========================================================
 // MÁSCARA DO CPF
 // Formato: 000.000.000-00
-// ==========================================================
 
 cpfInput.addEventListener("input", function() {
 
@@ -150,10 +142,7 @@ if (cpfLimpo.length === 0) {
       const senhaValor = senha.value;
       const confirmarSenhaValor = confirmarSenha.value;
 
-      // ==========================================================
       // VERIFICAR CPF
-      // ==========================================================
-
       if (!validarCPF(cpfLimpo)) {
 
       erroCpf.textContent = "CPF inválido. Informe um CPF válido.";
