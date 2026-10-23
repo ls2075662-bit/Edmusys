@@ -81,9 +81,6 @@ function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
 }
 
-
-
-
 let currentAlunoId = null;
 let currentTab = 'agenda';
 let selectedDay = 'Segunda';
