@@ -11,7 +11,6 @@
 <link rel="stylesheet" href="css/homepage.css">
 </head>
 <body>
-
 <div id="login-screen">
   <div class="login-card">
     <div class="login-brand">
@@ -21,10 +20,8 @@
       <h1>EdMusys</h1>
       <p>Sistema de Gestão</p>
     </div>
-
     <form class="login-form" id="loginForm">
       <div class="login-error" id="loginError">Selecione seu nome antes de entrar.</div>
-
       <div>
         <span class="field-group-lbl">Entrar como</span>
         <div class="pill-select" id="roleGroup">
@@ -33,7 +30,6 @@
           <button type="button" class="pill-opt" data-role="aluno">Aluno</button>
         </div>
       </div>
-
       <div class="ifield" id="userLoginFields">
         <label for="userLogin">Nome, CPF ou E-mail</label>
         <div class="icontainer">
@@ -48,31 +44,24 @@
           >
         </div>
       </div>
-
       <div class="ifield" id="adminLoginFields" style="display: none;">
-
         <label for="adminUser">Nome, CPF ou E-mail</label>
         <div class="icontainer">
             <input type="text" id="adminUser" placeholder="Digite seu nome, CPF ou e-mail">
         </div>
-    
         <label for="adminPass">Senha</label>
         <div class="icontainer">
             <input type="password" id="adminPass" placeholder="Digite sua senha">
         </div>
-    
     </div>
-
       <button type="submit" class="login-submit" id="enterBtn">Entrar no sistema</button>
       <button type="button" class="novo-usuario" id="novoAdmin" style="display: none;" onclick="window.location.href='cadastro.html'">
       Cadastrar novo administrador
       </button>
     </form>
-
     <p class="login-hint">Dados salvos localmente no navegador</p>
   </div>
 </div>
-
 <script src="js/homepage.js"></script>
 </body>
 </html>
