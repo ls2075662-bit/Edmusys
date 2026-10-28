@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EdMusys - Sistema de Gestão para Escolas de Música</title>
+  <link rel="stylesheet" href="css/homepage.css">
+  <!-- Fonts: Fraunces (Display/Logo) & Inter (UI Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brandDark: '#0E0D0C',
+            brandDarkSoft: '#141311',
+            brandDarkElev: '#1A1917',
+            brandBorder: '#2E2C27',
+            brandBorderLight: '#38352F',
+            brandGold: '#F0B90B',
+            brandGoldDeep: '#C99400',
+            brandGoldPale: '#FCE9A8',
+            brandCream: '#FBF9F4',
+            brandCreamDark: '#F1EDE3',
+            brandTextMain: '#121110',
+            brandTextMuted: '#6B655B'
+          },
+          fontFamily: {
+            display: ['Fraunces', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+          },
+          boxShadow: {
+            'gold-glow': '0 0 25px rgba(240, 185, 11, 0.25)',
+            'card-deep': '0 25px 60px -15px rgba(0, 0, 0, 0.7)',
+            'card-pop': '0 10px 30px rgba(0, 0, 0, 0.3)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Styling & Utilities */
+    body {
+      background-color: #0E0D0C;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0E0D0C;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2E2C27;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #F0B90B;
+    }
+
+    /* Input focus glow */
+    .input-focus-ring:focus-within {
+      border-color: #F0B90B;
+      box-shadow: 0 0 0 3px rgba(240, 185, 11, 0.2);
+    }
+
+    /* Smooth transitions */
+    .transition-all-200 {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+<body class="bg-brandDark text-white antialiased min-h-screen flex flex-col justify-between relative selection:bg-brandGold selection:text-black">
+
+  <!-- BACKGROUND DECORATIVE VECTOR MUSIC STAFF WAVES (SOLID DARK OVERLAY) -->
+  <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
+    <!-- Subtle Golden Flowing Music Staff Lines -->
+    <svg class="absolute w-full h-[120%] -top-[10%] left-0 opacity-[0.14] stroke-brandGold" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900">
+      <path d="M-100 350 C 300 150, 700 500, 1540 250" stroke-width="2" />
+      <path d="M-100 365 C 300 165, 700 515, 1540 265" stroke-width="2" />
+      <path d="M-100 380 C 300 180, 700 530, 1540 280" stroke-width="2" />
+      <path d="M-100 395 C 300 195, 700 545, 1540 295" stroke-width="2" />
+      <path d="M-100 410 C 300 210, 700 560, 1540 310" stroke-width="2" />
+
+      <!-- Secondary Wave Accent -->
+      <path d="M-100 700 C 400 850, 900 550, 1540 750" stroke-width="1.5" />
+      <path d="M-100 712 C 400 862, 900 562, 1540 762" stroke-width="1.5" />
+      <path d="M-100 724 C 400 874, 900 574, 1540 774" stroke-width="1.5" />
+    </svg>
+
+    <!-- Radial ambient glows -->
+    <div class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brandGold/5 rounded-full blur-[140px]"></div>
+    <div class="absolute bottom-1/3 right-1/4 w-[600px] h-[600px] bg-brandGold/5 rounded-full blur-[160px]"></div>
+  </div>
+
+  <!-- HEADER / NAVBAR -->
+  <header class="relative z-20 border-b border-brandBorder/60 bg-brandDark/80 backdrop-blur-md sticky top-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- BRAND LOGO -->
+      <div class="flex items-center gap-6">
+        <a href="#inicio" class="flex items-center gap-3 group">
+          <!-- Yellow Circle Logo Icon -->
+          <div class="w-10 h-10 rounded-full bg-brandGold flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+            <!-- Music Note Icon -->
+            <svg class="w-6 h-6 text-red-500 fill-current" viewBox="0 0 24 24">
+              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            </svg>
+          </div>
+          <span class="font-display text-2xl font-bold text-white tracking-tight">EdMusys</span>
+        </a>
+
+        <!-- Vertical Separator -->
+        <div class="hidden sm:block h-5 w-[1px] bg-brandBorder"></div>
+
+        <!-- NAV LINKS -->
+        <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
+          <a href="#inicio" class="text-white font-semibold relative py-1 after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-brandGold">Início</a>
+          <a href="#recursos" class="text-gray-300 hover:text-brandGold transition-colors">Recursos</a>
+          <a href="#sobre" class="text-gray-300 hover:text-brandGold transition-colors">Sobre</a>
+        </nav>
+      </div>
+
+      <!-- RIGHT CTA BUTTON & MOBILE TOGGLE -->
+      <div class="flex items-center gap-4">
+        <button onclick="scrollToLogin()" class="bg-brandGold hover:bg-brandGoldDeep text-black font-bold text-sm px-6 py-2.5 rounded-full shadow-md hover:shadow-gold-glow transition-all duration-200">
+          Acessar sistema
+        </button>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-300 hover:text-white" aria-label="Abrir Menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- MOBILE NAVIGATION MENU -->
+    <div id="mobile-menu" class="hidden md:hidden border-b border-brandBorder bg-brandDarkElev px-4 pt-3 pb-6 space-y-3">
+      <a href="#inicio" class="block text-brandGold font-semibold text-base py-2">Início</a>
+      <a href="#recursos" class="block text-gray-300 hover:text-white text-base py-2">Recursos</a>
+      <a href="#sobre" class="block text-gray-300 hover:text-white text-base py-2">Sobre</a>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="relative z-10 flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-14 pb-16 flex flex-col justify-center">
+    
+    <!-- HERO SECTION & LOGIN CARD GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mb-20" id="inicio">
+      
+      <!-- HERO LEFT COLUMN -->
+      <div class="lg:col-span-7 space-y-6 text-left">
+        
+        <!-- TAGLINE BADGE -->
+        <div class="inline-block">
+          <span class="text-[11px] sm:text-xs font-bold tracking-[0.18em] uppercase text-brandGold px-3 py-1 rounded-full border border-brandGold/20 bg-brandGold/5">
+            SISTEMA DE GESTÃO PARA ESCOLAS DE MÚSICA
+          </span>
+        </div>
+
+        <!-- MAIN HEADLINE -->
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15]">
+          A música conecta.<br>
+          <span class="text-brandGold font-display font-bold">A gestão acompanha.</span>
+        </h1>
+
+        <!-- PARAGRAPH -->
+        <p class="text-gray-300 text-base sm:text-lg leading-relaxed max-w-xl">
+          Organize seus alunos, professores, aulas e pagamentos em um só lugar. Mais tempo para a música, menos tempo com burocracia.
+        </p>
+
+        <!-- CTA BUTTON -->
+        <div class="pt-2">
+          <a href="#recursos" class="inline-flex items-center gap-3 bg-brandGold hover:bg-brandGoldDeep text-black font-bold text-base px-7 py-3.5 rounded-full shadow-lg hover:shadow-gold-glow transition-all duration-200">
+            <span>Conheça os recursos</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+            </svg>
+          </a>
+        </div>
+
+      </div>
+
+      <!-- LOGIN CARD RIGHT / CENTER COLUMN -->
+      <div class="lg:col-span-5 flex justify-center" id="login-section">
+        
+        <!-- LOGIN CARD CONTAINER -->
+        <div class="w-full max-w-[420px] bg-brandCream text-brandTextMain rounded-[22px] p-7 sm:p-9 shadow-card-deep border border-brandCreamDark/80 relative overflow-hidden transition-all-200">
+          
+          <!-- Top Gold Accent Gradient Bar -->
+          <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brandGold via-brandGoldPale to-brandGoldDeep"></div>
+
+          <!-- CARD HEADER: LOGO & TITLE -->
+          <div class="flex flex-col items-center text-center mb-6">
+            <!-- Yellow Bubble Logo -->
+            <div class="w-14 h-14 rounded-full bg-brandGold flex items-center justify-center shadow-md mb-2">
+              <svg class="w-8 h-8 text-red-500 fill-current" viewBox="0 0 24 24">
+                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+              </svg>
+            </div>
+            
+            <h2 class="font-display text-2xl font-bold text-black tracking-tight">EdMusys</h2>
+            <span class="text-[11px] font-bold tracking-[0.14em] uppercase text-brandTextMuted mt-0.5">
+              SISTEMA DE GESTÃO
+            </span>
+          </div>
+
+          <!-- ROLE PICKER TABS ("ENTRAR COMO") -->
+          <div class="mb-5">
+            <label class="block text-[10.5px] font-bold tracking-wider uppercase text-brandTextMuted mb-2 text-left">
+              ENTRAR COMO
+            </label>
+            <div class="grid grid-cols-3 gap-1.5 p-1 bg-white border border-gray-200 rounded-full text-xs font-semibold">
+              <button type="button" onclick="setRole('admin')" id="role-admin" class="py-2 rounded-full transition-all text-gray-500 hover:text-black">
+                Administrador
+              </button>
+              <button type="button" onclick="setRole('professor')" id="role-professor" class="py-2 rounded-full transition-all bg-black text-brandGold font-bold shadow-sm">
+                Professor
+              </button>
+              <button type="button" onclick="setRole('aluno')" id="role-aluno" class="py-2 rounded-full transition-all text-gray-500 hover:text-black">
+                Aluno
+              </button>
+            </div>
+          </div>
+
+          <!-- LOGIN FORM -->
+          <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4 text-left">
+            
+            <!-- USERNAME / EMAIL / CPF INPUT -->
+            <div>
+              <label id="label-identifier" for="identifier" class="block text-[10.5px] font-bold tracking-wider uppercase text-brandTextMuted mb-1">
+                NOME, CPF OU E-MAIL
+              </label>
+              <div class="relative input-focus-ring border border-gray-300 rounded-xl bg-white overflow-hidden transition-all">
+                <input 
+                  type="text" 
+                  id="identifier" 
+                  required 
+                  placeholder="Digite seu nome, CPF ou e-mail"
+                  class="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-transparent outline-none placeholder-gray-400 font-medium"
+                >
+              </div>
+            </div>
+
+            <!-- PASSWORD INPUT -->
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label for="password" class="block text-[10.5px] font-bold tracking-wider uppercase text-brandTextMuted">
+                  SENHA
+                </label>
+                <button type="button" onclick="togglePasswordVisibility()" class="text-xs text-brandTextMuted hover:text-black font-semibold">
+                  Mostrar
+                </button>
+              </div>
+              <div class="relative input-focus-ring border border-gray-300 rounded-xl bg-white overflow-hidden transition-all">
+                <input 
+                  type="password" 
+                  id="password" 
+                  required 
+                  placeholder="Digite sua senha"
+                  class="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-transparent outline-none placeholder-gray-400 font-medium"
+                >
+              </div>
+            </div>
+
+            <!-- DYNAMIC ROLE INFO NOTE -->
+            <div id="role-info-banner" class="text-xs text-amber-800 bg-amber-50 border border-amber-200/80 rounded-lg p-2.5 flex items-center gap-2">
+              <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span id="role-info-text">Acesso restrito para professores cadastrados na escola.</span>
+            </div>
+
+            <!-- SUBMIT BUTTON -->
+            <button 
+              type="submit" 
+              id="submit-btn"
+              class="w-full bg-black hover:bg-gray-900 text-brandGold font-bold text-sm py-3.5 rounded-xl shadow-md border border-brandGold/30 hover:border-brandGold transition-all duration-200 flex items-center justify-center gap-2 mt-2"
+            >
+              <span>Entrar no sistema</span>
+            </button>
+          </form>
+
+          <!-- FOOTER NOTE -->
+          <div class="mt-5 text-center">
+            <p class="text-[11.5px] text-brandTextMuted font-medium flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-brandGoldDeep" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              Dados salvos localmente no navegador
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- FEATURE CARDS (BOTTOM - 3 COLUMNS) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4" id="recursos">
+      
+      <!-- CARD 1: GESTÃO DE ALUNOS -->
+      <div class="bg-brandDarkElev hover:bg-brandDarkSoft border border-brandBorder hover:border-brandGold/40 rounded-2xl p-7 transition-all duration-300 group hover:-translate-y-1 shadow-md">
+        <div class="w-12 h-12 rounded-xl bg-brandDark flex items-center justify-center border border-brandBorder group-hover:border-brandGold/50 mb-5 text-brandGold">
+          <!-- Users Icon -->
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-brandGold transition-colors">
+          Gestão de alunos
+        </h3>
+        <p class="text-gray-400 text-sm leading-relaxed">
+          Cadastre, acompanhe e organize todos os seus alunos de forma simples, com histórico completo de matrículas e turmas.
+        </p>
+      </div>
+
+      <!-- CARD 2: AGENDA DE AULAS -->
+      <div class="bg-brandDarkElev hover:bg-brandDarkSoft border border-brandBorder hover:border-brandGold/40 rounded-2xl p-7 transition-all duration-300 group hover:-translate-y-1 shadow-md">
+        <div class="w-12 h-12 rounded-xl bg-brandDark flex items-center justify-center border border-brandBorder group-hover:border-brandGold/50 mb-5 text-brandGold">
+          <!-- Calendar Icon -->
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-brandGold transition-colors">
+          Agenda de aulas
+        </h3>
+        <p class="text-gray-400 text-sm leading-relaxed">
+          Visualize e gerencie as aulas por dia e horário, evitando choques de grade e facilitando reagendamentos.
+        </p>
+      </div>
+
+      <!-- CARD 3: CONTROLE DE PAGAMENTOS -->
+      <div class="bg-brandDarkElev hover:bg-brandDarkSoft border border-brandBorder hover:border-brandGold/40 rounded-2xl p-7 transition-all duration-300 group hover:-translate-y-1 shadow-md">
+        <div class="w-12 h-12 rounded-xl bg-brandDark flex items-center justify-center border border-brandBorder group-hover:border-brandGold/50 mb-5 text-brandGold">
+          <!-- Credit Card Icon -->
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-brandGold transition-colors">
+          Controle de pagamentos
+        </h3>
+        <p class="text-gray-400 text-sm leading-relaxed">
+          Acompanhe mensalidades, registre pagamentos pendentes e pagos e mantenha a saúde financeira da escola em dia.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- SOBRE SECTION -->
+    <div class="mt-20 pt-12 border-t border-brandBorder/60" id="sobre">
+      <div class="max-w-3xl mx-auto text-center space-y-4">
+        <h2 class="text-2xl sm:text-3xl font-bold font-display text-brandGold">
+          Sobre o EdMusys
+        </h2>
+        <p class="text-gray-300 text-sm sm:text-base leading-relaxed">
+          O EdMusys foi idealizado para simplificar a administração de escolas de música de todos os portes. Unimos controle financeiro, gestão de matrículas e agendamento de aulas em uma única plataforma intuitiva e rápida.
+        </p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="relative z-10 border-t border-brandBorder/60 bg-brandDarkSoft py-8 text-center text-xs text-gray-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <div class="w-5 h-5 rounded-full bg-brandGold flex items-center justify-center">
+          <svg class="w-3 h-3 text-red-500 fill-current" viewBox="0 0 24 24">
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+          </svg>
+        </div>
+        <span class="font-display font-bold text-white">EdMusys</span>
+        <span>&copy; 2026 - Todos os direitos reservados.</span>
+      </div>
+      <div class="flex gap-6 text-gray-400">
+        <a href="#inicio" class="hover:text-brandGold transition-colors">Início</a>
+        <a href="#recursos" class="hover:text-brandGold transition-colors">Recursos</a>
+        <a href="#sobre" class="hover:text-brandGold transition-colors">Sobre</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- INTERACTIVE SIMULATION POPUP MODAL -->
+  <div id="login-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-brandDarkElev border border-brandBorder rounded-2xl max-w-md w-full p-6 text-center space-y-5 shadow-card-pop animate-scaleIn">
+      <div class="w-16 h-16 bg-brandGold/10 border border-brandGold/30 rounded-full flex items-center justify-center mx-auto text-brandGold">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div class="space-y-2">
+        <h3 class="text-xl font-bold text-white font-display" id="modal-title">Acesso Confirmado!</h3>
+        <p class="text-sm text-gray-300" id="modal-body">
+          Bem-vindo ao sistema EdMusys.
+        </p>
+      </div>
+      <div class="bg-brandDark p-3.5 rounded-xl text-left border border-brandBorder/80 text-xs space-y-1">
+        <div class="text-gray-400">Perfil selecionado: <strong class="text-brandGold uppercase" id="modal-role-badge">Professor</strong></div>
+        <div class="text-gray-400">Usuário: <strong class="text-white" id="modal-user-name">renan@edmusys.com</strong></div>
+      </div>
+      <button onclick="closeModal()" class="w-full bg-brandGold hover:bg-brandGoldDeep text-black font-bold py-3 rounded-xl shadow-md transition-colors">
+        Continuar para o Painel
+      </button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Current Application State
+    let currentRole = 'professor'; // Default matching screenshot
+
+    const roleConfigs = {
+      admin: {
+        labelIdentifier: 'NOME, CPF OU E-MAIL',
+        placeholder: 'Digite seu nome ou e-mail de admin',
+        bannerText: 'Acesso completo ao painel administrativo da escola.',
+        badge: 'Administrador'
+      },
+      professor: {
+        labelIdentifier: 'NOME, CPF OU E-MAIL',
+        placeholder: 'Digite seu nome, CPF ou e-mail',
+        bannerText: 'Acesso à agenda, turmas e presença dos alunos.',
+        badge: 'Professor'
+      },
+      aluno: {
+        labelIdentifier: 'E-MAIL OU CPF DO ALUNO',
+        placeholder: 'Digite seu e-mail ou CPF cadastrado',
+        bannerText: 'Acesso ao portal do aluno, horários e mensalidades.',
+        badge: 'Aluno'
+      }
+    };
+
+    // Role Switching Handler
+    function setRole(role) {
+      currentRole = role;
+      const config = roleConfigs[role];
+
+      // Reset Pill Button Classes
+      ['admin', 'professor', 'aluno'].forEach(r => {
+        const btn = document.getElementById(`role-${r}`);
+        if (r === role) {
+          btn.className = 'py-2 rounded-full transition-all bg-black text-brandGold font-bold shadow-sm';
+        } else {
+          btn.className = 'py-2 rounded-full transition-all text-gray-500 hover:text-black font-semibold';
+        }
+      });
+
+      // Update Form Inputs & Banners
+      document.getElementById('label-identifier').textContent = config.labelIdentifier;
+      document.getElementById('identifier').placeholder = config.placeholder;
+      document.getElementById('role-info-text').textContent = config.bannerText;
+    }
+
+    // Toggle Password Visibility
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById('password');
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+      } else {
+        passwordInput.type = 'password';
+      }
+    }
+
+    // Handle Login Form Submit
+    function handleLogin(event) {
+      event.preventDefault();
+      const identifier = document.getElementById('identifier').value.trim();
+      
+      if (!identifier) return;
+
+      // Populate Modal Details
+      const config = roleConfigs[currentRole];
+      document.getElementById('modal-title').textContent = `Conectando como ${config.badge}...`;
+      document.getElementById('modal-body').textContent = `Autenticação realizada com sucesso para o portal do ${config.badge.toLowerCase()}.`;
+      document.getElementById('modal-role-badge').textContent = config.badge;
+      document.getElementById('modal-user-name').textContent = identifier;
+
+      // Show Modal
+      document.getElementById('login-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('login-modal').classList.add('hidden');
+    }
+
+    // Smooth Scroll Helper
+    function scrollToLogin() {
+      const loginSection = document.getElementById('login-section');
+      loginSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Initialize Default State
+    document.addEventListener('DOMContentLoaded', () => {
+      setRole('professor');
+    });
+  </script>
+
+</body>
+</html>
