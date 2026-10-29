@@ -66,10 +66,10 @@ function sidebarAluno(activeTab) {
   </aside>`;
 }
 
-function goHome(){ window.location.href='EdMusys-homepage.html'; }
+function goHome(){ window.location.href='landing_page_edmusys.html'; }
 function doLogout(){
   localStorage.removeItem("edmusys_professor_logado");
-  window.location.href = "Edmusys-homepage.html";
+  window.location.href = "landing_page_edmusys.html";
 }
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
@@ -86,7 +86,7 @@ const professorLogado =
   JSON.parse(localStorage.getItem("edmusys_professor_logado"));
 
 if (!professorLogado) {
-  window.location.href = "EdMusys-homepage.html";
+  window.location.href = "landing_page_edmusys.html";
 } else {
   currentProfId = professorLogado.id;
   document.getElementById('app').classList.remove('hidden');
