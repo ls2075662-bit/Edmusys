@@ -72,7 +72,7 @@ function doLogin() {
  }
 }
 
-function goHome(){ window.location.href='EdMusys-homepage.html'; }
+function goHome(){ window.location.href='landing_page_edmusys.html'; }
 function doLogout(){
   localStorage.removeItem("edmusys_aluno_logado");
   window.location.href = "landing_page_edmusys.html";
