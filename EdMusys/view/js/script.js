@@ -158,7 +158,7 @@
   /* 5. SEGURANÇA E GERENCIAMENTO DE NAVEGAÇÃO */
   function protegerPainel() {
     if (localStorage.getItem("adminLogado") !== "true") {
-      window.location.replace("EdMusys-homepage.html");
+      window.location.replace("landing_page_edmusys.html");
     }
   }
 
@@ -952,7 +952,7 @@
 
     $('#logout-btn')?.addEventListener('click', () => { 
       localStorage.removeItem("adminLogado"); 
-      window.location.replace("EdMusys-homepage.html"); 
+      window.location.replace("landing_page_edmusys.html"); 
     });
 
     $$('.nav-btn').forEach(btn => btn.addEventListener('click', () => {
