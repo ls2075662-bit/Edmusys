@@ -1,0 +1,24 @@
+/* Estilos globais e barra de rolagem da Landing Page */
+body {
+    background-color: #0E0D0C;
+    color: #FFFFFF;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+  
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #0E0D0C;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #2E2C27;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #F0B90B;
+  }
