@@ -67,7 +67,7 @@ function sidebarAluno(activeTab) {
 
 function doLogin() {
   if (!alunoLogado) {
-    window.location.href = "EdMusys-homepage.html";
+    window.location.href = "landing_page_edmusys.html";
     return;
  }
 }
@@ -75,7 +75,7 @@ function doLogin() {
 function goHome(){ window.location.href='EdMusys-homepage.html'; }
 function doLogout(){
   localStorage.removeItem("edmusys_aluno_logado");
-  window.location.href = "EdMusys-homepage.html";
+  window.location.href = "landing_page_edmusys.html";
 }
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
@@ -91,7 +91,7 @@ const alunoLogado =
   function doLogin() {
 
     if (!alunoLogado) {
-      window.location.href = "EdMusys-homepage.html";
+      window.location.href = "landing_page_edmusys.html";
       return;
     }
   
@@ -100,7 +100,7 @@ const alunoLogado =
   
     if (!alunoEncontrado) {
       localStorage.removeItem("edmusys_aluno_logado");
-      window.location.href = "EdMusys-homepage.html";
+      window.location.href = "landing_page_edmusys.html";
       return;
     }
   
@@ -113,7 +113,7 @@ const alunoLogado =
   }
 
   if (!alunoLogado) {
-    window.location.href = "EdMusys-homepage.html";
+    window.location.href = "landing_page_edmusys.html";
   }else{
     doLogin();
   }
