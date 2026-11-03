@@ -158,7 +158,7 @@
   /* 5. SEGURANÇA E GERENCIAMENTO DE NAVEGAÇÃO */
   function protegerPainel() {
     if (localStorage.getItem("adminLogado") !== "true") {
-      window.location.replace("landing_page_edmusys.html");
+      window.location.replace("landing_page_edmusys_2.html");
     }
   }
 
@@ -178,15 +178,11 @@
     </div>`;
   }
 
-  function pillGroup(name, opts, selected) {
-    return `<div class="pill-select" data-group="${name}">${opts.map(o => `<button type="button" class="pill-opt dark ${selected.includes(o) ? 'on' : ''}" data-val="${o}">${o}</button>`).join('')}</div>`;
-  }
-
   function emptyState(msg, btnId, btnLabel) {
     return `<div class="empty-state">${ICON.calendar}<p>${msg}</p><button class="btn btn-dark" id="${btnId}">${ICON.plus} ${btnLabel}</button></div>`;
   }
 
-  /*7. RENDERS DAS VISÕES (OVERVIEW, ALUNOS, PROFESSORES, HORÁRIOS)*/
+  /* 7. RENDERS DAS VISÕES (OVERVIEW, ALUNOS, PROFESSORES, HORÁRIOS) */
   const TITLES = {
     overview: ['Visão Geral', 'Resumo da escola de música'],
     alunos: ['Alunos', 'Cadastro e agenda dos alunos'],
@@ -230,7 +226,7 @@
       <h3>Próximas aulas</h3>
       ${proximas.map(h => {
         const al = alunos.find(a => a.id === h.alunoId), pr = professores.find(p => p.id === h.professorId);
-        return `<div class="mini-row"><span>${escapeHtml(al ? al.nome : '—')} · ${escapeHtml(h.instrumento)} com${escapeHtml(pr ? pr.nome : '—')}</span><span class="tag">${h.dia}${h.hora}</span></div>`;
+        return `<div class="mini-row"><span>${escapeHtml(al ? al.nome : '—')} · ${escapeHtml(h.instrumento)} com ${escapeHtml(pr ? pr.nome : '—')}</span><span class="tag">${h.dia} ${h.hora}</span></div>`;
       }).join('') || '<div class="mini-row">Nenhuma aula cadastrada.</div>'}
     </div>
     <div class="overview-sec">
@@ -263,7 +259,7 @@
         <div class="person-meta">${a.dias.map(d => `<span class="chip">${d}</span>`).join('')}</div>
         <div class="person-schedule">Horários: <b>${dc || '—'}</b></div>
         <div class="person-actions">
-          <span class="badge">${PLANOS[a.plano]?.label} · R$${PLANOS[a.plano]?.valor}</span>
+          <span class="badge">${PLANOS[a.plano]?.label || '1x / semana'} · R$${PLANOS[a.plano]?.valor || 60}</span>
           <button class="icon-btn edit-aluno" data-id="${a.id}" style="margin-left:auto;" aria-label="Editar aluno">${ICON.edit}</button>
           <button class="icon-btn danger del-aluno" data-id="${a.id}" aria-label="Excluir aluno">${ICON.trash}</button>
         </div>
@@ -330,7 +326,7 @@
     </div>`;
   }
 
-  /*8. MANIPULADORES DE EVENTOS DAS VISÕES*/
+  /* 8. MANIPULADORES DE EVENTOS DAS VISÕES */
   function attachViewHandlers() {
     $('#btn-novo-aluno')?.addEventListener('click', () => openModalNovoAluno());
     $('#btn-novo-aluno-empty')?.addEventListener('click', () => openModalNovoAluno());
@@ -379,7 +375,7 @@
     }));
   }
 
-  /*9. MODAIS DE CADASTRO E EDIÇÃO DE HORÁRIOS / ALUNOS / PROFESSORES*/
+  /* 9. MODAIS DE CADASTRO E EDIÇÃO DE HORÁRIOS / ALUNOS / PROFESSORES */
   function closeModal() { $('#modal-root').innerHTML = ''; }
 
   function openModalEditarHorario(id) {
@@ -443,7 +439,6 @@
 
   /* MODAL EXPANDIDO DE NOVO ALUNO */
   function openModalNovoAluno() {
-    const dias = [], horas = [];
     const html = `<div class="modal-overlay" id="modal-overlay">
       <div class="modal modal-xl">
         <div class="modal-head">
@@ -466,13 +461,9 @@
             ${ifield({ id: 'na-plano', label: 'Plano', icon: ICON.tag, options: Object.entries(PLANOS).map(([k, v]) => ({ value: k, label: v.label })) })}
             ${ifield({ id: 'na-mensalidade', label: 'Mensalidade', icon: ICON.cash, readonly: true, value: 'R$ 60' })}
           </div>
-          <div>
-            <div class="field-group-lbl" style="margin-bottom:8px;">Dias disponíveis</div>
-            ${pillGroup('dias', DIAS, dias)}
-          </div>
-          <div>
-            <div class="field-group-lbl" style="margin-bottom:8px;">Horários disponíveis</div>
-            ${pillGroup('horas', HORAS, horas)}
+          <div class="field-row">
+            ${ifield({ id: 'na-dia', label: 'DIA DISPONÍVEL / AULA', icon: ICON.calendar, options: [{ value: '', label: 'Selecione o dia' }, ...DIAS.map(d => ({ value: d, label: d }))] })}
+            ${ifield({ id: 'na-hora', label: 'HORÁRIO DISPONÍVEL', icon: ICON.clock, options: [{ value: '', label: 'Selecione o horário' }, ...HORAS.map(h => ({ value: h, label: h }))] })}
           </div>
         </div>
         <div class="modal-foot">
@@ -488,11 +479,6 @@
     $('#na-cancel', root)?.addEventListener('click', closeModal);
     $('#modal-overlay', root).addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
 
-    $$('.pill-opt', root).forEach(p => p.addEventListener('click', () => {
-      p.classList.toggle('on');
-      checkValid();
-    }));
-
     $('#na-plano', root).addEventListener('change', () => {
       const v = $('#na-plano', root).value;
       $('#na-mensalidade', root).value = 'R$ ' + PLANOS[v].valor;
@@ -500,6 +486,7 @@
     });
 
     const nomeInp = $('#na-nome', root);
+
     function checkValid() {
       const cpf = $('#na-cpf', root).value.trim();
       const nascimento = $('#na-nascimento', root).value;
@@ -508,8 +495,8 @@
       const senha = $('#na-senha', root).value;
       const instrumento = $('#na-instrumento', root).value.trim();
 
-      const diasSelecionados = $$('.pill-select[data-group="dias"] .pill-opt.on', root);
-      const horariosSelecionados = $$('.pill-select[data-group="horas"] .pill-opt.on', root);
+      const dia = $('#na-dia', root).value;
+      const hora = $('#na-hora', root).value;
       const plano = $('#na-plano', root).value;
       const mensalidade = $('#na-mensalidade', root).value.trim();
 
@@ -522,8 +509,8 @@
         isValidEmail(email) &&
         senha.length >= 8 &&
         instrumento.length > 0 &&
-        diasSelecionados.length > 0 &&
-        horariosSelecionados.length > 0 &&
+        dia !== '' &&
+        hora !== '' &&
         plano !== '' &&
         mensalidade !== '';
 
@@ -534,7 +521,7 @@
     attachPhoneEmailValidation(root, 'na-telefone', 'na-email', 'err-na-telefone', 'err-na-email', checkValid);
     configurarCpf(root, 'na-cpf', 'err-na-cpf');
 
-    ['na-cpf', 'na-nascimento', 'na-senha', 'na-instrumento'].forEach(id => {
+    ['na-cpf', 'na-nascimento', 'na-senha', 'na-instrumento', 'na-dia', 'na-hora', 'na-plano'].forEach(id => {
       const campo = $(`#${id}`, root);
       if (campo) {
         campo.addEventListener('input', checkValid);
@@ -543,14 +530,15 @@
     });
 
     $('#na-submit', root).addEventListener('click', () => {
-      const selDias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(p => p.dataset.val);
-      const selHoras = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(p => p.dataset.val);
+      const selDia = $('#na-dia', root).value;
+      const selHora = $('#na-hora', root).value;
       const novo = {
         id: nextId(),
         nome: nomeInp.value.trim(),
         cpf: $('#na-cpf', root).value.trim(),
         instrumento: $('#na-instrumento', root).value.trim() || 'A definir',
-        dias: selDias, horarios: selHoras,
+        dias: selDia ? [selDia] : [],
+        horarios: selHora ? [selHora] : [],
         telefone: phoneDigits($('#na-telefone', root).value),
         email: $('#na-email', root).value.trim(),
         senha: $('#na-senha', root).value,
@@ -568,7 +556,6 @@
 
   /* MODAL EXPANDIDO DE NOVO PROFESSOR */
   function openModalNovoProfessor() {
-    const dias = [], horas = [];
     const html = `<div class="modal-overlay" id="modal-overlay">
       <div class="modal modal-xl">
         <div class="modal-head">
@@ -587,13 +574,9 @@
             ${ifield({ id: 'np-senha', label: 'Senha', icon: ICON.user, type: 'password', placeholder: 'Digite uma senha' })}
             ${ifield({ id: 'np-instrumento', label: 'Especialidade', icon: ICON.music })}
           </div>
-          <div>
-            <div class="field-group-lbl" style="margin-bottom:8px;">Dias disponíveis</div>
-            ${pillGroup('dias', DIAS, dias)}
-          </div>
-          <div>
-            <div class="field-group-lbl" style="margin-bottom:8px;">Horários disponíveis</div>
-            ${pillGroup('horas', HORAS, horas)}
+          <div class="field-row">
+            ${ifield({ id: 'np-dia', label: 'DIA DISPONÍVEL / AULA', icon: ICON.calendar, options: [{ value: '', label: 'Selecione o dia' }, ...DIAS.map(d => ({ value: d, label: d }))] })}
+            ${ifield({ id: 'np-hora', label: 'HORÁRIO DISPONÍVEL', icon: ICON.clock, options: [{ value: '', label: 'Selecione o horário' }, ...HORAS.map(h => ({ value: h, label: h }))] })}
           </div>
         </div>
         <div class="modal-foot">
@@ -609,8 +592,6 @@
     $('#np-cancel', root)?.addEventListener('click', closeModal);
     $('#modal-overlay', root).addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
 
-    $$('.pill-opt', root).forEach(p => p.addEventListener('click', () => { p.classList.toggle('on'); checkValid(); }));
-
     const nomeInp = $('#np-nome', root);
 
     function checkValid() {
@@ -619,8 +600,8 @@
       const senha = $('#np-senha', root).value;
       const nomeOk = nomeInp.value.trim().length > 0;
       const cpf = phoneDigits($('#np-cpf', root).value);
-      const diasSelecionados = $$('.pill-select[data-group="dias"] .pill-opt.on', root);
-      const horariosSelecionados = $$('.pill-select[data-group="horas"] .pill-opt.on', root);
+      const dia = $('#np-dia', root).value;
+      const hora = $('#np-hora', root).value;
 
       $('#np-submit', root).disabled = !(
         nomeOk &&
@@ -628,27 +609,30 @@
         digits.length === 11 &&
         emailOk &&
         senha.length >= 8 &&
-        diasSelecionados.length > 0 &&
-        horariosSelecionados.length > 0
+        dia !== '' &&
+        hora !== ''
       );
     }
 
     nomeInp.addEventListener('input', checkValid);
     $('#np-senha', root).addEventListener('input', checkValid);
+    $('#np-dia', root).addEventListener('change', checkValid);
+    $('#np-hora', root).addEventListener('change', checkValid);
     attachPhoneEmailValidation(root, 'np-telefone', 'np-email', 'err-np-telefone', 'err-np-email', checkValid);
 
     configurarCpf(root, 'np-cpf', 'err-np-cpf');
     $('#np-cpf', root).addEventListener('input', checkValid);
 
     $('#np-submit', root).addEventListener('click', () => {
-      const selDias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(p => p.dataset.val);
-      const selHoras = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(p => p.dataset.val);
+      const selDia = $('#np-dia', root).value;
+      const selHora = $('#np-hora', root).value;
       const novo = {
         id: nextId(),
         nome: nomeInp.value.trim(),
         cpf: $('#np-cpf', root).value.trim(),
         instrumento: $('#np-instrumento', root).value.trim() || 'A definir',
-        dias: selDias, horarios: selHoras,
+        dias: selDia ? [selDia] : [],
+        horarios: selHora ? [selHora] : [],
         telefone: phoneDigits($('#np-telefone', root).value),
         email: $('#np-email', root).value.trim(),
         senha: $('#np-senha', root).value,
@@ -714,7 +698,7 @@
     });
   }
 
-  /*10. PAINÉIS DE PERFIL (EDITAR ALUNO / PROFESSOR)*/
+  /* 10. PAINÉIS DE PERFIL (EDITAR ALUNO / PROFESSOR) */
   function closeProfile() { $('#profile-root').innerHTML = ''; }
 
   function openProfile(type, id) {
@@ -758,10 +742,10 @@
 
         <div class="profile-panel">
           <h4>${ICON.calendar} Disponibilidade</h4>
-          <div class="field-group-lbl" style="margin-bottom:8px;">Dias disponíveis</div>
-          ${pillGroup('dias', DIAS, a.dias || [])}
-          <div class="field-group-lbl" style="margin:16px 0 8px;">Horários disponíveis</div>
-          ${pillGroup('horas', HORAS, a.horarios || [])}
+          <div class="field-row">
+            ${ifield({ id: 'pf-dia', label: 'DIA DISPONÍVEL / AULA', icon: ICON.calendar, options: [{ value: '', label: 'Selecione o dia' }, ...DIAS.map(d => ({ value: d, label: d }))], value: (a.dias && a.dias[0]) || '' })}
+            ${ifield({ id: 'pf-hora', label: 'HORÁRIO DISPONÍVEL', icon: ICON.clock, options: [{ value: '', label: 'Selecione o horário' }, ...HORAS.map(h => ({ value: h, label: h }))], value: (a.horarios && a.horarios[0]) || '' })}
+          </div>
         </div>
 
         <!-- SEÇÃO DE PAGAMENTO ADICIONADA ABAIXO DAS INFORMAÇÕES -->
@@ -804,11 +788,7 @@
     const saveBtn = $('#pf-save', root);
     function markDirty() { saveBtn.disabled = false; }
 
-    $$('input, select', root).forEach(inp => { inp.addEventListener('input', markDirty); inp.addEventListener('change', markDirty); });$$
-('.pill-opt', root).forEach(p => p.addEventListener('click', () => { 
-      p.classList.toggle('on'); 
-      markDirty(); 
-    }));
+    $$('input, select', root).forEach(inp => { inp.addEventListener('input', markDirty); inp.addEventListener('change', markDirty); });
 
     configurarCpf(root, 'pf-cpf', 'err-pf-cpf');
     attachPhoneEmailValidation(root, 'pf-telefone', 'pf-email', 'err-pf-telefone', 'err-pf-email', markDirty);
@@ -827,11 +807,14 @@
       a.email = $('#pf-email', root).value.trim();
       a.plano = Number($('#pf-plano', root).value);
       
-      // Captura o status escolhido no rádio (Opção 1 ou Opção 2)
       const statusPagoOpt = root.querySelector('input[name="pf-pago-opt"]:checked')?.value;
       a.pago = statusPagoOpt === 'pago';
 
-      a.dias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(p => p.dataset.val); a.horarios = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(p => p.dataset.val);
+      const selDia = $('#pf-dia', root).value;
+      const selHora = $('#pf-hora', root).value;
+      a.dias = selDia ? [selDia] : [];
+      a.horarios = selHora ? [selHora] : [];
+
       saveData("edmusys_alunos", alunos);
       closeProfile();
       renderView();
@@ -870,10 +853,10 @@
         </div>
         <div class="profile-panel">
           <h4>${ICON.calendar} Disponibilidade</h4>
-          <div class="field-group-lbl" style="margin-bottom:8px;">Dias disponíveis</div>
-          ${pillGroup('dias', DIAS, p.dias || [])}
-          <div class="field-group-lbl" style="margin:16px 0 8px;">Horários disponíveis</div>
-          ${pillGroup('horas', HORAS, p.horarios || [])}
+          <div class="field-row">
+            ${ifield({ id: 'qf-dia', label: 'DIA DISPONÍVEL / AULA', icon: ICON.calendar, options: [{ value: '', label: 'Selecione o dia' }, ...DIAS.map(d => ({ value: d, label: d }))], value: (p.dias && p.dias[0]) || '' })}
+            ${ifield({ id: 'qf-hora', label: 'HORÁRIO DISPONÍVEL', icon: ICON.clock, options: [{ value: '', label: 'Selecione o horário' }, ...HORAS.map(h => ({ value: h, label: h }))], value: (p.horarios && p.horarios[0]) || '' })}
+          </div>
         </div>
         <div class="profile-save-bar">
           <button class="btn btn-gold" id="qf-save" disabled>Salvar alterações</button>
@@ -885,7 +868,6 @@
     const root = $('#profile-root');
     $('#profile-back', root).addEventListener('click', closeProfile);
 
-    // Fechar ao clicar no fundo (overlay)
     root.addEventListener('click', (e) => {
       if (e.target.id === 'profile-root') closeProfile();
     });
@@ -894,10 +876,6 @@
     function markDirty() { saveBtn.disabled = false; }
 
     $$('input, select', root).forEach(inp => { inp.addEventListener('input', markDirty); inp.addEventListener('change', markDirty); });
-    $$('.pill-opt', root).forEach(pl => pl.addEventListener('click', () => { 
-      pl.classList.toggle('on'); 
-      markDirty(); 
-    }));
 
     configurarCpf(root, 'qf-cpf', 'err-qf-cpf');
     attachPhoneEmailValidation(root, 'qf-telefone', 'qf-email', 'err-qf-telefone', 'err-qf-email', markDirty);
@@ -909,15 +887,19 @@
       p.nascimento = $('#qf-nascimento', root).value;
       p.telefone = phoneDigits($('#qf-telefone', root).value) || p.telefone;
       p.email = $('#qf-email', root).value.trim();
-      p.dias = $$('.pill-select[data-group="dias"] .pill-opt.on', root).map(pl => pl.dataset.val);
-      p.horarios = $$('.pill-select[data-group="horas"] .pill-opt.on', root).map(pl => pl.dataset.val);
+      
+      const selDia = $('#qf-dia', root).value;
+      const selHora = $('#qf-hora', root).value;
+      p.dias = selDia ? [selDia] : [];
+      p.horarios = selHora ? [selHora] : [];
+
       saveData("edmusys_professores", professores);
       closeProfile();
       renderView();
     });
   }
 
-  /*11. OVERLAYS E CALENDÁRIO*/
+  /* 11. OVERLAYS E CALENDÁRIO */
   function renderCalendarOverlay() {
     const cal = $('#calendar-overlay');
     cal.innerHTML = `
@@ -943,7 +925,7 @@
     $('#cal-close').addEventListener('click', () => cal.classList.add('hidden'));
   }
 
-  /*12. INICIALIZAÇÃO DOS EVENTOS GLOBAIS E EXECUÇÃO*/
+  /* 12. INICIALIZAÇÃO DOS EVENTOS GLOBAIS E EXECUÇÃO */
   function init() {
     protegerPainel();
     window.addEventListener("pageshow", protegerPainel);
@@ -952,13 +934,12 @@
 
     $('#logout-btn')?.addEventListener('click', () => { 
       localStorage.removeItem("adminLogado"); 
-      window.location.replace("landing_page_edmusys.html"); 
+      window.location.replace("landing_page_edmusys_2.html"); 
     });
 
     $$('.nav-btn').forEach(btn => btn.addEventListener('click', () => {
       state.view = btn.dataset.view;
       
-      // Fecha a sidebar em telas menores ao navegar
       if (window.innerWidth <= 860) {
         $('#sidebar')?.classList.add('closed');
         $('.main')?.classList.add('full-width');
@@ -971,17 +952,14 @@
     const main = $('.main');
     const menuToggle = $('#menu-toggle');
 
-    // 1. Clique no ícone superior esquerdo (Abre / Fecha o menu lateral)
     menuToggle?.addEventListener('click', (e) => {
-      e.stopPropagation(); // Evita que o evento de fechar ao clicar fora seja disparado
+      e.stopPropagation();
       sidebar?.classList.toggle('closed');
       main?.classList.toggle('full-width');
     });
 
-    // 2. Clique em qualquer lugar da tela para ocultar a sidebar se ela estiver visível
     document.addEventListener('click', (e) => {
       if (sidebar && !sidebar.classList.contains('closed')) {
-        // Se o clique NÃO for dentro da sidebar e NÃO for no botão toggle, oculta o menu
         if (!sidebar.contains(e.target) && !menuToggle?.contains(e.target)) {
           sidebar.classList.add('closed');
           main?.classList.add('full-width');
