@@ -1,15 +1,15 @@
+from sqlalchemy.orm import Session
 from app.repositories.repository_adm import RepositoryAdm
-from app.models.aluno import Aluno
-from typing import List
+from app.models.aluno import Aluno as AlunoSchema
 
 class AlunoService:
     def __init__(self):
         self.repository = RepositoryAdm()
 
-    def listar_todos(self) -> List[Aluno]:
-        return self.repository.buscar_alunos()
+    def listar_todos(self, db: Session):
+        return self.repository.buscar_alunos(db)
 
-    def salvar(self, aluno: Aluno) -> bool:
+    def salvar(self, db: Session, aluno: AlunoSchema):
         if not aluno.nome or not aluno.nome.strip():
-            return False
-        return self.repository.salvar_aluno(aluno)
+            return None
+        return self.repository.salvar_aluno(db, aluno)
