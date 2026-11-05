@@ -3,8 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from app.controller.aluno_controller import router as aluno_router
+from app.database import engine, Base
 import os
 
+
+Base.metadata.create_all(bind=engine)# Cria as tabelas na base de dados automaticamente caso não existam
 app = FastAPI(title="EdMusys API")
 
 # Habilita o CORS para permitir requisições do JavaScript
