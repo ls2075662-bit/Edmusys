@@ -178,7 +178,6 @@
     </div>`;
   }
 
-  // GERADOR DE CAIXA DE SELEÇÃO ROLÁVEL COM CHECKBOXES
   function checkboxList(name, opts, selected = []) {
     const selArr = Array.isArray(selected) ? selected : (selected ? [selected] : []);
     return `<div class="checkbox-select-box" data-group="${name}" style="max-height: 130px; overflow-y: auto; border: 1px solid var(--brandBorder, #38352F); background: rgba(0,0,0,0.25); border-radius: 8px; padding: 8px 12px; display: flex; flex-direction: column; gap: 6px;">
@@ -303,9 +302,16 @@
     }).join('')}</div>`;
   }
 
+  /* EXIBIÇÃO DE HORÁRIOS COM DESTAQUE VERDE ACIMA DE 0 */
   function viewHorarios() {
     const countByDay = d => horarios.filter(h => h.dia === d).length;
-    const pills = DIAS.map(d => `<button class="day-pill ${state.selectedDay === d ? 'active' : ''}" data-day="${d}">${d} <span class="cnt">${countByDay(d)}</span></button>`).join('');
+    const pills = DIAS.map(d => {
+      const cnt = countByDay(d);
+      const isPositive = cnt > 0;
+      const cntStyle = isPositive ? 'style="background-color: #2E7D32; color: #FFFFFF; font-weight: 700;"' : '';
+      return `<button class="day-pill ${state.selectedDay === d ? 'active' : ''}" data-day="${d}">${d} <span class="cnt ${isPositive ? 'has-count' : ''}" ${cntStyle}>${cnt}</span></button>`;
+    }).join('');
+
     const dayItems = horarios.filter(h => h.dia === state.selectedDay).sort((a, b) => a.hora.localeCompare(b.hora));
 
     let body;
@@ -504,12 +510,10 @@
     $('#na-cancel', root)?.addEventListener('click', closeModal);
     $('#modal-overlay', root).addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
 
-    // Escutar alterações nos checkboxes
     $$('.checkbox-select-box input[type="checkbox"]', root).forEach(cb => {
       cb.addEventListener('change', checkValid);
     });
 
-    // Atalhos Marcar Todos
     $('#na-select-all-days', root)?.addEventListener('click', () => {
       const checkboxes = $$('.checkbox-select-box[data-group="dias"] input[type="checkbox"]', root);
       const allChecked = checkboxes.every(c => c.checked);
@@ -649,12 +653,10 @@
     $('#np-cancel', root)?.addEventListener('click', closeModal);
     $('#modal-overlay', root).addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
 
-    // Escutar alterações nos checkboxes
     $$('.checkbox-select-box input[type="checkbox"]', root).forEach(cb => {
       cb.addEventListener('change', checkValid);
     });
 
-    // Atalhos Marcar Todos
     $('#np-select-all-days', root)?.addEventListener('click', () => {
       const checkboxes = $$('.checkbox-select-box[data-group="dias"] input[type="checkbox"]', root);
       const allChecked = checkboxes.every(c => c.checked);
