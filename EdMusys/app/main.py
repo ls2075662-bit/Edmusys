@@ -72,4 +72,19 @@ def get_html_page(page_name: str):
 
 if __name__ == "__main__":
     import uvicorn
+    import webbrowser
+    from threading import Timer
+
+    # Função para abrir o navegador no link correto (localhost)
+    def abrir_navegador():
+        webbrowser.open("http://localhost:8080")
+
+    # Aguarda 1.5 segundo para o servidor subir e abre o browser automaticamente
+    Timer(1.5, abrir_navegador).start()
+
+    print("\n" + "="*50)
+    print("🚀 Servidor EdMusys Iniciado!")
+    print("👉 Acesse no PC: http://localhost:8080")
+    print("="*50 + "\n")
+
     uvicorn.run("app.main:app", host="0.0.0.0", port=8080, reload=True)
