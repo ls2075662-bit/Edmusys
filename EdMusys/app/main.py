@@ -1,17 +1,24 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from app.controller.aluno_controller import router as aluno_router
-from app.controller.auth_controller import router as auth_router
+import os
+import webbrowser
+from threading import Timer
+
 from app.database import engine, Base, SessionLocal
 from app.models.db_models import AdministradorModel
 from app.core.security import gerar_hash_senha
-import os
 
+# Imports dos controladores (rotas)
+from app.controller.auth_controller import router as auth_router
+from app.controller.aluno_controller import router as aluno_router
+from app.controller.professor_controller import router as professor_router  # <-- NOVO IMPORT
+
+# 1. Cria as tabelas na base de dados
 Base.metadata.create_all(bind=engine)
 
-# Criar Admin inicial de teste caso não exista
+# 2. Garante a existência do Administrador Padrão
 def criar_admin_padrao():
     db = SessionLocal()
     try:
@@ -40,11 +47,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Endpoints da API
+# 3. Registra os Endpoints na API
 app.include_router(auth_router)
 app.include_router(aluno_router)
+app.include_router(professor_router)  # <-- NOVA ROTA REGISTRADA
 
-# Restante das rotas estáticas (view_dir, css, js, html)...
+# 4. Servir arquivos estáticos (CSS, JS, HTML)
 base_dir = os.path.dirname(os.path.abspath(__file__))
 view_dir = os.path.abspath(os.path.join(base_dir, "..", "view"))
 
@@ -68,18 +76,14 @@ def get_html_page(page_name: str):
     file_path = os.path.join(view_dir, f"{page_name}.html")
     if os.path.exists(file_path):
         return FileResponse(file_path)
-    return {"erro": "Página não encontrada"}
+    raise HTTPException(status_code=404, detail="Página não encontrada")
 
 if __name__ == "__main__":
     import uvicorn
-    import webbrowser
-    from threading import Timer
 
-    # Função para abrir o navegador no link correto (localhost)
     def abrir_navegador():
         webbrowser.open("http://localhost:8080")
 
-    # Aguarda 1.5 segundo para o servidor subir e abre o browser automaticamente
     Timer(1.5, abrir_navegador).start()
 
     print("\n" + "="*50)
