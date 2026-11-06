@@ -231,8 +231,14 @@
       <div class="stat-card"><div class="num">${alunos.length}</div><div class="lbl">Alunos ativos</div></div>
       <div class="stat-card"><div class="num">${professores.length}</div><div class="lbl">Professores</div></div>
       <div class="stat-card"><div class="num">${horarios.length}</div><div class="lbl">Aulas na semana</div></div>
-      <div class="stat-card"><div class="num">R$ ${totalMensal.toLocaleString('pt-BR')}</div><div class="lbl">Receita mensal prevista</div></div>
-      <div class="stat-card"><div class="num">${pendentes}</div><div class="lbl">Mensalidades pendentes</div></div>
+      <div class="stat-card" style="border-color: #22c55e;">
+        <div class="num" style="color: #22c55e;">R$ ${totalMensal.toLocaleString('pt-BR')}</div>
+        <div class="lbl" style="color: #22c55e;">Receita mensal prevista</div>
+      </div>
+      <div class="stat-card" style="border-color: #ef4444;">
+        <div class="num" style="color: #ef4444;">${pendentes}</div>
+        <div class="lbl" style="color: #ef4444;">Mensalidades pendentes</div>
+      </div>
     </div>
     <div class="overview-sec">
       <h3>Próximas aulas</h3>
