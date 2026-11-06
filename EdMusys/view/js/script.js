@@ -178,6 +178,19 @@
     </div>`;
   }
 
+  // GERADOR DE CAIXA DE SELEÇÃO ROLÁVEL COM CHECKBOXES
+  function checkboxList(name, opts, selected = []) {
+    const selArr = Array.isArray(selected) ? selected : (selected ? [selected] : []);
+    return `<div class="checkbox-select-box" data-group="${name}" style="max-height: 130px; overflow-y: auto; border: 1px solid var(--brandBorder, #38352F); background: rgba(0,0,0,0.25); border-radius: 8px; padding: 8px 12px; display: flex; flex-direction: column; gap: 6px;">
+      ${opts.map(o => `
+        <label class="checkbox-item" style="display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; color: inherit; user-select: none;">
+          <input type="checkbox" value="${o}" ${selArr.includes(o) ? 'checked' : ''} style="width: 16px; height: 16px; accent-color: var(--gold, #F0B90B); cursor: pointer;">
+          <span>${escapeHtml(o)}</span>
+        </label>
+      `).join('')}
+    </div>`;
+  }
+
   function emptyState(msg, btnId, btnLabel) {
     return `<div class="empty-state">${ICON.calendar}<p>${msg}</p><button class="btn btn-dark" id="${btnId}">${ICON.plus} ${btnLabel}</button></div>`;
   }
@@ -246,7 +259,7 @@
   function viewAlunos() {
     if (alunos.length === 0) return emptyState('Nenhum aluno cadastrado ainda.', 'btn-novo-aluno-empty', 'Cadastrar aluno');
     return `<div class="people-grid">${alunos.map(a => {
-      const dc = a.dias.map((d, i) => `${d} ${a.horarios[i] || ''}`).join(' · ');
+      const dc = (a.dias || []).map((d, i) => `${d} ${(a.horarios && a.horarios[i]) || ''}`).join(' · ');
       return `<div class="person-card">
         <div class="person-top">
           <div class="avatar">${initials(a.nome)}</div>
@@ -256,7 +269,7 @@
           </div>
           <span class="badge ${a.pago ? 'paid' : 'pending'}">${a.pago ? 'Pago' : 'Pendente'}</span>
         </div>
-        <div class="person-meta">${a.dias.map(d => `<span class="chip">${d}</span>`).join('')}</div>
+        <div class="person-meta">${(a.dias || []).map(d => `<span class="chip">${d}</span>`).join('')}</div>
         <div class="person-schedule">Horários: <b>${dc || '—'}</b></div>
         <div class="person-actions">
           <span class="badge">${PLANOS[a.plano]?.label || '1x / semana'} · R$${PLANOS[a.plano]?.valor || 60}</span>
@@ -270,7 +283,7 @@
   function viewProfessores() {
     if (professores.length === 0) return emptyState('Nenhum professor cadastrado ainda.', 'btn-novo-professor-empty', 'Cadastrar professor');
     return `<div class="people-grid">${professores.map(p => {
-      const dc = p.dias.map((d, i) => `${d} ${p.horarios[i] || ''}`).join(' · ');
+      const dc = (p.dias || []).map((d, i) => `${d} ${(p.horarios && p.horarios[i]) || ''}`).join(' · ');
       return `<div class="person-card">
         <div class="person-top">
           <div class="avatar">${initials(p.nome)}</div>
@@ -280,7 +293,7 @@
           </div>
           <span class="badge">${escapeHtml(p.instrumento)}</span>
         </div>
-        <div class="person-meta">${p.dias.map(d => `<span class="chip">${d}</span>`).join('')}</div>
+        <div class="person-meta">${(p.dias || []).map(d => `<span class="chip">${d}</span>`).join('')}</div>
         <div class="person-schedule">Horários: <b>${dc || '—'}</b></div>
         <div class="person-actions">
           <button class="icon-btn edit-professor" data-id="${p.id}" style="margin-left:auto;" aria-label="Editar professor">${ICON.edit}</button>
@@ -462,8 +475,20 @@
             ${ifield({ id: 'na-mensalidade', label: 'Mensalidade', icon: ICON.cash, readonly: true, value: 'R$ 60' })}
           </div>
           <div class="field-row">
-            ${ifield({ id: 'na-dia', label: 'DIA DISPONÍVEL / AULA', icon: ICON.calendar, options: [{ value: '', label: 'Selecione o dia' }, ...DIAS.map(d => ({ value: d, label: d }))] })}
-            ${ifield({ id: 'na-hora', label: 'HORÁRIO DISPONÍVEL', icon: ICON.clock, options: [{ value: '', label: 'Selecione o horário' }, ...HORAS.map(h => ({ value: h, label: h }))] })}
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <label style="font-size:12px;font-weight:600;color:var(--brandTextMuted, #aaa);">DIAS DISPONÍVEIS</label>
+                <button type="button" id="na-select-all-days" style="background:none;border:none;color:var(--gold, #F0B90B);font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;">Marcar todos</button>
+              </div>
+              ${checkboxList('dias', DIAS, [])}
+            </div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <label style="font-size:12px;font-weight:600;color:var(--brandTextMuted, #aaa);">HORÁRIOS DISPONÍVEIS</label>
+                <button type="button" id="na-select-all-hours" style="background:none;border:none;color:var(--gold, #F0B90B);font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;">Marcar todos</button>
+              </div>
+              ${checkboxList('horas', HORAS, [])}
+            </div>
           </div>
         </div>
         <div class="modal-foot">
@@ -478,6 +503,26 @@
     $('#modal-close', root).addEventListener('click', closeModal);
     $('#na-cancel', root)?.addEventListener('click', closeModal);
     $('#modal-overlay', root).addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
+
+    // Escutar alterações nos checkboxes
+    $$('.checkbox-select-box input[type="checkbox"]', root).forEach(cb => {
+      cb.addEventListener('change', checkValid);
+    });
+
+    // Atalhos Marcar Todos
+    $('#na-select-all-days', root)?.addEventListener('click', () => {
+      const checkboxes = $$('.checkbox-select-box[data-group="dias"] input[type="checkbox"]', root);
+      const allChecked = checkboxes.every(c => c.checked);
+      checkboxes.forEach(c => c.checked = !allChecked);
+      checkValid();
+    });
+
+    $('#na-select-all-hours', root)?.addEventListener('click', () => {
+      const checkboxes = $$('.checkbox-select-box[data-group="horas"] input[type="checkbox"]', root);
+      const allChecked = checkboxes.every(c => c.checked);
+      checkboxes.forEach(c => c.checked = !allChecked);
+      checkValid();
+    });
 
     $('#na-plano', root).addEventListener('change', () => {
       const v = $('#na-plano', root).value;
@@ -495,8 +540,8 @@
       const senha = $('#na-senha', root).value;
       const instrumento = $('#na-instrumento', root).value.trim();
 
-      const dia = $('#na-dia', root).value;
-      const hora = $('#na-hora', root).value;
+      const diasSelecionados = $$('.checkbox-select-box[data-group="dias"] input:checked', root);
+      const horasSelecionadas = $$('.checkbox-select-box[data-group="horas"] input:checked', root);
       const plano = $('#na-plano', root).value;
       const mensalidade = $('#na-mensalidade', root).value.trim();
 
@@ -509,8 +554,8 @@
         isValidEmail(email) &&
         senha.length >= 8 &&
         instrumento.length > 0 &&
-        dia !== '' &&
-        hora !== '' &&
+        diasSelecionados.length > 0 &&
+        horasSelecionadas.length > 0 &&
         plano !== '' &&
         mensalidade !== '';
 
@@ -521,7 +566,7 @@
     attachPhoneEmailValidation(root, 'na-telefone', 'na-email', 'err-na-telefone', 'err-na-email', checkValid);
     configurarCpf(root, 'na-cpf', 'err-na-cpf');
 
-    ['na-cpf', 'na-nascimento', 'na-senha', 'na-instrumento', 'na-dia', 'na-hora', 'na-plano'].forEach(id => {
+    ['na-cpf', 'na-nascimento', 'na-senha', 'na-instrumento', 'na-plano'].forEach(id => {
       const campo = $(`#${id}`, root);
       if (campo) {
         campo.addEventListener('input', checkValid);
@@ -530,15 +575,15 @@
     });
 
     $('#na-submit', root).addEventListener('click', () => {
-      const selDia = $('#na-dia', root).value;
-      const selHora = $('#na-hora', root).value;
+      const selDias = $$('.checkbox-select-box[data-group="dias"] input:checked', root).map(cb => cb.value);
+      const selHoras = $$('.checkbox-select-box[data-group="horas"] input:checked', root).map(cb => cb.value);
       const novo = {
         id: nextId(),
         nome: nomeInp.value.trim(),
         cpf: $('#na-cpf', root).value.trim(),
         instrumento: $('#na-instrumento', root).value.trim() || 'A definir',
-        dias: selDia ? [selDia] : [],
-        horarios: selHora ? [selHora] : [],
+        dias: selDias,
+        horarios: selHoras,
         telefone: phoneDigits($('#na-telefone', root).value),
         email: $('#na-email', root).value.trim(),
         senha: $('#na-senha', root).value,
@@ -575,8 +620,20 @@
             ${ifield({ id: 'np-instrumento', label: 'Especialidade', icon: ICON.music })}
           </div>
           <div class="field-row">
-            ${ifield({ id: 'np-dia', label: 'DIA DISPONÍVEL / AULA', icon: ICON.calendar, options: [{ value: '', label: 'Selecione o dia' }, ...DIAS.map(d => ({ value: d, label: d }))] })}
-            ${ifield({ id: 'np-hora', label: 'HORÁRIO DISPONÍVEL', icon: ICON.clock, options: [{ value: '', label: 'Selecione o horário' }, ...HORAS.map(h => ({ value: h, label: h }))] })}
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <label style="font-size:12px;font-weight:600;color:var(--brandTextMuted, #aaa);">DIAS DISPONÍVEIS</label>
+                <button type="button" id="np-select-all-days" style="background:none;border:none;color:var(--gold, #F0B90B);font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;">Marcar todos</button>
+              </div>
+              ${checkboxList('dias', DIAS, [])}
+            </div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <label style="font-size:12px;font-weight:600;color:var(--brandTextMuted, #aaa);">HORÁRIOS DISPONÍVEIS</label>
+                <button type="button" id="np-select-all-hours" style="background:none;border:none;color:var(--gold, #F0B90B);font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;">Marcar todos</button>
+              </div>
+              ${checkboxList('horas', HORAS, [])}
+            </div>
           </div>
         </div>
         <div class="modal-foot">
@@ -592,6 +649,26 @@
     $('#np-cancel', root)?.addEventListener('click', closeModal);
     $('#modal-overlay', root).addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
 
+    // Escutar alterações nos checkboxes
+    $$('.checkbox-select-box input[type="checkbox"]', root).forEach(cb => {
+      cb.addEventListener('change', checkValid);
+    });
+
+    // Atalhos Marcar Todos
+    $('#np-select-all-days', root)?.addEventListener('click', () => {
+      const checkboxes = $$('.checkbox-select-box[data-group="dias"] input[type="checkbox"]', root);
+      const allChecked = checkboxes.every(c => c.checked);
+      checkboxes.forEach(c => c.checked = !allChecked);
+      checkValid();
+    });
+
+    $('#np-select-all-hours', root)?.addEventListener('click', () => {
+      const checkboxes = $$('.checkbox-select-box[data-group="horas"] input[type="checkbox"]', root);
+      const allChecked = checkboxes.every(c => c.checked);
+      checkboxes.forEach(c => c.checked = !allChecked);
+      checkValid();
+    });
+
     const nomeInp = $('#np-nome', root);
 
     function checkValid() {
@@ -600,8 +677,8 @@
       const senha = $('#np-senha', root).value;
       const nomeOk = nomeInp.value.trim().length > 0;
       const cpf = phoneDigits($('#np-cpf', root).value);
-      const dia = $('#np-dia', root).value;
-      const hora = $('#np-hora', root).value;
+      const diasSelecionados = $$('.checkbox-select-box[data-group="dias"] input:checked', root);
+      const horasSelecionadas = $$('.checkbox-select-box[data-group="horas"] input:checked', root);
 
       $('#np-submit', root).disabled = !(
         nomeOk &&
@@ -609,30 +686,28 @@
         digits.length === 11 &&
         emailOk &&
         senha.length >= 8 &&
-        dia !== '' &&
-        hora !== ''
+        diasSelecionados.length > 0 &&
+        horasSelecionadas.length > 0
       );
     }
 
     nomeInp.addEventListener('input', checkValid);
     $('#np-senha', root).addEventListener('input', checkValid);
-    $('#np-dia', root).addEventListener('change', checkValid);
-    $('#np-hora', root).addEventListener('change', checkValid);
     attachPhoneEmailValidation(root, 'np-telefone', 'np-email', 'err-np-telefone', 'err-np-email', checkValid);
 
     configurarCpf(root, 'np-cpf', 'err-np-cpf');
     $('#np-cpf', root).addEventListener('input', checkValid);
 
     $('#np-submit', root).addEventListener('click', () => {
-      const selDia = $('#np-dia', root).value;
-      const selHora = $('#np-hora', root).value;
+      const selDias = $$('.checkbox-select-box[data-group="dias"] input:checked', root).map(cb => cb.value);
+      const selHoras = $$('.checkbox-select-box[data-group="horas"] input:checked', root).map(cb => cb.value);
       const novo = {
         id: nextId(),
         nome: nomeInp.value.trim(),
         cpf: $('#np-cpf', root).value.trim(),
         instrumento: $('#np-instrumento', root).value.trim() || 'A definir',
-        dias: selDia ? [selDia] : [],
-        horarios: selHora ? [selHora] : [],
+        dias: selDias,
+        horarios: selHoras,
         telefone: phoneDigits($('#np-telefone', root).value),
         email: $('#np-email', root).value.trim(),
         senha: $('#np-senha', root).value,
@@ -743,12 +818,23 @@
         <div class="profile-panel">
           <h4>${ICON.calendar} Disponibilidade</h4>
           <div class="field-row">
-            ${ifield({ id: 'pf-dia', label: 'DIA DISPONÍVEL / AULA', icon: ICON.calendar, options: [{ value: '', label: 'Selecione o dia' }, ...DIAS.map(d => ({ value: d, label: d }))], value: (a.dias && a.dias[0]) || '' })}
-            ${ifield({ id: 'pf-hora', label: 'HORÁRIO DISPONÍVEL', icon: ICON.clock, options: [{ value: '', label: 'Selecione o horário' }, ...HORAS.map(h => ({ value: h, label: h }))], value: (a.horarios && a.horarios[0]) || '' })}
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <label style="font-size:12px;font-weight:600;color:var(--brandTextMuted, #aaa);">DIAS DISPONÍVEIS</label>
+                <button type="button" id="pf-select-all-days" style="background:none;border:none;color:var(--gold, #F0B90B);font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;">Marcar todos</button>
+              </div>
+              ${checkboxList('dias', DIAS, a.dias || [])}
+            </div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <label style="font-size:12px;font-weight:600;color:var(--brandTextMuted, #aaa);">HORÁRIOS DISPONÍVEIS</label>
+                <button type="button" id="pf-select-all-hours" style="background:none;border:none;color:var(--gold, #F0B90B);font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;">Marcar todos</button>
+              </div>
+              ${checkboxList('horas', HORAS, a.horarios || [])}
+            </div>
           </div>
         </div>
 
-        <!-- SEÇÃO DE PAGAMENTO ADICIONADA ABAIXO DAS INFORMAÇÕES -->
         <div class="profile-panel">
           <h4>${ICON.cash} Pagamento / Status da Mensalidade</h4>
           <div class="field-group-lbl" style="margin-bottom:12px;">Selecione o status de pagamento do aluno:</div>
@@ -790,6 +876,20 @@
 
     $$('input, select', root).forEach(inp => { inp.addEventListener('input', markDirty); inp.addEventListener('change', markDirty); });
 
+    $('#pf-select-all-days', root)?.addEventListener('click', () => {
+      const checkboxes = $$('.checkbox-select-box[data-group="dias"] input[type="checkbox"]', root);
+      const allChecked = checkboxes.every(c => c.checked);
+      checkboxes.forEach(c => c.checked = !allChecked);
+      markDirty();
+    });
+
+    $('#pf-select-all-hours', root)?.addEventListener('click', () => {
+      const checkboxes = $$('.checkbox-select-box[data-group="horas"] input[type="checkbox"]', root);
+      const allChecked = checkboxes.every(c => c.checked);
+      checkboxes.forEach(c => c.checked = !allChecked);
+      markDirty();
+    });
+
     configurarCpf(root, 'pf-cpf', 'err-pf-cpf');
     attachPhoneEmailValidation(root, 'pf-telefone', 'pf-email', 'err-pf-telefone', 'err-pf-email', markDirty);
 
@@ -810,10 +910,8 @@
       const statusPagoOpt = root.querySelector('input[name="pf-pago-opt"]:checked')?.value;
       a.pago = statusPagoOpt === 'pago';
 
-      const selDia = $('#pf-dia', root).value;
-      const selHora = $('#pf-hora', root).value;
-      a.dias = selDia ? [selDia] : [];
-      a.horarios = selHora ? [selHora] : [];
+      a.dias = $$('.checkbox-select-box[data-group="dias"] input:checked', root).map(cb => cb.value);
+      a.horarios = $$('.checkbox-select-box[data-group="horas"] input:checked', root).map(cb => cb.value);
 
       saveData("edmusys_alunos", alunos);
       closeProfile();
@@ -854,8 +952,20 @@
         <div class="profile-panel">
           <h4>${ICON.calendar} Disponibilidade</h4>
           <div class="field-row">
-            ${ifield({ id: 'qf-dia', label: 'DIA DISPONÍVEL / AULA', icon: ICON.calendar, options: [{ value: '', label: 'Selecione o dia' }, ...DIAS.map(d => ({ value: d, label: d }))], value: (p.dias && p.dias[0]) || '' })}
-            ${ifield({ id: 'qf-hora', label: 'HORÁRIO DISPONÍVEL', icon: ICON.clock, options: [{ value: '', label: 'Selecione o horário' }, ...HORAS.map(h => ({ value: h, label: h }))], value: (p.horarios && p.horarios[0]) || '' })}
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <label style="font-size:12px;font-weight:600;color:var(--brandTextMuted, #aaa);">DIAS DISPONÍVEIS</label>
+                <button type="button" id="qf-select-all-days" style="background:none;border:none;color:var(--gold, #F0B90B);font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;">Marcar todos</button>
+              </div>
+              ${checkboxList('dias', DIAS, p.dias || [])}
+            </div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <label style="font-size:12px;font-weight:600;color:var(--brandTextMuted, #aaa);">HORÁRIOS DISPONÍVEIS</label>
+                <button type="button" id="qf-select-all-hours" style="background:none;border:none;color:var(--gold, #F0B90B);font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;">Marcar todos</button>
+              </div>
+              ${checkboxList('horas', HORAS, p.horarios || [])}
+            </div>
           </div>
         </div>
         <div class="profile-save-bar">
@@ -877,6 +987,20 @@
 
     $$('input, select', root).forEach(inp => { inp.addEventListener('input', markDirty); inp.addEventListener('change', markDirty); });
 
+    $('#qf-select-all-days', root)?.addEventListener('click', () => {
+      const checkboxes = $$('.checkbox-select-box[data-group="dias"] input[type="checkbox"]', root);
+      const allChecked = checkboxes.every(c => c.checked);
+      checkboxes.forEach(c => c.checked = !allChecked);
+      markDirty();
+    });
+
+    $('#qf-select-all-hours', root)?.addEventListener('click', () => {
+      const checkboxes = $$('.checkbox-select-box[data-group="horas"] input[type="checkbox"]', root);
+      const allChecked = checkboxes.every(c => c.checked);
+      checkboxes.forEach(c => c.checked = !allChecked);
+      markDirty();
+    });
+
     configurarCpf(root, 'qf-cpf', 'err-qf-cpf');
     attachPhoneEmailValidation(root, 'qf-telefone', 'qf-email', 'err-qf-telefone', 'err-qf-email', markDirty);
 
@@ -888,10 +1012,8 @@
       p.telefone = phoneDigits($('#qf-telefone', root).value) || p.telefone;
       p.email = $('#qf-email', root).value.trim();
       
-      const selDia = $('#qf-dia', root).value;
-      const selHora = $('#qf-hora', root).value;
-      p.dias = selDia ? [selDia] : [];
-      p.horarios = selHora ? [selHora] : [];
+      p.dias = $$('.checkbox-select-box[data-group="dias"] input:checked', root).map(cb => cb.value);
+      p.horarios = $$('.checkbox-select-box[data-group="horas"] input:checked', root).map(cb => cb.value);
 
       saveData("edmusys_professores", professores);
       closeProfile();
