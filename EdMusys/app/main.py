@@ -39,7 +39,7 @@ if os.path.exists(view_dir):
 # 3. Rota principal (ao acessar http://127.0.0.1:8080/)
 @app.get("/")
 def read_root():
-    homepage = os.path.join(view_dir, "EdMusys-homepage.html")
+    homepage = os.path.join(view_dir, "landing_page_edmusys.html")
     if os.path.exists(homepage):
         return FileResponse(homepage)
     return {"mensagem": "API EdMusys rodando com sucesso!"}
