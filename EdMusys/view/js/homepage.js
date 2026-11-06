@@ -1,19 +1,22 @@
-const roleButtons = document.querySelectorAll(".pill-opt");
+document.addEventListener("DOMContentLoaded", () => {
+  const roleButtons = document.querySelectorAll(".pill-opt");
   const loginError = document.getElementById("loginError");
   let perfilSelecionado = "professor";
 
+  // Alternância visual dos botões de perfil (Professor, Administrador, Aluno)
   roleButtons.forEach(btn => {
     btn.addEventListener("click", () => {
       roleButtons.forEach(b => b.classList.remove("on"));
       btn.classList.add("on");
 
-      perfilSelecionado = btn.dataset.role || "administrador"
+      perfilSelecionado = btn.dataset.role || "administrador";
 
-      loginError.classList.remove("show");
+      if (loginError) {
+        loginError.classList.remove("show");
+      }
     });
   });
 
-  //iniciar com professor selecionado
   const btnAdministrador = document.getElementById("btn-administrador");
   const adminLoginFields = document.getElementById("adminLoginFields");
   const userLoginFields = document.getElementById("userLoginFields");
@@ -27,164 +30,114 @@ const roleButtons = document.querySelectorAll(".pill-opt");
   const enterBtn = document.getElementById("enterBtn");
   const novoAdminBtn = document.getElementById("novoAdmin");
 
-  enterBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-
-  // LOGIN DO PROFESSOR
-  if (perfilSelecionado === "professor") {
-
-    const usuario = userLogin.value;
-    const senha = userPassword.value;
-
-    const professores =
-      JSON.parse(localStorage.getItem("edmusys_professores")) || [];
-
-    const identificador = usuario.trim().toLowerCase();
-    const cpfDigitado = usuario.replace(/\D/g, "");
-
-    const professorLogado = professores.find(professor => {
-
-      const nome = (professor.nome || "").trim().toLowerCase();
-      const email = (professor.email || "").trim().toLowerCase();
-      const cpf = (professor.cpf || "").replace(/\D/g, "");
-
-      return (
-        (
-          nome === identificador ||
-          email === identificador ||
-          (cpfDigitado.length === 11 && cpf === cpfDigitado)
-        ) &&
-        professor.senha === senha
-      );
+  // Alternância de campos de formulário entre Admin e Usuário
+  if (btnAdministrador) {
+    btnAdministrador.addEventListener("click", () => {
+      adminLoginFields.style.display = "block";
+      userLoginFields.style.display = "none";
+      if (novoAdminBtn) novoAdminBtn.style.display = "block";
     });
+  }
 
-    if (professorLogado) {
+  const profBtn = document.querySelector('[data-role="professor"]');
+  if (profBtn) {
+    profBtn.addEventListener("click", () => {
+      adminLoginFields.style.display = "none";
+      userLoginFields.style.display = "block";
+      if (novoAdminBtn) novoAdminBtn.style.display = "none";
+    });
+  }
 
+  const alunoBtn = document.querySelector('[data-role="aluno"]');
+  if (alunoBtn) {
+    alunoBtn.addEventListener("click", () => {
+      adminLoginFields.style.display = "none";
+      userLoginFields.style.display = "block";
+      if (novoAdminBtn) novoAdminBtn.style.display = "none";
+    });
+  }
+
+  // --- INTEGRAÇÃO COM A API FASTAPI ---
+  enterBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    let usuario = "";
+    let senha = "";
+
+    // Captura os valores dos campos visíveis de acordo com o perfil
+    if (perfilSelecionado === "administrador") {
+      usuario = adminUser ? adminUser.value.trim() : "";
+      senha = adminPass ? adminPass.value.trim() : "";
+    } else {
+      usuario = userLogin ? userLogin.value.trim() : "";
+      senha = userPassword ? userPassword.value.trim() : "";
+    }
+
+    if (!usuario || !senha) {
+      alert("Por favor, preencha o e-mail e a senha.");
+      return;
+    }
+
+    try {
+      // Requisição POST para a API Python
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: usuario,
+          senha: senha
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const mensagemErro = data.detail || "E-mail ou senha incorretos!";
+        if (loginError) {
+          loginError.textContent = mensagemErro;
+          loginError.classList.add("show");
+        } else {
+          alert(mensagemErro);
+        }
+        return;
+      }
+
+      // Salva as informações da sessão no navegador
+      localStorage.setItem("edmusys_token", data.access_token);
+      localStorage.setItem("edmusys_role", data.role);
       localStorage.setItem(
-        "edmusys_professor_logado",
-        JSON.stringify(professorLogado)
+        "edmusys_user",
+        JSON.stringify({
+          id: data.user_id,
+          nome: data.nome,
+          email: data.email
+        })
       );
 
-      window.location.href = "portal_professor.html";
+      // Redireciona de acordo com o perfil retornado pela API
+      switch (data.role) {
+        case "admin":
+          localStorage.setItem("adminLogado", "true");
+          window.location.href = "index.html";
+          break;
 
-    } else {
+        case "professor":
+          window.location.href = "portal_professor.html";
+          break;
 
-      alert("Nome, CPF, e-mail ou senha incorretos!");
+        case "aluno":
+          window.location.href = "portal_aluno.html";
+          break;
 
+        default:
+          alert("Perfil não reconhecido.");
+      }
+
+    } catch (error) {
+      console.error("Erro na autenticação:", error);
+      alert("Erro de conexão com o servidor. Verifique se o servidor Python está ativo.");
     }
-
-    return;
-  }
-
-
-  // LOGIN DO ADMINISTRADOR
-  if (perfilSelecionado === "administrador") {
-
-    const usuario = adminUser.value;
-    const senha = adminPass.value;
-
-    const administradores =
-      JSON.parse(localStorage.getItem("edmusys_admins")) || [];
-
-    const administradorCadastrado = administradores.some(admin => {
-
-      const nome = (admin.nome || "").trim().toLowerCase();
-      const email = (admin.email || "").trim().toLowerCase();
-      const cpf = (admin.cpf || "").replace(/\D/g, "");
-
-      const identificador = usuario.trim().toLowerCase();
-      const cpfDigitado = usuario.replace(/\D/g, "");
-
-      return (
-        (
-          nome === identificador ||
-          email === identificador ||
-          (cpfDigitado.length === 11 && cpf === cpfDigitado)
-        ) &&
-        admin.senha === senha
-      );
-    });
-
-    if (
-      (usuario === "admin" && senha === "admin") ||
-      administradorCadastrado
-    ) {
-
-      localStorage.setItem("adminLogado", "true");
-
-      window.location.href = "index.html";
-
-    } else {
-
-      alert("Usuário ou senha incorretos!");
-
-    }
-
-    return;
-  }
-
-  // LOGIN DO ALUNO
-if (perfilSelecionado === "aluno") {
-
-const usuario = userLogin.value;
-const senha = userPassword.value;
-
-const alunos =
-  JSON.parse(localStorage.getItem("edmusys_alunos")) || [];
-
-const identificador = usuario.trim().toLowerCase();
-const cpfDigitado = usuario.replace(/\D/g, "");
-
-const alunoLogado = alunos.find(aluno => {
-
-  const nome = (aluno.nome || "").trim().toLowerCase();
-  const email = (aluno.email || "").trim().toLowerCase();
-  const cpf = (aluno.cpf || "").replace(/\D/g, "");
-
-  return (
-    (
-      nome === identificador ||
-      email === identificador ||
-      (cpfDigitado.length === 11 && cpf === cpfDigitado)
-    ) &&
-    aluno.senha === senha
-  );
-});
-
-if (alunoLogado) {
-
-  localStorage.setItem(
-    "edmusys_aluno_logado",
-    JSON.stringify(alunoLogado)
-  );
-
-  window.location.href = "portal_aluno.html";
-
-} else {
-
-  alert("Nome, CPF, e-mail ou senha incorretos!");
-
-}
-
-return;
-}
-
-});
-
-  btnAdministrador.addEventListener("click", () => {
-    adminLoginFields.style.display = "block";
-    userLoginFields.style.display = "none";
-    novoAdminBtn.style.display = "block";
   });
-
-document.querySelector('[data-role="professor"]').addEventListener("click", () => {
-  adminLoginFields.style.display = "none";
-  userLoginFields.style.display = "block";
-  novoAdminBtn.style.display = "none";
-});
-
-document.querySelector('[data-role="aluno"]').addEventListener("click", () => {
-  adminLoginFields.style.display = "none";
-  userLoginFields.style.display = "block";
-  novoAdminBtn.style.display = "none";
 });
