@@ -4,6 +4,8 @@ from app.models.aluno import AlunoCreate
 from app.models.professor import ProfessorCreate
 from app.core.security import gerar_hash_senha
 from typing import List
+from app.models.db_models import AdministradorModel
+from app.models.admin import AdminCreate
 
 class RepositoryAdm:
     # --- ALUNOS ---
@@ -49,3 +51,15 @@ class RepositoryAdm:
         db.commit()
         db.refresh(db_prof)
         return db_prof
+    
+    def salvar_admin(self, db: Session, admin: AdminCreate) -> AdministradorModel:
+        db_admin = AdministradorModel(
+            nome=admin.nome,
+            email=admin.email,
+            cpf=admin.cpf,
+            senha_hash=gerar_hash_senha(admin.senha)
+    )
+        db.add(db_admin)
+        db.commit()
+        db.refresh(db_admin)
+        return db_admin
