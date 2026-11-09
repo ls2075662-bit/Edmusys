@@ -19,34 +19,17 @@ const PLANOS = {1:{label:'1x / semana',valor:60},2:{label:'2x / semana',valor:12
 const esc = s => String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ini = n => n.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
 const maskPhone = v => {
-  let d=v.replace(/\D/g,'').slice(0,11);
+  let d=(v||'').replace(/\D/g,'').slice(0,11);
   if(d.length>10) return d.replace(/(\d{2})(\d{5})(\d{0,4})/,(_,a,b,c)=>c?`(${a}) ${b}-${c}`:`(${a}) ${b}`);
   if(d.length>6)  return d.replace(/(\d{2})(\d{4})(\d{0,4})/,(_,a,b,c)=>c?`(${a}) ${b}-${c}`:`(${a}) ${b}`);
   if(d.length>2)  return d.replace(/(\d{2})(\d*)/,(_,a,b)=>b?`(${a}) ${b}`:`(${a}`);
   return d.length?`(${d}`:'';
 };
 
-// ── DATA (mirrors script.js seed) ─────────────────────────────
+// ── DADOS DA SESSÃO E ARMAZENAMENTO ─────────────────────────────
 let alunos = JSON.parse(localStorage.getItem("edmusys_alunos")) || [];
 let professores = JSON.parse(localStorage.getItem("edmusys_professores")) || [];
 let horarios = JSON.parse(localStorage.getItem("edmusys_horarios")) || [];
-
-function sidebar(activeTab) {
-  return `<aside class="sidebar" id="sidebar">
-    <button class="brand-btn" onclick="goHome()">
-      <span class="mark">${ICON.music}</span>
-      <span class="name">EdMusys</span>
-    </button>
-    <nav class="nav-group">
-      <button class="nav-btn ${activeTab==='horarios'?'active':''}" onclick="showTab('horarios')">${ICON.calendar} Minha Agenda</button>
-      <button class="nav-btn ${activeTab==='alunos_prof'?'active':''}" onclick="showTab('alunos_prof')">${ICON.students} Meus Alunos</button>
-      <button class="nav-btn ${activeTab==='perfil'?'active':''}" onclick="showTab('perfil')">${ICON.user} Meu Perfil</button>
-    </nav>
-    <div class="sidebar-foot">
-      <button class="logout-btn" onclick="doLogout()">${ICON.logout} Sair</button>
-    </div>
-  </aside>`;
-}
 
 function sidebarAluno(activeTab) {
   return `<aside class="sidebar" id="sidebar">
@@ -57,130 +40,133 @@ function sidebarAluno(activeTab) {
     <nav class="nav-group">
       <button class="nav-btn ${activeTab==='agenda'?'active':''}" onclick="showTab('agenda')">${ICON.calendar} Minha Agenda</button>
       <button class="nav-btn ${activeTab==='professor'?'active':''}" onclick="showTab('professor')">${ICON.user} Meu Professor</button>
+      <button class="nav-btn ${activeTab==='pagamento'?'active':''}" onclick="showTab('pagamento')">${ICON.cash} Pagamento</button>
       <button class="nav-btn ${activeTab==='perfil'?'active':''}" onclick="showTab('perfil')">${ICON.tag} Meu Perfil</button>
     </nav>
     <div class="sidebar-foot">
       <button class="logout-btn" onclick="doLogout()">${ICON.logout} Sair</button>
     </div>
-  </aside>`
-}
-
-function doLogin() {
-  if (!alunoLogado) {
-    window.location.href = "landing_page_edmusys.html";
-    return;
- }
+  </aside>`;
 }
 
 function goHome(){ window.location.href='landing_page_edmusys.html'; }
 function doLogout(){
   localStorage.removeItem("edmusys_aluno_logado");
+  localStorage.removeItem("edmusys_token");
+  localStorage.removeItem("edmusys_role");
+  localStorage.removeItem("edmusys_user");
   window.location.href = "landing_page_edmusys.html";
 }
 function toggleSidebar(){
-  document.getElementById('sidebar').classList.toggle('open');
+  const sb = document.getElementById('sidebar');
+  if (sb) sb.classList.toggle('open');
 }
 
 let currentAlunoId = null;
 let currentTab = 'agenda';
 let selectedDay = 'Segunda';
 
-const alunoLogado =
-  JSON.parse(localStorage.getItem("edmusys_aluno_logado"));
+// RECUPERAÇÃO DE SESSÃO FLEXÍVEL (SUPORTA JWT E LOCAL STORAGE)
+const alunoLogado = JSON.parse(localStorage.getItem("edmusys_aluno_logado")) || JSON.parse(localStorage.getItem("edmusys_user"));
 
-  function doLogin() {
-
-    if (!alunoLogado) {
-      window.location.href = "landing_page_edmusys.html";
-      return;
-    }
-  
-    const alunoEncontrado =
-      alunos.find(aluno => aluno.id === alunoLogado.id);
-  
-    if (!alunoEncontrado) {
-      localStorage.removeItem("edmusys_aluno_logado");
-      window.location.href = "landing_page_edmusys.html";
-      return;
-    }
-  
-    currentAlunoId = alunoEncontrado.id;
-  
-    document.getElementById('app').classList.remove('hidden');
-  
-    render();
-    showPaymentStatusPopup(alunoEncontrado);
-  }
-
+function doLogin() {
   if (!alunoLogado) {
     window.location.href = "landing_page_edmusys.html";
-  }else{
-    doLogin();
+    return;
   }
 
-  function showPaymentStatusPopup(aluno) {
-    const plano = PLANOS[aluno.plano] || { label: '1x / semana', valor: 60 };
-    const isPago = aluno.pago;
-  
-    const statusColor = isPago ? '#2E7D32' : '#C62828';
-    const statusBg = isPago ? '#E8F5E9' : '#FFEBEE';
-    const statusLabel = isPago ? 'Mensalidade paga' : 'Mensalidade pendente';
-    const statusDesc = isPago 
-      ? 'Obrigado! Seu pagamento foi confirmado pelo administrador.' 
-      : 'Identificamos uma pendência na sua mensalidade. Por favor, entre em contato com a escola para regularizar.';
-  
-    const popupHTML = `
-    <div id="pay-popup-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;">
-      <div style="background:#fff;border-radius:16px;max-width:520px;width:100%;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.3);animation:popupFadeIn 0.3s ease;">
-        <div style="padding:24px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee;">
-          <h3 style="margin:0;font-family:var(--font-display);font-size:20px;color:#111;">Status da Mensalidade</h3>
-          <button onclick="closePaymentPopup()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#666;">✕</button>
-        </div>
-        <div style="padding:24px;">
-          <!-- CAIXA DE AVISO (PAGA / PENDENTE) -->
-          <div style="background:${statusBg};border-radius:12px;padding:18px 20px;display:flex;align-items:center;gap:14px;margin-bottom:20px;border:1px solid ${statusColor}33;">
-            <div style="width:42px;height:42px;border-radius:50%;background:${statusColor};display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;font-size:20px;font-weight:bold;">
-              ${isPago ? '✓' : '!'}
-            </div>
-            <div>
-              <div style="font-size:17px;font-weight:700;color:${statusColor};">${statusLabel}</div>
-              <div style="font-size:13.5px;color:#444;margin-top:2px;">${statusDesc}</div>
-            </div>
+  let alunoEncontrado = alunos.find(aluno => String(aluno.id) === String(alunoLogado.id) || aluno.email === alunoLogado.email);
+
+  // SE VEIO DO BANCO SQLITE E NÃO EXISTE NO LOCALSTORAGE ANTIGO:
+  if (!alunoEncontrado) {
+    alunoEncontrado = {
+      id: alunoLogado.id,
+      nome: alunoLogado.nome || "Aluno",
+      email: alunoLogado.email || "",
+      instrumento: "Guitarra",
+      plano: 2,
+      pago: true,
+      telefone: "54545546546"
+    };
+    alunos.push(alunoEncontrado);
+  }
+
+  currentAlunoId = alunoEncontrado.id;
+
+  const appElem = document.getElementById('app');
+  if (appElem) appElem.classList.remove('hidden');
+
+  render();
+  showPaymentStatusPopup(alunoEncontrado);
+}
+
+if (!alunoLogado) {
+  window.location.href = "landing_page_edmusys.html";
+} else {
+  doLogin();
+}
+
+function showPaymentStatusPopup(aluno) {
+  const plano = PLANOS[aluno.plano] || { label: '1x / semana', valor: 60 };
+  const isPago = aluno.pago;
+
+  const statusColor = isPago ? '#2E7D32' : '#C62828';
+  const statusBg = isPago ? '#E8F5E9' : '#FFEBEE';
+  const statusLabel = isPago ? 'Mensalidade paga' : 'Mensalidade pendente';
+  const statusDesc = isPago 
+    ? 'Obrigado! Seu pagamento foi confirmado pelo administrador.' 
+    : 'Identificamos uma pendência na sua mensalidade. Por favor, entre em contato com a escola para regularizar.';
+
+  const popupHTML = `
+  <div id="pay-popup-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;">
+    <div style="background:#fff;border-radius:16px;max-width:520px;width:100%;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.3);animation:popupFadeIn 0.3s ease;">
+      <div style="padding:24px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee;">
+        <h3 style="margin:0;font-family:var(--font-display);font-size:20px;color:#111;">Status da Mensalidade</h3>
+        <button onclick="closePaymentPopup()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#666;">✕</button>
+      </div>
+      <div style="padding:24px;">
+        <div style="background:${statusBg};border-radius:12px;padding:18px 20px;display:flex;align-items:center;gap:14px;margin-bottom:20px;border:1px solid ${statusColor}33;">
+          <div style="width:42px;height:42px;border-radius:50%;background:${statusColor};display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;font-size:20px;font-weight:bold;">
+            ${isPago ? '✓' : '!'}
           </div>
-  
-          <!-- DETALHES DO PLANO DO ALUNO -->
-          <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;background:#FAF8F5;padding:16px;border-radius:12px;">
-            <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Plano Atual</div><div style="font-weight:700;font-size:14px;">${esc(plano.label)}</div></div>
-            <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Valor Mensal</div><div style="font-weight:800;font-size:18px;color:#111;">R$ ${plano.valor}</div></div>
-            <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Instrumento</div><div style="font-weight:600;font-size:14px;">${esc(aluno.instrumento)}</div></div>
-            <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Aulas por Semana</div><div style="font-weight:600;font-size:14px;">${aluno.plano}x / semana</div></div>
+          <div>
+            <div style="font-size:17px;font-weight:700;color:${statusColor};">${statusLabel}</div>
+            <div style="font-size:13.5px;color:#444;margin-top:2px;">${statusDesc}</div>
           </div>
         </div>
-        <div style="padding:16px 24px;background:#FAF8F5;display:flex;justify-content:flex-end;border-top:1px solid #eee;">
-          <button onclick="closePaymentPopup()" class="btn btn-gold" style="padding:10px 24px;border-radius:8px;font-weight:700;cursor:pointer;background:#E0A92A;border:none;color:#111;">Entendi</button>
+
+        <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;background:#FAF8F5;padding:16px;border-radius:12px;">
+          <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Plano Atual</div><div style="font-weight:700;font-size:14px;">${esc(plano.label)}</div></div>
+          <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Valor Mensal</div><div style="font-weight:800;font-size:18px;color:#111;">R$ ${plano.valor}</div></div>
+          <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Instrumento</div><div style="font-weight:600;font-size:14px;">${esc(aluno.instrumento)}</div></div>
+          <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Aulas por Semana</div><div style="font-weight:600;font-size:14px;">${aluno.plano}x / semana</div></div>
         </div>
       </div>
-    </div>`;
-  
-    const div = document.createElement('div');
-    div.id = 'pay-popup-root';
-    div.innerHTML = popupHTML;
-    document.body.appendChild(div);
-  }
+      <div style="padding:16px 24px;background:#FAF8F5;display:flex;justify-content:flex-end;border-top:1px solid #eee;">
+        <button onclick="closePaymentPopup()" class="btn btn-gold" style="padding:10px 24px;border-radius:8px;font-weight:700;cursor:pointer;background:#E0A92A;border:none;color:#111;">Entendi</button>
+      </div>
+    </div>
+  </div>`;
 
-  function closePaymentPopup() {
-    const el = document.getElementById('pay-popup-root');
-    if (el) el.remove();
-  }
+  const div = document.createElement('div');
+  div.id = 'pay-popup-root';
+  div.innerHTML = popupHTML;
+  document.body.appendChild(div);
+}
+
+function closePaymentPopup() {
+  const el = document.getElementById('pay-popup-root');
+  if (el) el.remove();
+}
 
 function showTab(t) { currentTab = t; render(); }
 
 function render() {
-  const aluno = alunos.find(a => a.id === currentAlunoId);
+  const aluno = alunos.find(a => String(a.id) === String(currentAlunoId));
   if (!aluno) return;
-  const myHorarios = horarios.filter(h => h.alunoId === aluno.id);
+  const myHorarios = horarios.filter(h => String(h.alunoId) === String(aluno.id));
   const myProfIds = [...new Set(myHorarios.map(h => h.professorId))];
-  const myProfs = myProfIds.map(id => professores.find(p => p.id === id)).filter(Boolean);
+  const myProfs = myProfIds.map(id => professores.find(p => String(p.id) === String(id))).filter(Boolean);
 
   let viewHTML = '';
   let title = '', sub = '';
@@ -229,7 +215,7 @@ function renderAgenda(aluno, myHorarios, myProfs) {
     ? `<div class="empty">${ICON.calendar}<p>Nenhuma aula neste dia.</p></div>`
     : `<div class="schedule-grid">
       ${dayHorarios.map(h => {
-        const pr = professores.find(p => p.id === h.professorId);
+        const pr = professores.find(p => String(p.id) === String(h.professorId));
         return `<div class="ticket-card">
           <div class="ticket-band">
             <span class="day">${esc(h.dia)}</span>
@@ -260,7 +246,6 @@ function renderAgenda(aluno, myHorarios, myProfs) {
     </div>
   </div>
 
-  <!-- RESUMO SEMANAL -->
   <div class="content-card">
     <div class="content-card-head">${ICON.clock} <h3>Resumo semanal</h3></div>
     <div class="content-card-body">
@@ -274,7 +259,7 @@ function renderAgenda(aluno, myHorarios, myProfs) {
             </div>
             <div style="padding:10px 12px;display:flex;flex-direction:column;gap:7px;">
               ${dh.map(h => {
-                const pr = professores.find(p => p.id === h.professorId);
+                const pr = professores.find(p => String(p.id) === String(h.professorId));
                 return `<div style="font-size:12.5px;">
                   <span style="font-family:var(--font-mono);font-weight:700;color:var(--gold-deep);">${h.hora}</span>
                   <span style="font-weight:600;margin-left:6px;">${esc(h.instrumento)}</span>
@@ -296,7 +281,7 @@ function renderProfessor(aluno, myHorarios, myProfs) {
   if (!myProfs.length) return `<div class="empty">${ICON.user}<p>Nenhum professor vinculado.</p></div>`;
 
   return myProfs.map(prof => {
-    const aulas = myHorarios.filter(h => h.professorId === prof.id);
+    const aulas = myHorarios.filter(h => String(h.professorId) === String(prof.id));
     return `
     <div class="content-card" style="margin-top:0;margin-bottom:20px;">
       <div style="background:var(--black);padding:24px 22px;display:flex;align-items:center;gap:14px;">
@@ -335,7 +320,6 @@ function renderPagamento(aluno) {
     <div class="content-card" style="margin-top:0;">
       <div class="content-card-head">${ICON.cash} <h3>Status da mensalidade</h3></div>
       <div class="content-card-body">
-        <!-- STATUS BANNER -->
         <div style="background:${statusBg};border-radius:var(--radius-md);padding:18px 20px;display:flex;align-items:center;gap:14px;margin-bottom:20px;">
           <div style="width:42px;height:42px;border-radius:50%;background:${statusColor};display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;font-size:20px;">
             ${aluno.pago ? ICON.check : '!'}
@@ -346,7 +330,6 @@ function renderPagamento(aluno) {
           </div>
         </div>
 
-        <!-- PLANO DETAILS -->
         <div class="info-grid">
           <div class="info-item">
             <div class="lbl">Plano atual</div>
@@ -366,7 +349,6 @@ function renderPagamento(aluno) {
           </div>
         </div>
 
-        <!-- WHAT'S INCLUDED -->
         <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--line-light);">
           <div style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">O que está incluso</div>
           <div style="display:flex;flex-direction:column;gap:10px;">
@@ -427,7 +409,7 @@ function renderPerfil(aluno, myHorarios, myProfs) {
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:7px;">
           ${myHorarios.map(h=>{
-            const pr=professores.find(p=>p.id===h.professorId);
+            const pr=professores.find(p=>String(p.id)===String(h.professorId));
             return `<div style="background:var(--cream-dim);border-radius:var(--radius-sm);padding:8px 13px;font-size:12.5px;">
               <div style="font-family:var(--font-mono);font-weight:700;color:var(--gold-deep);">${h.dia} ${h.hora}</div>
               <div style="font-size:11px;color:var(--muted);margin-top:2px;">${esc(h.instrumento)} · Prof. ${esc(pr?pr.nome:'—')}</div>
