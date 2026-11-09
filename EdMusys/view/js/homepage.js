@@ -3,17 +3,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginError = document.getElementById("loginError");
   let perfilSelecionado = "professor";
 
-  // Alternância visual dos botões de perfil (Professor, Administrador, Aluno)
   roleButtons.forEach(btn => {
     btn.addEventListener("click", () => {
       roleButtons.forEach(b => b.classList.remove("on"));
       btn.classList.add("on");
-
       perfilSelecionado = btn.dataset.role || "administrador";
-
-      if (loginError) {
-        loginError.classList.remove("show");
-      }
+      if (loginError) loginError.classList.remove("show");
     });
   });
 
@@ -30,11 +25,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const enterBtn = document.getElementById("enterBtn");
   const novoAdminBtn = document.getElementById("novoAdmin");
 
-  // Alternância de campos de formulário entre Admin e Usuário
   if (btnAdministrador) {
     btnAdministrador.addEventListener("click", () => {
       adminLoginFields.style.display = "block";
       userLoginFields.style.display = "none";
+      perfilSelecionado = "administrador";
       if (novoAdminBtn) novoAdminBtn.style.display = "block";
     });
   }
@@ -44,6 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
     profBtn.addEventListener("click", () => {
       adminLoginFields.style.display = "none";
       userLoginFields.style.display = "block";
+      perfilSelecionado = "professor";
       if (novoAdminBtn) novoAdminBtn.style.display = "none";
     });
   }
@@ -53,42 +49,32 @@ document.addEventListener("DOMContentLoaded", () => {
     alunoBtn.addEventListener("click", () => {
       adminLoginFields.style.display = "none";
       userLoginFields.style.display = "block";
+      perfilSelecionado = "aluno";
       if (novoAdminBtn) novoAdminBtn.style.display = "none";
     });
   }
 
-  // --- INTEGRAÇÃO COM A API FASTAPI ---
   enterBtn.addEventListener("click", async (e) => {
     e.preventDefault();
 
-    let usuario = "";
-    let senha = "";
+    let usuario = perfilSelecionado === "administrador" 
+      ? (adminUser ? adminUser.value.trim() : "")
+      : (userLogin ? userLogin.value.trim() : "");
 
-    // Captura os valores dos campos visíveis de acordo com o perfil
-    if (perfilSelecionado === "administrador") {
-      usuario = adminUser ? adminUser.value.trim() : "";
-      senha = adminPass ? adminPass.value.trim() : "";
-    } else {
-      usuario = userLogin ? userLogin.value.trim() : "";
-      senha = userPassword ? userPassword.value.trim() : "";
-    }
+    let senha = perfilSelecionado === "administrador"
+      ? (adminPass ? adminPass.value.trim() : "")
+      : (userPassword ? userPassword.value.trim() : "");
 
     if (!usuario || !senha) {
-      alert("Por favor, preencha o e-mail e a senha.");
+      alert("Por favor, preencha o e-mail/CPF e a senha.");
       return;
     }
 
     try {
-      // Requisição POST para a API Python
       const response = await fetch("/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: usuario,
-          senha: senha
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: usuario, senha: senha })
       });
 
       const data = await response.json();
@@ -104,19 +90,18 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Salva as informações da sessão no navegador
+      const userData = {
+        id: data.user_id,
+        nome: data.nome,
+        email: data.email
+      };
+
+      // Sessão JWT genérica
       localStorage.setItem("edmusys_token", data.access_token);
       localStorage.setItem("edmusys_role", data.role);
-      localStorage.setItem(
-        "edmusys_user",
-        JSON.stringify({
-          id: data.user_id,
-          nome: data.nome,
-          email: data.email
-        })
-      );
+      localStorage.setItem("edmusys_user", JSON.stringify(userData));
 
-      // Redireciona de acordo com o perfil retornado pela API
+      // Gravação das chaves esperadas por cada portal
       switch (data.role) {
         case "admin":
           localStorage.setItem("adminLogado", "true");
@@ -124,20 +109,22 @@ document.addEventListener("DOMContentLoaded", () => {
           break;
 
         case "professor":
+          localStorage.setItem("edmusys_professor_logado", JSON.stringify(userData));
           window.location.href = "portal_professor.html";
           break;
 
         case "aluno":
+          localStorage.setItem("edmusys_aluno_logado", JSON.stringify(userData));
           window.location.href = "portal_aluno.html";
           break;
 
         default:
-          alert("Perfil não reconhecido.");
+          alert("Perfil de usuário não reconhecido.");
       }
 
     } catch (error) {
-      console.error("Erro na autenticação:", error);
-      alert("Erro de conexão com o servidor. Verifique se o servidor Python está ativo.");
+      console.error("Erro no login:", error);
+      alert("Erro de conexão com o servidor. Verifique se a aplicação Python está rodando.");
     }
   });
 });
