@@ -7,8 +7,12 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => {
       roleButtons.forEach(b => b.classList.remove("on"));
       btn.classList.add("on");
+
       perfilSelecionado = btn.dataset.role || "administrador";
-      if (loginError) loginError.classList.remove("show");
+
+      if (loginError) {
+        loginError.classList.remove("show");
+      }
     });
   });
 
@@ -57,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
   enterBtn.addEventListener("click", async (e) => {
     e.preventDefault();
 
-    let usuario = perfilSelecionado === "administrador" 
+    let usuario = perfilSelecionado === "administrador"
       ? (adminUser ? adminUser.value.trim() : "")
       : (userLogin ? userLogin.value.trim() : "");
 
@@ -96,12 +100,10 @@ document.addEventListener("DOMContentLoaded", () => {
         email: data.email
       };
 
-      // Sessão JWT genérica
       localStorage.setItem("edmusys_token", data.access_token);
       localStorage.setItem("edmusys_role", data.role);
       localStorage.setItem("edmusys_user", JSON.stringify(userData));
 
-      // Gravação das chaves esperadas por cada portal
       switch (data.role) {
         case "admin":
           localStorage.setItem("adminLogado", "true");
@@ -124,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     } catch (error) {
       console.error("Erro no login:", error);
-      alert("Erro de conexão com o servidor. Verifique se a aplicação Python está rodando.");
+      alert("Erro de conexão com o servidor Python.");
     }
   });
 });
