@@ -19,14 +19,14 @@ const PLANOS = {1:{label:'1x / semana',valor:60},2:{label:'2x / semana',valor:12
 const esc = s => String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ini = n => n.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
 const maskPhone = v => {
-  let d=v.replace(/\D/g,'').slice(0,11);
+  let d=(v||'').replace(/\D/g,'').slice(0,11);
   if(d.length>10) return d.replace(/(\d{2})(\d{5})(\d{0,4})/,(_,a,b,c)=>c?`(${a}) ${b}-${c}`:`(${a}) ${b}`);
   if(d.length>6)  return d.replace(/(\d{2})(\d{4})(\d{0,4})/,(_,a,b,c)=>c?`(${a}) ${b}-${c}`:`(${a}) ${b}`);
   if(d.length>2)  return d.replace(/(\d{2})(\d*)/,(_,a,b)=>b?`(${a}) ${b}`:`(${a}`);
   return d.length?`(${d}`:'';
 };
 
-// ── DATA (mirrors script.js seed) ─────────────────────────────
+// ── DADOS DA SESSÃO E ARMAZENAMENTO ─────────────────────────────
 let alunos = JSON.parse(localStorage.getItem("edmusys_alunos")) || [];
 let professores = JSON.parse(localStorage.getItem("edmusys_professores")) || [];
 let horarios = JSON.parse(localStorage.getItem("edmusys_horarios")) || [];
@@ -48,48 +48,46 @@ function sidebar(activeTab) {
   </aside>`;
 }
 
-function sidebarAluno(activeTab) {
-  return `<aside class="sidebar" id="sidebar">
-    <button class="brand-btn" onclick="goHome()">
-      <span class="mark">${ICON.music}</span>
-      <span class="name">EdMusys</span>
-    </button>
-    <nav class="nav-group">
-      <button class="nav-btn ${activeTab==='agenda'?'active':''}" onclick="showTab('agenda')">${ICON.calendar} Minha Agenda</button>
-      <button class="nav-btn ${activeTab==='professor'?'active':''}" onclick="showTab('professor')">${ICON.user} Meu Professor</button>
-      <button class="nav-btn ${activeTab==='pagamento'?'active':''}" onclick="showTab('pagamento')">${ICON.cash} Pagamento</button>
-      <button class="nav-btn ${activeTab==='perfil'?'active':''}" onclick="showTab('perfil')">${ICON.tag} Meu Perfil</button>
-    </nav>
-    <div class="sidebar-foot">
-      <button class="logout-btn" onclick="doLogout()">${ICON.logout} Sair</button>
-    </div>
-  </aside>`;
-}
-
 function goHome(){ window.location.href='landing_page_edmusys.html'; }
 function doLogout(){
   localStorage.removeItem("edmusys_professor_logado");
+  localStorage.removeItem("edmusys_token");
+  localStorage.removeItem("edmusys_role");
+  localStorage.removeItem("edmusys_user");
   window.location.href = "landing_page_edmusys.html";
 }
 function toggleSidebar(){
-  document.getElementById('sidebar').classList.toggle('open');
+  const sb = document.getElementById('sidebar');
+  if (sb) sb.classList.toggle('open');
 }
 
-// ── LOGIN ──────────────────────────────────────────────
-
+// ── INICIALIZAÇÃO DA SESSÃO ─────────────────────────────
 let currentProfId = null;
-
 let currentTab = 'horarios';
 let selectedDay = 'Segunda';
 
-const professorLogado =
-  JSON.parse(localStorage.getItem("edmusys_professor_logado"));
+const professorLogado = JSON.parse(localStorage.getItem("edmusys_professor_logado")) || JSON.parse(localStorage.getItem("edmusys_user"));
 
 if (!professorLogado) {
   window.location.href = "landing_page_edmusys.html";
 } else {
   currentProfId = professorLogado.id;
-  document.getElementById('app').classList.remove('hidden');
+
+  let profEncontrado = professores.find(p => String(p.id) === String(professorLogado.id) || p.email === professorLogado.email);
+
+  if (!profEncontrado) {
+    profEncontrado = {
+      id: professorLogado.id,
+      nome: professorLogado.nome || "Professor",
+      email: professorLogado.email || "",
+      instrumento: "Guitarra",
+      telefone: "87767687687"
+    };
+    professores.push(profEncontrado);
+  }
+
+  const appElem = document.getElementById('app');
+  if (appElem) appElem.classList.remove('hidden');
   render();
 }
 
@@ -97,11 +95,11 @@ function showTab(t) { currentTab = t; render(); }
 
 // ── RENDER ─────────────────────────────────────────────
 function render() {
-  const prof = professores.find(p => p.id === currentProfId);
+  const prof = professores.find(p => String(p.id) === String(currentProfId));
   if (!prof) return;
-  const myHorarios = horarios.filter(h => h.professorId === prof.id);
+  const myHorarios = horarios.filter(h => String(h.professorId) === String(prof.id));
   const myAlunoIds = [...new Set(myHorarios.map(h => h.alunoId))];
-  const myAlunos = myAlunoIds.map(id => alunos.find(a => a.id === id)).filter(Boolean);
+  const myAlunos = myAlunoIds.map(id => alunos.find(a => String(a.id) === String(id))).filter(Boolean);
 
   let viewHTML = '';
 
@@ -148,7 +146,7 @@ function renderAgenda(prof, myHorarios, myAlunos) {
     ? `<div class="empty">${ICON.calendar}<p>Nenhuma aula neste dia.</p></div>`
     : `<div class="schedule-grid">
       ${dayHorarios.map(h => {
-        const al = alunos.find(a => a.id === h.alunoId);
+        const al = alunos.find(a => String(a.id) === String(h.alunoId));
         return `<div class="ticket-card">
           <div class="ticket-band">
             <span class="day">${esc(h.dia)}</span>
@@ -180,7 +178,6 @@ function renderAgenda(prof, myHorarios, myAlunos) {
       </div>
     </div>
 
-    <!-- FULL WEEK SUMMARY -->
     <div class="content-card">
       <div class="content-card-head">${ICON.clock} <h3>Resumo semanal completo</h3></div>
       <div class="content-card-body">
@@ -194,7 +191,7 @@ function renderAgenda(prof, myHorarios, myAlunos) {
               </div>
               <div style="padding:10px 12px;display:flex;flex-direction:column;gap:7px;">
                 ${dh.map(h => {
-                  const al = alunos.find(a => a.id === h.alunoId);
+                  const al = alunos.find(a => String(a.id) === String(h.alunoId));
                   return `<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;">
                     <span style="font-family:var(--font-mono);font-weight:700;color:var(--gold-deep);min-width:44px;">${h.hora}</span>
                     <span style="font-weight:600;">${esc(h.instrumento)}</span>
@@ -216,7 +213,7 @@ function renderMeusAlunos(prof, myAlunos, myHorarios) {
   if (!myAlunos.length) return `<div class="empty">${ICON.students}<p>Nenhum aluno vinculado.</p></div>`;
 
   const rows = myAlunos.map(a => {
-    const aulas = myHorarios.filter(h => h.alunoId === a.id);
+    const aulas = myHorarios.filter(h => String(h.alunoId) === String(a.id));
     const plano = PLANOS[a.plano];
     return `<tr>
       <td>
@@ -230,7 +227,7 @@ function renderMeusAlunos(prof, myAlunos, myHorarios) {
       </td>
       <td><span class="badge">${esc(a.instrumento)}</span></td>
       <td>
-        ${aulas.map(h => `<span style="font-family:var(--font-mono);font-size:12px;background:var(--gold-pale);color:var(--gold-deep);border-radius:6px;padding:3px 8px;margin:2px;display:inline-block;font-weight:700;">${h.dia}${h.hora}</span>`).join('')}
+        ${aulas.map(h => `<span style="font-family:var(--font-mono);font-size:12px;background:var(--gold-pale);color:var(--gold-deep);border-radius:6px;padding:3px 8px;margin:2px;display:inline-block;font-weight:700;">${h.dia} ${h.hora}</span>`).join('')}
       </td>
       <td><span class="plan-chip">${esc(plano?plano.label:'—')}</span></td>
       <td><span class="badge ${a.pago?'pago':'pendente'}">${a.pago?'PAGO':'PENDENTE'}</span></td>
@@ -257,7 +254,6 @@ function renderMeusAlunos(prof, myAlunos, myHorarios) {
 function renderPerfil(prof, myHorarios, myAlunos) {
   const totalAulas = myHorarios.length;
   return `
-    <!-- HERO -->
     <div class="profile-hero">
       <div class="profile-hero-id">
         <div class="avatar lg">${ini(prof.nome)}</div>
@@ -274,7 +270,6 @@ function renderPerfil(prof, myHorarios, myAlunos) {
       </div>
     </div>
 
-    <!-- INFO CARD -->
     <div class="content-card">
       <div class="content-card-head">${ICON.user} <h3>Dados pessoais</h3></div>
       <div class="content-card-body">
@@ -288,7 +283,6 @@ function renderPerfil(prof, myHorarios, myAlunos) {
       </div>
     </div>
 
-    <!-- STATS -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:20px;">
       ${[
         {icon:ICON.students, lbl:'Total de alunos', val:myAlunos.length},
