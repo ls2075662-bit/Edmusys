@@ -15,6 +15,9 @@ from app.controller.auth_controller import router as auth_router
 from app.controller.aluno_controller import router as aluno_router
 from app.controller.professor_controller import router as professor_router  # <-- NOVO IMPORT
 
+from app.controller.admin_controller import router as admin_router
+
+
 # 1. Cria as tabelas na base de dados
 Base.metadata.create_all(bind=engine)
 
@@ -52,6 +55,10 @@ app.include_router(auth_router)
 app.include_router(aluno_router)
 app.include_router(professor_router)  # <-- NOVA ROTA REGISTRADA
 
+app.include_router(auth_router)
+app.include_router(admin_router)     # <-- Rota de Admins
+app.include_router(aluno_router)
+app.include_router(professor_router)
 # 4. Servir arquivos estáticos (CSS, JS, HTML)
 base_dir = os.path.dirname(os.path.abspath(__file__))
 view_dir = os.path.abspath(os.path.join(base_dir, "..", "view"))
