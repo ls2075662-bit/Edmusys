@@ -1,12 +1,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# No XAMPP o usuário é 'root' e a senha é VAZIA
-SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:@localhost:3306/edmusys"
+# Alterado para 127.0.0.1 para eliminar o atraso de DNS no Windows
+SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:@127.0.0.1:3306/edmusys"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
-    pool_pre_ping=True
+    pool_pre_ping=True,
+    pool_recycle=3600
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
