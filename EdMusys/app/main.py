@@ -3,44 +3,69 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
-import webbrowser
-from threading import Timer
+from datetime import date
 
 from app.database import engine, Base, SessionLocal
-from app.models.db_models import AdministradorModel
+from app.models.db_models import AdministradorModel, AlunoModel, ProfessorModel
 from app.core.security import gerar_hash_senha
 
-# Imports dos controladores (rotas)
+# Imports dos controladores
 from app.controller.auth_controller import router as auth_router
-from app.controller.aluno_controller import router as aluno_router
-from app.controller.professor_controller import router as professor_router  # <-- NOVO IMPORT
-
 from app.controller.admin_controller import router as admin_router
+from app.controller.aluno_controller import router as aluno_router
+from app.controller.professor_controller import router as professor_router
 
+app = FastAPI(title="EdMusys API")
 
-# 1. Cria as tabelas na base de dados
-Base.metadata.create_all(bind=engine)
-
-# 2. Garante a existência do Administrador Padrão
-def criar_admin_padrao():
-    db = SessionLocal()
+# Inicialização assíncrona do banco ao subir a aplicação
+@app.on_event("startup")
+def inicializar_banco():
     try:
-        admin_existente = db.query(AdministradorModel).filter(AdministradorModel.email == "admin@edmusys.com").first()
-        if not admin_existente:
-            admin_padrao = AdministradorModel(
+        Base.metadata.create_all(bind=engine)
+        db = SessionLocal()
+
+        # Administrador Padrão
+        if not db.query(AdministradorModel).filter(AdministradorModel.email == "admin@edmusys.com").first():
+            db.add(AdministradorModel(
                 nome="Administrador",
                 email="admin@edmusys.com",
                 cpf="000.000.000-00",
                 senha_hash=gerar_hash_senha("admin123")
-            )
-            db.add(admin_padrao)
-            db.commit()
-    finally:
+            ))
+
+        # Aluno de Teste (Luiz)
+        if not db.query(AlunoModel).filter(AlunoModel.email == "luiz@email.com").first():
+            db.add(AlunoModel(
+                nome="Luiz Pereira",
+                email="luiz@email.com",
+                cpf="234.567.860-00",
+                telefone="54545546546",
+                instrumento="Guitarra",
+                dias_disponiveis="Segunda, Quinta",
+                horarios_disponiveis="18:00, 19:00",
+                plano="2",
+                data_nascimento=date(2011, 11, 11),
+                senha_hash=gerar_hash_senha("00000000")
+            ))
+
+        # Professor de Teste (Márcio)
+        if not db.query(ProfessorModel).filter(ProfessorModel.email == "marcio34@gmail.com").first():
+            db.add(ProfessorModel(
+                nome="Márcio Messo",
+                email="marcio34@gmail.com",
+                cpf="457.665.787-66",
+                telefone="87767687687",
+                especialidade="Guitarra",
+                dias_disponiveis="Segunda, Sexta",
+                horarios_disponiveis="18:00, 19:00",
+                data_nascimento=date(2000, 9, 22),
+                senha_hash=gerar_hash_senha("88888888")
+            ))
+
+        db.commit()
         db.close()
-
-criar_admin_padrao()
-
-app = FastAPI(title="EdMusys API")
+    except Exception as err:
+        print(f"⚠️ Aviso ao conectar no MySQL: {err}")
 
 app.add_middleware(
     CORSMiddleware,
@@ -50,16 +75,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 3. Registra os Endpoints na API
+# Registar rotas
 app.include_router(auth_router)
-app.include_router(aluno_router)
-app.include_router(professor_router)  # <-- NOVA ROTA REGISTRADA
-
-app.include_router(auth_router)
-app.include_router(admin_router)     # <-- Rota de Admins
+app.include_router(admin_router)
 app.include_router(aluno_router)
 app.include_router(professor_router)
-# 4. Servir arquivos estáticos (CSS, JS, HTML)
+
+# Servir ficheiros estáticos
 base_dir = os.path.dirname(os.path.abspath(__file__))
 view_dir = os.path.abspath(os.path.join(base_dir, "..", "view"))
 
@@ -87,15 +109,8 @@ def get_html_page(page_name: str):
 
 if __name__ == "__main__":
     import uvicorn
-
-    def abrir_navegador():
-        webbrowser.open("http://localhost:8080")
-
-    Timer(1.5, abrir_navegador).start()
-
     print("\n" + "="*50)
     print("🚀 Servidor EdMusys Iniciado!")
-    print("👉 Acesse no PC: http://localhost:8080")
+    print("👉 Acesse no PC: http://127.0.0.1:8080")
     print("="*50 + "\n")
-
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8080, reload=True)
+    uvicorn.run("app.main:app", host="127.0.0.1", port=8080, reload=True)
