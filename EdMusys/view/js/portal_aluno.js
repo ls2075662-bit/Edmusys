@@ -26,10 +26,85 @@ const maskPhone = v => {
   return d.length?`(${d}`:'';
 };
 
+// ── TEMA ESCURO (SINCRONIZADO COM INDEX.HTML) ───────────────────
+function aplicarTemaSalvo() {
+  const isDark = localStorage.getItem('theme') === 'dark';
+  document.body.classList.toggle('dark-mode', isDark);
+}
+
+function toggleTheme() {
+  const isDark = document.body.classList.toggle('dark-mode');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  atualizarBotaoTema();
+}
+
+function atualizarBotaoTema() {
+  const isDark = document.body.classList.contains('dark-mode');
+  const iconEl = document.getElementById('theme-toggle-icon');
+  const textEl = document.getElementById('theme-toggle-text');
+  if (iconEl) iconEl.textContent = isDark ? '☀️' : '🌙';
+  if (textEl) textEl.textContent = isDark ? 'Modo Claro' : 'Modo Escuro';
+}
+
+aplicarTemaSalvo();
+
 // ── DADOS DA SESSÃO E ARMAZENAMENTO ─────────────────────────────
 let alunos = JSON.parse(localStorage.getItem("edmusys_alunos")) || [];
 let professores = JSON.parse(localStorage.getItem("edmusys_professores")) || [];
 let horarios = JSON.parse(localStorage.getItem("edmusys_horarios")) || [];
+
+async function sincronizarDadosDoBanco() {
+  const token = localStorage.getItem("edmusys_token");
+  if (!token) return;
+  try {
+    const headers = { "Authorization": `Bearer ${token}` };
+    const [rAlunos, rProfs, rAgend] = await Promise.all([
+      fetch("/api/alunos", { headers }),
+      fetch("/api/professores", { headers }),
+      fetch("/api/agendamentos", { headers })
+    ]);
+    if (rAlunos.ok && rProfs.ok && rAgend.ok) {
+      const [listaAlunos, listaProfs, listaAgend] = await Promise.all([
+        rAlunos.json(),
+        rProfs.json(),
+        rAgend.json()
+      ]);
+      const pagamentosLocal = JSON.parse(localStorage.getItem("edmusys_pagamentos")) || {};
+      alunos = (listaAlunos || []).map(a => {
+        const idStr = String(a.id_aluno || a.id);
+        return {
+          id: idStr,
+          nome: a.nome,
+          instrumento: a.instrumento || "A definir",
+          telefone: a.telefone || "",
+          email: a.email || "",
+          nascimento: a.data_nascimento || a.dataNascimento || "",
+          plano: Number(a.plano) || 1,
+          pago: Boolean(pagamentosLocal[idStr] ?? a.pago ?? false)
+        };
+      });
+      professores = (listaProfs || []).map(p => ({
+        id: String(p.id_professor || p.id),
+        nome: p.nome,
+        instrumento: p.especialidade || p.instrumento || "A definir",
+        telefone: p.telefone || "",
+        email: p.email || "",
+        nascimento: p.data_nascimento || p.dataNascimento || ""
+      }));
+      horarios = (listaAgend || []).map(h => ({
+        id: String(h.id_agendamento || h.id),
+        dia: h.dia,
+        hora: h.hora,
+        instrumento: h.instrumento,
+        alunoId: String(h.id_aluno || h.alunoId),
+        professorId: String(h.id_professor || h.professorId)
+      }));
+      render();
+    }
+  } catch (e) {
+    console.warn("Usando cache local:", e);
+  }
+}
 
 function sidebarAluno(activeTab) {
   return `<aside class="sidebar" id="sidebar">
@@ -66,7 +141,6 @@ let currentAlunoId = null;
 let currentTab = 'agenda';
 let selectedDay = 'Segunda';
 
-// RECUPERAÇÃO DE SESSÃO FLEXÍVEL (SUPORTA JWT E LOCAL STORAGE)
 const alunoLogado = JSON.parse(localStorage.getItem("edmusys_aluno_logado")) || JSON.parse(localStorage.getItem("edmusys_user"));
 
 function doLogin() {
@@ -77,16 +151,15 @@ function doLogin() {
 
   let alunoEncontrado = alunos.find(aluno => String(aluno.id) === String(alunoLogado.id) || aluno.email === alunoLogado.email);
 
-  // SE VEIO DO BANCO SQLITE E NÃO EXISTE NO LOCALSTORAGE ANTIGO:
   if (!alunoEncontrado) {
     alunoEncontrado = {
       id: alunoLogado.id,
       nome: alunoLogado.nome || "Aluno",
       email: alunoLogado.email || "",
-      instrumento: "Guitarra",
-      plano: 2,
-      pago: true,
-      telefone: "54545546546"
+      instrumento: alunoLogado.instrumento || "A definir",
+      plano: Number(alunoLogado.plano) || 1,
+      pago: Boolean(alunoLogado.pago ?? false),
+      telefone: alunoLogado.telefone || ""
     };
     alunos.push(alunoEncontrado);
   }
@@ -98,6 +171,7 @@ function doLogin() {
 
   render();
   showPaymentStatusPopup(alunoEncontrado);
+  sincronizarDadosDoBanco();
 }
 
 if (!alunoLogado) {
@@ -109,9 +183,12 @@ if (!alunoLogado) {
 function showPaymentStatusPopup(aluno) {
   const plano = PLANOS[aluno.plano] || { label: '1x / semana', valor: 60 };
   const isPago = aluno.pago;
+  const isDark = document.body.classList.contains('dark-mode');
 
-  const statusColor = isPago ? '#2E7D32' : '#C62828';
-  const statusBg = isPago ? '#E8F5E9' : '#FFEBEE';
+  const statusColor = isPago ? '#2E7D32' : '#E5484D';
+  const statusBg = isPago
+    ? (isDark ? 'rgba(63, 178, 94, 0.16)' : '#E8F5E9')
+    : (isDark ? 'rgba(229, 72, 77, 0.16)' : '#FFEBEE');
   const statusLabel = isPago ? 'Mensalidade paga' : 'Mensalidade pendente';
   const statusDesc = isPago 
     ? 'Obrigado! Seu pagamento foi confirmado pelo administrador.' 
@@ -119,31 +196,31 @@ function showPaymentStatusPopup(aluno) {
 
   const popupHTML = `
   <div id="pay-popup-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;">
-    <div style="background:#fff;border-radius:16px;max-width:520px;width:100%;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.3);animation:popupFadeIn 0.3s ease;">
-      <div style="padding:24px 24px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee;">
-        <h3 style="margin:0;font-family:var(--font-display);font-size:20px;color:#111;">Status da Mensalidade</h3>
-        <button onclick="closePaymentPopup()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#666;">✕</button>
+    <div class="pay-popup-card">
+      <div class="pay-popup-head">
+        <h3 style="margin:0;font-family:var(--font-display);font-size:20px;color:var(--text-main);">Status da Mensalidade</h3>
+        <button onclick="closePaymentPopup()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-sub);">✕</button>
       </div>
       <div style="padding:24px;">
-        <div style="background:${statusBg};border-radius:12px;padding:18px 20px;display:flex;align-items:center;gap:14px;margin-bottom:20px;border:1px solid ${statusColor}33;">
-          <div style="width:42px;height:42px;border-radius:50%;background:${statusColor};display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;font-size:20px;font-weight:bold;">
+        <div style="background:${statusBg};border-radius:12px;padding:18px 20px;display:flex;align-items:center;gap:14px;margin-bottom:20px;border:1px solid ${statusColor}44;">
+          <div class="pay-status-icon" style="background:${statusColor};">
             ${isPago ? '✓' : '!'}
           </div>
           <div>
             <div style="font-size:17px;font-weight:700;color:${statusColor};">${statusLabel}</div>
-            <div style="font-size:13.5px;color:#444;margin-top:2px;">${statusDesc}</div>
+            <div style="font-size:13.5px;color:var(--text-sub);margin-top:2px;">${statusDesc}</div>
           </div>
         </div>
 
-        <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;background:#FAF8F5;padding:16px;border-radius:12px;">
-          <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Plano Atual</div><div style="font-weight:700;font-size:14px;">${esc(plano.label)}</div></div>
-          <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Valor Mensal</div><div style="font-weight:800;font-size:18px;color:#111;">R$ ${plano.valor}</div></div>
-          <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Instrumento</div><div style="font-weight:600;font-size:14px;">${esc(aluno.instrumento)}</div></div>
-          <div><div style="font-size:11px;color:#777;text-transform:uppercase;">Aulas por Semana</div><div style="font-weight:600;font-size:14px;">${aluno.plano}x / semana</div></div>
+        <div class="pay-popup-grid">
+          <div><div style="font-size:11px;color:var(--text-sub);text-transform:uppercase;">Plano Atual</div><div style="font-weight:700;font-size:14px;color:var(--text-main);">${esc(plano.label)}</div></div>
+          <div><div style="font-size:11px;color:var(--text-sub);text-transform:uppercase;">Valor Mensal</div><div style="font-weight:800;font-size:18px;color:var(--text-main);">R$ ${plano.valor}</div></div>
+          <div><div style="font-size:11px;color:var(--text-sub);text-transform:uppercase;">Instrumento</div><div style="font-weight:600;font-size:14px;color:var(--text-main);">${esc(aluno.instrumento)}</div></div>
+          <div><div style="font-size:11px;color:var(--text-sub);text-transform:uppercase;">Aulas por Semana</div><div style="font-weight:600;font-size:14px;color:var(--text-main);">${aluno.plano}x / semana</div></div>
         </div>
       </div>
-      <div style="padding:16px 24px;background:#FAF8F5;display:flex;justify-content:flex-end;border-top:1px solid #eee;">
-        <button onclick="closePaymentPopup()" class="btn btn-gold" style="padding:10px 24px;border-radius:8px;font-weight:700;cursor:pointer;background:#E0A92A;border:none;color:#111;">Entendi</button>
+      <div class="pay-popup-foot">
+        <button onclick="closePaymentPopup()" class="btn btn-gold" style="padding:10px 24px;border-radius:8px;font-weight:700;cursor:pointer;background:#F0B90B;border:none;color:#121110;">Entendi</button>
       </div>
     </div>
   </div>`;
@@ -162,8 +239,10 @@ function closePaymentPopup() {
 function showTab(t) { currentTab = t; render(); }
 
 function render() {
-  const aluno = alunos.find(a => String(a.id) === String(currentAlunoId));
+  const aluno = alunos.find(a => String(a.id) === String(currentAlunoId) || (alunoLogado && a.email === alunoLogado.email));
   if (!aluno) return;
+  currentAlunoId = aluno.id;
+
   const myHorarios = horarios.filter(h => String(h.alunoId) === String(aluno.id));
   const myProfIds = [...new Set(myHorarios.map(h => h.professorId))];
   const myProfs = myProfIds.map(id => professores.find(p => String(p.id) === String(id))).filter(Boolean);
@@ -174,6 +253,8 @@ function render() {
   else if (currentTab === 'professor') { viewHTML = renderProfessor(aluno, myHorarios, myProfs); title='Meu Professor'; sub='Informações do seu professor'; }
   else if (currentTab === 'pagamento') { viewHTML = renderPagamento(aluno); title='Pagamento'; sub='Status da sua mensalidade'; }
   else { viewHTML = renderPerfil(aluno, myHorarios, myProfs); title='Meu Perfil'; sub='Seus dados cadastrais'; }
+
+  const isDark = document.body.classList.contains('dark-mode');
 
   document.getElementById('shell').innerHTML = `
     <div class="app">
@@ -187,7 +268,13 @@ function render() {
               <div class="sub">${sub}</div>
             </div>
           </div>
-          ${currentTab==='pagamento'?`<span class="badge ${aluno.pago?'pago':'pendente'}">${aluno.pago?'✓ PAGO':'⚠ PENDENTE'}</span>`:''}
+          <div class="topbar-right">
+            ${currentTab==='pagamento'?`<span class="badge ${aluno.pago?'pago':'pendente'}">${aluno.pago?'✓ PAGO':'⚠ PENDENTE'}</span>`:''}
+            <button id="theme-toggle" class="btn-theme" type="button" onclick="toggleTheme()" aria-label="Alternar tema">
+              <span id="theme-toggle-icon">${isDark ? '☀️' : '🌙'}</span>
+              <span id="theme-toggle-text">${isDark ? 'Modo Claro' : 'Modo Escuro'}</span>
+            </button>
+          </div>
         </div>
         <div class="view">${viewHTML}</div>
       </div>
@@ -196,18 +283,18 @@ function render() {
 
 // ── AGENDA ─────────────────────────────────────────────
 function renderAgenda(aluno, myHorarios, myProfs) {
-  const diasAtivos = [...new Set(myHorarios.map(h => h.dia))];
-  if (!diasAtivos.includes(selectedDay)) selectedDay = diasAtivos[0] || 'Segunda';
+  if (!DIAS.includes(selectedDay)) selectedDay = 'Segunda';
 
   const dayHorarios = myHorarios.filter(h => h.dia === selectedDay)
     .sort((a,b) => a.hora.localeCompare(b.hora));
 
   const pills = DIAS.map(d => {
     const cnt = myHorarios.filter(h => h.dia === d).length;
-    if (cnt === 0) return '';
     const act = d === selectedDay;
+    const isPositive = cnt > 0;
+    const cntStyle = isPositive ? 'style="background-color: #2E7D32; color: #FFFFFF; font-weight: 700;"' : '';
     return `<button class="day-pill ${act?'active':''}" onclick="selDay('${d}')">
-      ${d} <span class="cnt">${cnt}</span>
+      ${d} <span class="cnt ${isPositive ? 'has-count' : ''}" ${cntStyle}>${cnt}</span>
     </button>`;
   }).join('');
 
@@ -230,13 +317,15 @@ function renderAgenda(aluno, myHorarios, myProfs) {
                 <div class="val">${esc(pr ? pr.nome : '—')}</div>
               </div>
             </div>
-            ${pr ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line-light);display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);">
-              ${ICON.phone} ${maskPhone(pr.telefone)}
+            ${pr ? `<div class="ticket-phone">
+              ${ICON.phone} <span>${maskPhone(pr.telefone) || 'Sem telefone'}</span>
             </div>` : ''}
           </div>
         </div>`;
       }).join('')}
       </div>`;
+
+  const diasComAula = DIAS.filter(d => myHorarios.some(h => h.dia === d));
 
   return `<div class="content-card" style="margin-top:0;">
     <div class="content-card-head">${ICON.calendar} <h3>Calendário semanal</h3></div>
@@ -249,27 +338,28 @@ function renderAgenda(aluno, myHorarios, myProfs) {
   <div class="content-card">
     <div class="content-card-head">${ICON.clock} <h3>Resumo semanal</h3></div>
     <div class="content-card-body">
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
-        ${DIAS.map(d => {
-          const dh = myHorarios.filter(h => h.dia === d);
-          if (!dh.length) return '';
-          return `<div style="background:var(--cream-dim);border-radius:var(--radius-md);overflow:hidden;">
-            <div style="background:var(--black);color:var(--gold);padding:9px 14px;font-family:var(--font-display);font-weight:700;font-size:14px;">
+      ${diasComAula.length === 0
+        ? `<div class="empty">${ICON.clock}<p>Nenhuma aula agendada na semana.</p></div>`
+        : `<div class="summary-grid">
+        ${diasComAula.map(d => {
+          const dh = myHorarios.filter(h => h.dia === d).sort((a,b) => a.hora.localeCompare(b.hora));
+          return `<div class="summary-day-card">
+            <div class="summary-day-head">
               ${d}
             </div>
-            <div style="padding:10px 12px;display:flex;flex-direction:column;gap:7px;">
+            <div class="summary-day-list">
               ${dh.map(h => {
                 const pr = professores.find(p => String(p.id) === String(h.professorId));
-                return `<div style="font-size:12.5px;">
+                return `<div class="summary-day-item">
                   <span style="font-family:var(--font-mono);font-weight:700;color:var(--gold-deep);">${h.hora}</span>
                   <span style="font-weight:600;margin-left:6px;">${esc(h.instrumento)}</span>
-                  <div style="font-size:11.5px;color:var(--muted);margin-top:1px;">Prof. ${esc(pr?pr.nome:'—')}</div>
+                  <div style="font-size:11.5px;color:var(--text-sub);margin-top:1px;">Prof. ${esc(pr?pr.nome:'—')}</div>
                 </div>`;
               }).join('')}
             </div>
           </div>`;
         }).join('')}
-      </div>
+      </div>`}
     </div>
   </div>`;
 }
@@ -284,7 +374,7 @@ function renderProfessor(aluno, myHorarios, myProfs) {
     const aulas = myHorarios.filter(h => String(h.professorId) === String(prof.id));
     return `
     <div class="content-card" style="margin-top:0;margin-bottom:20px;">
-      <div style="background:var(--black);padding:24px 22px;display:flex;align-items:center;gap:14px;">
+      <div style="background:var(--black);padding:24px 22px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--line);">
         <div class="avatar lg">${ini(prof.nome)}</div>
         <div>
           <div style="font-family:var(--font-display);color:var(--white);font-size:20px;font-weight:700;">${esc(prof.nome)}</div>
@@ -294,10 +384,10 @@ function renderProfessor(aluno, myHorarios, myProfs) {
       <div class="content-card-body">
         <div class="info-grid" style="margin-bottom:20px;">
           <div class="info-item"><div class="lbl">Especialidade</div><div class="val">${esc(prof.instrumento)}</div></div>
-          <div class="info-item"><div class="lbl">Telefone</div><div class="val">${maskPhone(prof.telefone)}</div></div>
+          <div class="info-item"><div class="lbl">Telefone</div><div class="val">${maskPhone(prof.telefone) || '—'}</div></div>
           <div class="info-item"><div class="lbl">E-mail</div><div class="val">${esc(prof.email||'—')}</div></div>
         </div>
-        <div style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Suas aulas com este professor</div>
+        <div style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-sub);margin-bottom:10px;">Suas aulas com este professor</div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;">
           ${aulas.map(h => `<div style="background:var(--gold-pale);border-radius:var(--radius-md);padding:10px 16px;">
             <div style="font-family:var(--font-mono);font-weight:700;color:var(--gold-deep);font-size:16px;">${h.hora}</div>
@@ -312,8 +402,11 @@ function renderProfessor(aluno, myHorarios, myProfs) {
 // ── PAGAMENTO ──────────────────────────────────────────
 function renderPagamento(aluno) {
   const plano = PLANOS[aluno.plano];
+  const isDark = document.body.classList.contains('dark-mode');
   const statusColor = aluno.pago ? 'var(--success)' : 'var(--danger)';
-  const statusBg = aluno.pago ? '#D7F2E2' : '#FFE8E8';
+  const statusBg = aluno.pago
+    ? (isDark ? 'rgba(63, 178, 94, 0.16)' : '#D7F2E2')
+    : (isDark ? 'rgba(229, 72, 77, 0.16)' : '#FFE8E8');
   const statusLabel = aluno.pago ? 'Mensalidade paga' : 'Pagamento pendente';
 
   return `
@@ -321,12 +414,12 @@ function renderPagamento(aluno) {
       <div class="content-card-head">${ICON.cash} <h3>Status da mensalidade</h3></div>
       <div class="content-card-body">
         <div style="background:${statusBg};border-radius:var(--radius-md);padding:18px 20px;display:flex;align-items:center;gap:14px;margin-bottom:20px;">
-          <div style="width:42px;height:42px;border-radius:50%;background:${statusColor};display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;font-size:20px;">
+          <div class="pay-status-icon" style="background:${statusColor};">
             ${aluno.pago ? ICON.check : '!'}
           </div>
           <div>
             <div style="font-size:16px;font-weight:700;color:${statusColor};">${statusLabel}</div>
-            <div style="font-size:13px;color:var(--muted);margin-top:2px;">${aluno.pago?'Obrigado! Seu pagamento foi confirmado.':'Entre em contato com a escola para regularizar.'}</div>
+            <div style="font-size:13px;color:var(--text-sub);margin-top:2px;">${aluno.pago?'Obrigado! Seu pagamento foi confirmado.':'Entre em contato com a escola para regularizar.'}</div>
           </div>
         </div>
 
@@ -337,7 +430,7 @@ function renderPagamento(aluno) {
           </div>
           <div class="info-item">
             <div class="lbl">Valor mensal</div>
-            <div style="font-size:28px;font-weight:800;font-family:var(--font-display);color:var(--black);">R$ ${plano?plano.valor:'—'}</div>
+            <div style="font-size:28px;font-weight:800;font-family:var(--font-display);color:var(--text-main);">R$ ${plano?plano.valor:'—'}</div>
           </div>
           <div class="info-item">
             <div class="lbl">Instrumento</div>
@@ -349,15 +442,15 @@ function renderPagamento(aluno) {
           </div>
         </div>
 
-        <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--line-light);">
-          <div style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">O que está incluso</div>
+        <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border-main);">
+          <div style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-sub);margin-bottom:12px;">O que está incluso</div>
           <div style="display:flex;flex-direction:column;gap:10px;">
             ${[
               `${aluno.plano}x aula(s) de ${aluno.instrumento} por semana`,
               'Material de apoio incluso',
               'Reagendamento com 24h de antecedência',
-            ].map(item => `<div style="display:flex;align-items:center;gap:10px;font-size:13.5px;">
-              <div style="width:22px;height:22px;border-radius:50%;background:var(--gold-pale);display:flex;align-items:center;justify-content:center;color:var(--gold-deep);flex-shrink:0;">${ICON.check}</div>
+            ].map(item => `<div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text-main);">
+              <div class="pay-check-icon">${ICON.check}</div>
               ${item}
             </div>`).join('')}
           </div>
@@ -379,7 +472,7 @@ function renderPerfil(aluno, myHorarios, myProfs) {
         </div>
       </div>
       <div class="profile-hero-info">
-        <div class="info-chip">${ICON.phone} ${maskPhone(aluno.telefone)}</div>
+        <div class="info-chip">${ICON.phone} ${maskPhone(aluno.telefone) || '—'}</div>
         ${aluno.email?`<div class="info-chip">${ICON.mail} ${esc(aluno.email)}</div>`:''}
         <div class="info-chip">${ICON.calendar} ${aluno.plano}x / semana</div>
         <div class="info-chip">${ICON.cash} R$ ${plano?plano.valor:'—'}/mês</div>
@@ -392,7 +485,7 @@ function renderPerfil(aluno, myHorarios, myProfs) {
         <div class="info-grid">
           <div class="info-item"><div class="lbl">Nome completo</div><div class="val">${esc(aluno.nome)}</div></div>
           <div class="info-item"><div class="lbl">Instrumento</div><div class="val">${esc(aluno.instrumento)}</div></div>
-          <div class="info-item"><div class="lbl">Telefone</div><div class="val">${maskPhone(aluno.telefone)}</div></div>
+          <div class="info-item"><div class="lbl">Telefone</div><div class="val">${maskPhone(aluno.telefone) || '—'}</div></div>
           <div class="info-item"><div class="lbl">E-mail</div><div class="val">${esc(aluno.email||'—')}</div></div>
           <div class="info-item"><div class="lbl">Data de nascimento</div><div class="val">${aluno.nascimento||'—'}</div></div>
           <div class="info-item"><div class="lbl">Status pagamento</div><div class="val"><span class="badge ${aluno.pago?'pago':'pendente'}">${aluno.pago?'PAGO':'PENDENTE'}</span></div></div>
@@ -405,14 +498,14 @@ function renderPerfil(aluno, myHorarios, myProfs) {
       <div class="content-card-body">
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
           <span class="plan-chip" style="font-size:14px;padding:8px 18px;">${esc(plano?plano.label:'—')}</span>
-          <div style="font-size:24px;font-weight:800;font-family:var(--font-display);">R$ ${plano?plano.valor:'—'}<span style="font-size:13px;color:var(--muted);font-weight:500;font-family:var(--font-body);">/mês</span></div>
+          <div style="font-size:24px;font-weight:800;font-family:var(--font-display);color:var(--text-main);">R$ ${plano?plano.valor:'—'}<span style="font-size:13px;color:var(--text-sub);font-weight:500;font-family:var(--font-body);">/mês</span></div>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:7px;">
           ${myHorarios.map(h=>{
             const pr=professores.find(p=>String(p.id)===String(h.professorId));
-            return `<div style="background:var(--cream-dim);border-radius:var(--radius-sm);padding:8px 13px;font-size:12.5px;">
+            return `<div style="background:var(--bg-surface-alt);border:1px solid var(--border-main);border-radius:var(--radius-sm);padding:8px 13px;font-size:12.5px;">
               <div style="font-family:var(--font-mono);font-weight:700;color:var(--gold-deep);">${h.dia} ${h.hora}</div>
-              <div style="font-size:11px;color:var(--muted);margin-top:2px;">${esc(h.instrumento)} · Prof. ${esc(pr?pr.nome:'—')}</div>
+              <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">${esc(h.instrumento)} · Prof. ${esc(pr?pr.nome:'—')}</div>
             </div>`;
           }).join('')}
         </div>
