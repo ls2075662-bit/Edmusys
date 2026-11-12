@@ -23,29 +23,106 @@
   const HORAS = ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
   const PLANOS = { 1: { label: '1x / semana', valor: 60 }, 2: { label: '2x / semana', valor: 120 }, 3: { label: '3x / semana', valor: 180 } };
 
-  /* 2. ESTADO DA APLICAÇÃO E DADOS DE ARMAZENAMENTO */
-  let uid = 1000;
-  let alunos = JSON.parse(localStorage.getItem("edmusys_alunos")) || [];
-  let professores = JSON.parse(localStorage.getItem("edmusys_professores")) || [];
-  let horarios = JSON.parse(localStorage.getItem("edmusys_horarios")) || [];
+  /* 2. ESTADO DA APLICAÇÃO E COMUNICAÇÃO COM API MYSQL */
+  let alunos = [];
+  let professores = [];
+  let horarios = [];
+  let pagamentosLocal = JSON.parse(localStorage.getItem("edmusys_pagamentos")) || {};
 
   let state = {
     view: 'overview',
     selectedDay: 'Segunda',
   };
 
-  const nextId = () => {
-    let id;
-    do {
-      id = (++uid).toString(36);
-    } while (
-      alunos.some(a => a.id === id) ||
-      professores.some(p => p.id === id)
-    );
-    return id;
-  };
-
   const saveData = (key, val) => localStorage.setItem(key, JSON.stringify(val));
+
+  function authHeaders() {
+    const token = localStorage.getItem("edmusys_token");
+    return {
+      "Content-Type": "application/json",
+      ...(token ? { "Authorization": `Bearer ${token}` } : {})
+    };
+  }
+
+  async function apiRequest(url, options = {}) {
+    const resp = await fetch(url, {
+      ...options,
+      headers: {
+        ...authHeaders(),
+        ...(options.headers || {})
+      }
+    });
+
+    if (resp.status === 401) {
+      alert("Sua sessão expirou. Faça login novamente.");
+      localStorage.removeItem("edmusys_token");
+      localStorage.removeItem("adminLogado");
+      window.location.replace("landing_page_edmusys.html");
+      throw new Error("Não autorizado");
+    }
+
+    if (resp.status === 204) return null;
+
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) {
+      throw new Error(data.detail || "Erro ao processar solicitação no servidor.");
+    }
+    return data;
+  }
+
+  async function carregarDadosDoBanco() {
+    try {
+      const [listaAlunos, listaProfs, listaAgendamentos] = await Promise.all([
+        apiRequest("/api/alunos"),
+        apiRequest("/api/professores"),
+        apiRequest("/api/agendamentos")
+      ]);
+
+      alunos = (listaAlunos || []).map(a => {
+        const idStr = String(a.id_aluno || a.id);
+        return {
+          id: idStr,
+          nome: a.nome,
+          cpf: a.cpf || "",
+          instrumento: a.instrumento || "A definir",
+          dias: Array.isArray(a.diasDisponiveis) ? a.diasDisponiveis : (a.dias_disponiveis ? a.dias_disponiveis.split(",").map(s => s.trim()) : []),
+          horarios: Array.isArray(a.horariosDisponiveis) ? a.horariosDisponiveis : (a.horarios_disponiveis ? a.horarios_disponiveis.split(",").map(s => s.trim()) : []),
+          telefone: a.telefone || "",
+          email: a.email || "",
+          nascimento: a.data_nascimento || a.dataNascimento || "",
+          plano: Number(a.plano) || 1,
+          pago: Boolean(pagamentosLocal[idStr] ?? a.pago ?? false)
+        };
+      });
+
+      professores = (listaProfs || []).map(p => ({
+        id: String(p.id_professor || p.id),
+        nome: p.nome,
+        cpf: p.cpf || "",
+        instrumento: p.especialidade || p.instrumento || "A definir",
+        dias: Array.isArray(p.diasDisponiveis) ? p.diasDisponiveis : (p.dias_disponiveis ? p.dias_disponiveis.split(",").map(s => s.trim()) : []),
+        horarios: Array.isArray(p.horariosDisponiveis) ? p.horariosDisponiveis : (p.horarios_disponiveis ? p.horarios_disponiveis.split(",").map(s => s.trim()) : []),
+        telefone: p.telefone || "",
+        email: p.email || "",
+        nascimento: p.data_nascimento || p.dataNascimento || ""
+      }));
+
+      horarios = (listaAgendamentos || []).map(h => ({
+        id: String(h.id_agendamento || h.id),
+        dia: h.dia,
+        hora: h.hora,
+        instrumento: h.instrumento,
+        alunoId: String(h.id_aluno || h.alunoId),
+        professorId: String(h.id_professor || h.professorId)
+      }));
+
+      saveData("edmusys_alunos", alunos);
+      saveData("edmusys_professores", professores);
+      saveData("edmusys_horarios", horarios);
+    } catch (err) {
+      console.error("Erro ao carregar dados do MySQL:", err);
+    }
+  }
 
   /* 3. UTILITÁRIOS, MÁSCARAS E VALIDAÇÕES */
   const $ = (sel, root = document) => root.querySelector(sel);
@@ -97,7 +174,7 @@
 
   function isValidEmail(v) {
     if (!v) return true;
-    return /^[^\s@]+@[^\s@]+\.com([.\w-]*)?$/i.test(v.trim());
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(v.trim());
   }
 
   function attachPhoneEmailValidation(root, phoneId, emailId, errPhoneId, errEmailId, onChange) {
@@ -157,8 +234,10 @@
 
   /* 5. SEGURANÇA E GERENCIAMENTO DE NAVEGAÇÃO */
   function protegerPainel() {
-    if (localStorage.getItem("adminLogado") !== "true") {
-      window.location.replace("landing_page_edmusys_2.html");
+    const token = localStorage.getItem("edmusys_token");
+    const role = localStorage.getItem("edmusys_role");
+    if (!token || role !== "admin") {
+      window.location.replace("landing_page_edmusys.html");
     }
   }
 
@@ -308,7 +387,6 @@
     }).join('')}</div>`;
   }
 
-  /* EXIBIÇÃO DE HORÁRIOS COM DESTAQUE VERDE ACIMA DE 0 */
   function viewHorarios() {
     const countByDay = d => horarios.filter(h => h.dia === d).length;
     const pills = DIAS.map(d => {
@@ -363,23 +441,27 @@
     $$('.edit-aluno').forEach(b => b.addEventListener('click', () => openProfile('aluno', b.dataset.id)));
     $$('.edit-professor').forEach(b => b.addEventListener('click', () => openProfile('professor', b.dataset.id)));
 
-    $$('.del-aluno').forEach(b => b.addEventListener('click', () => {
-      if (confirm('Excluir este aluno? As aulas vinculadas também serão removidas.')) {
-        alunos = alunos.filter(a => a.id !== b.dataset.id);
-        horarios = horarios.filter(h => h.alunoId !== b.dataset.id);
-        saveData("edmusys_alunos", alunos);
-        saveData("edmusys_horarios", horarios);
-        renderView();
+    $$('.del-aluno').forEach(b => b.addEventListener('click', async () => {
+      if (confirm('Excluir este aluno do banco de dados? As aulas vinculadas também serão removidas.')) {
+        try {
+          await apiRequest(`/api/alunos/${b.dataset.id}`, { method: "DELETE" });
+          await carregarDadosDoBanco();
+          renderView();
+        } catch (err) {
+          alert(err.message);
+        }
       }
     }));
 
-    $$('.del-professor').forEach(b => b.addEventListener('click', () => {
-      if (confirm('Excluir este professor? As aulas vinculadas também serão removidas.')) {
-        professores = professores.filter(p => p.id !== b.dataset.id);
-        horarios = horarios.filter(h => h.professorId !== b.dataset.id);
-        saveData("edmusys_professores", professores);
-        saveData("edmusys_horarios", horarios);
-        renderView();
+    $$('.del-professor').forEach(b => b.addEventListener('click', async () => {
+      if (confirm('Excluir este professor do banco de dados? As aulas vinculadas também serão removidas.')) {
+        try {
+          await apiRequest(`/api/professores/${b.dataset.id}`, { method: "DELETE" });
+          await carregarDadosDoBanco();
+          renderView();
+        } catch (err) {
+          alert(err.message);
+        }
       }
     }));
 
@@ -390,12 +472,16 @@
 
     $$('[data-edit-horario]').forEach(b => b.addEventListener('click', () => openModalEditarHorario(b.dataset.editHorario)));
 
-    $$('[data-del-horario]').forEach(b => b.addEventListener('click', () => {
+    $$('[data-del-horario]').forEach(b => b.addEventListener('click', async () => {
       const id = b.dataset.delHorario;
-      if (confirm('Excluir este horário?')) {
-        horarios = horarios.filter(h => h.id !== id);
-        saveData("edmusys_horarios", horarios);
-        renderView();
+      if (confirm('Excluir este horário do banco de dados?')) {
+        try {
+          await apiRequest(`/api/agendamentos/${id}`, { method: "DELETE" });
+          await carregarDadosDoBanco();
+          renderView();
+        } catch (err) {
+          alert(err.message);
+        }
       }
     }));
   }
@@ -440,25 +526,39 @@
     $('#eh-cancel', root).addEventListener('click', closeModal);
     $('#modal-overlay', root).addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
 
-    $('#eh-delete', root).addEventListener('click', () => {
+    $('#eh-delete', root).addEventListener('click', async () => {
       if (confirm('Excluir este horário?')) {
-        horarios = horarios.filter(item => item.id !== id);
-        saveData("edmusys_horarios", horarios);
-        closeModal();
-        renderView();
+        try {
+          await apiRequest(`/api/agendamentos/${id}`, { method: "DELETE" });
+          await carregarDadosDoBanco();
+          closeModal();
+          renderView();
+        } catch (err) {
+          alert(err.message);
+        }
       }
     });
 
-    $('#eh-submit', root).addEventListener('click', () => {
-      h.hora = $('#eh-hora', root).value || h.hora;
-      h.dia = $('#eh-dia', root).value;
-      h.instrumento = $('#eh-instrumento', root).value.trim() || h.instrumento;
-      h.alunoId = $('#eh-aluno', root).value;
-      h.professorId = $('#eh-professor', root).value;
-      saveData("edmusys_horarios", horarios);
-      state.selectedDay = h.dia;
-      closeModal();
-      renderView();
+    $('#eh-submit', root).addEventListener('click', async () => {
+      const novoDia = $('#eh-dia', root).value;
+      try {
+        await apiRequest(`/api/agendamentos/${id}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            hora: $('#eh-hora', root).value || h.hora,
+            dia: novoDia,
+            instrumento: $('#eh-instrumento', root).value.trim() || h.instrumento,
+            alunoId: $('#eh-aluno', root).value,
+            professorId: $('#eh-professor', root).value
+          })
+        });
+        await carregarDadosDoBanco();
+        state.selectedDay = novoDia;
+        closeModal();
+        renderView();
+      } catch (err) {
+        alert(err.message);
+      }
     });
   }
 
@@ -584,28 +684,38 @@
       }
     });
 
-    $('#na-submit', root).addEventListener('click', () => {
+    $('#na-submit', root).addEventListener('click', async () => {
+      const btnSubmit = $('#na-submit', root);
+      btnSubmit.disabled = true;
+
       const selDias = $$('.checkbox-select-box[data-group="dias"] input:checked', root).map(cb => cb.value);
       const selHoras = $$('.checkbox-select-box[data-group="horas"] input:checked', root).map(cb => cb.value);
-      const novo = {
-        id: nextId(),
-        nome: nomeInp.value.trim(),
-        cpf: $('#na-cpf', root).value.trim(),
-        instrumento: $('#na-instrumento', root).value.trim() || 'A definir',
-        dias: selDias,
-        horarios: selHoras,
-        telefone: phoneDigits($('#na-telefone', root).value),
-        email: $('#na-email', root).value.trim(),
-        senha: $('#na-senha', root).value,
-        nascimento: $('#na-nascimento', root).value,
-        plano: Number($('#na-plano', root).value),
-        pago: false,
-      };
-      alunos.push(novo);
-      saveData("edmusys_alunos", alunos);
-      closeModal();
-      state.view = 'alunos';
-      renderView();
+
+      try {
+        await apiRequest("/api/alunos", {
+          method: "POST",
+          body: JSON.stringify({
+            nome: nomeInp.value.trim(),
+            cpf: $('#na-cpf', root).value.trim(),
+            instrumento: $('#na-instrumento', root).value.trim() || 'A definir',
+            diasDisponiveis: selDias,
+            horariosDisponiveis: selHoras,
+            telefone: $('#na-telefone', root).value.trim(),
+            email: $('#na-email', root).value.trim(),
+            senha: $('#na-senha', root).value,
+            dataNascimento: $('#na-nascimento', root).value,
+            plano: String($('#na-plano', root).value)
+          })
+        });
+
+        await carregarDadosDoBanco();
+        closeModal();
+        state.view = 'alunos';
+        renderView();
+      } catch (err) {
+        alert(err.message);
+        btnSubmit.disabled = false;
+      }
     });
   }
 
@@ -625,7 +735,7 @@
           </div>
           <div class="field-row">
             ${ifield({ id: 'np-telefone', label: 'Telefone', icon: ICON.phone, type: 'tel', placeholder: '(84) 90000-0000', errorId: 'err-np-telefone' })}
-            ${ifield({ id: 'np-email', label: 'E-mail (opcional)', icon: ICON.mail, type: 'email', errorId: 'err-np-email' })}
+            ${ifield({ id: 'np-email', label: 'E-mail', icon: ICON.mail, type: 'email', errorId: 'err-np-email' })}
             ${ifield({ id: 'np-senha', label: 'Senha', icon: ICON.user, type: 'password', placeholder: 'Digite uma senha' })}
             ${ifield({ id: 'np-instrumento', label: 'Especialidade', icon: ICON.music })}
           </div>
@@ -681,7 +791,9 @@
 
     function checkValid() {
       const digits = phoneDigits($('#np-telefone', root).value);
-      const emailOk = isValidEmail($('#np-email', root).value);
+      const emailVal = $('#np-email', root).value.trim();
+      const emailOk = emailVal.length > 0 && isValidEmail(emailVal);
+      const nascimento = $('#np-nascimento', root).value;
       const senha = $('#np-senha', root).value;
       const nomeOk = nomeInp.value.trim().length > 0;
       const cpf = phoneDigits($('#np-cpf', root).value);
@@ -691,6 +803,7 @@
       $('#np-submit', root).disabled = !(
         nomeOk &&
         cpf.length === 11 &&
+        nascimento.length > 0 &&
         digits.length === 11 &&
         emailOk &&
         senha.length >= 8 &&
@@ -701,31 +814,43 @@
 
     nomeInp.addEventListener('input', checkValid);
     $('#np-senha', root).addEventListener('input', checkValid);
+    $('#np-nascimento', root).addEventListener('change', checkValid);
     attachPhoneEmailValidation(root, 'np-telefone', 'np-email', 'err-np-telefone', 'err-np-email', checkValid);
 
     configurarCpf(root, 'np-cpf', 'err-np-cpf');
     $('#np-cpf', root).addEventListener('input', checkValid);
 
-    $('#np-submit', root).addEventListener('click', () => {
+    $('#np-submit', root).addEventListener('click', async () => {
+      const btnSubmit = $('#np-submit', root);
+      btnSubmit.disabled = true;
+
       const selDias = $$('.checkbox-select-box[data-group="dias"] input:checked', root).map(cb => cb.value);
       const selHoras = $$('.checkbox-select-box[data-group="horas"] input:checked', root).map(cb => cb.value);
-      const novo = {
-        id: nextId(),
-        nome: nomeInp.value.trim(),
-        cpf: $('#np-cpf', root).value.trim(),
-        instrumento: $('#np-instrumento', root).value.trim() || 'A definir',
-        dias: selDias,
-        horarios: selHoras,
-        telefone: phoneDigits($('#np-telefone', root).value),
-        email: $('#np-email', root).value.trim(),
-        senha: $('#np-senha', root).value,
-        nascimento: $('#np-nascimento', root).value,
-      };
-      professores.push(novo);
-      saveData("edmusys_professores", professores);
-      closeModal();
-      state.view = 'professores';
-      renderView();
+
+      try {
+        await apiRequest("/api/professores", {
+          method: "POST",
+          body: JSON.stringify({
+            nome: nomeInp.value.trim(),
+            cpf: $('#np-cpf', root).value.trim(),
+            especialidade: $('#np-instrumento', root).value.trim() || 'A definir',
+            diasDisponiveis: selDias,
+            horariosDisponiveis: selHoras,
+            telefone: $('#np-telefone', root).value.trim(),
+            email: $('#np-email', root).value.trim(),
+            senha: $('#np-senha', root).value,
+            dataNascimento: $('#np-nascimento', root).value
+          })
+        });
+
+        await carregarDadosDoBanco();
+        closeModal();
+        state.view = 'professores';
+        renderView();
+      } catch (err) {
+        alert(err.message);
+        btnSubmit.disabled = false;
+      }
     });
   }
 
@@ -760,24 +885,36 @@
     instrInp.addEventListener('input', () => instrInp.dataset.touched = '1');
     syncInstrumento();
 
-    $('#nh-submit', root).addEventListener('click', () => {
+    $('#nh-submit', root).addEventListener('click', async () => {
       if (alunos.length === 0 || professores.length === 0) {
         alert('Cadastre ao menos um aluno e um professor antes de agendar.');
         return;
       }
-      horarios.push({
-        id: nextId(),
-        dia: $('#nh-dia', root).value,
-        hora: $('#nh-hora', root).value || '09:00',
-        instrumento: instrInp.value.trim() || 'Aula',
-        alunoId: alunoSel.value,
-        professorId: $('#nh-professor', root).value,
-      });
-      saveData("edmusys_horarios", horarios);
-      closeModal();
-      state.view = 'horarios';
-      state.selectedDay = $('#nh-dia', root)?.value || state.selectedDay;
-      renderView();
+      const btnSubmit = $('#nh-submit', root);
+      btnSubmit.disabled = true;
+      const diaEscolhido = $('#nh-dia', root).value;
+
+      try {
+        await apiRequest("/api/agendamentos", {
+          method: "POST",
+          body: JSON.stringify({
+            dia: diaEscolhido,
+            hora: $('#nh-hora', root).value || '09:00',
+            instrumento: instrInp.value.trim() || 'Aula',
+            alunoId: alunoSel.value,
+            professorId: $('#nh-professor', root).value
+          })
+        });
+
+        await carregarDadosDoBanco();
+        closeModal();
+        state.view = 'horarios';
+        state.selectedDay = diaEscolhido || state.selectedDay;
+        renderView();
+      } catch (err) {
+        alert(err.message);
+        btnSubmit.disabled = false;
+      }
     });
   }
 
@@ -907,23 +1044,38 @@
       markDirty();
     });
 
-    saveBtn.addEventListener('click', () => {
-      a.nome = $('#pf-nome', root).value.trim() || a.nome;
-      a.cpf = $('#pf-cpf', root).value.trim();
-      a.nascimento = $('#pf-nascimento', root).value;
-      a.telefone = phoneDigits($('#pf-telefone', root).value) || a.telefone;
-      a.email = $('#pf-email', root).value.trim();
-      a.plano = Number($('#pf-plano', root).value);
-      
+    saveBtn.addEventListener('click', async () => {
+      saveBtn.disabled = true;
       const statusPagoOpt = root.querySelector('input[name="pf-pago-opt"]:checked')?.value;
-      a.pago = statusPagoOpt === 'pago';
+      pagamentosLocal[a.id] = statusPagoOpt === 'pago';
+      saveData("edmusys_pagamentos", pagamentosLocal);
 
-      a.dias = $$('.checkbox-select-box[data-group="dias"] input:checked', root).map(cb => cb.value);
-      a.horarios = $$('.checkbox-select-box[data-group="horas"] input:checked', root).map(cb => cb.value);
+      const selDias = $$('.checkbox-select-box[data-group="dias"] input:checked', root).map(cb => cb.value);
+      const selHoras = $$('.checkbox-select-box[data-group="horas"] input:checked', root).map(cb => cb.value);
 
-      saveData("edmusys_alunos", alunos);
-      closeProfile();
-      renderView();
+      try {
+        await apiRequest(`/api/alunos/${a.id}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            nome: $('#pf-nome', root).value.trim() || a.nome,
+            cpf: $('#pf-cpf', root).value.trim(),
+            instrumento: a.instrumento,
+            dataNascimento: $('#pf-nascimento', root).value,
+            telefone: $('#pf-telefone', root).value.trim() || a.telefone,
+            email: $('#pf-email', root).value.trim(),
+            plano: String($('#pf-plano', root).value),
+            diasDisponiveis: selDias,
+            horariosDisponiveis: selHoras
+          })
+        });
+
+        await carregarDadosDoBanco();
+        closeProfile();
+        renderView();
+      } catch (err) {
+        alert(err.message);
+        saveBtn.disabled = false;
+      }
     });
   }
 
@@ -1012,20 +1164,33 @@
     configurarCpf(root, 'qf-cpf', 'err-qf-cpf');
     attachPhoneEmailValidation(root, 'qf-telefone', 'qf-email', 'err-qf-telefone', 'err-qf-email', markDirty);
 
-    saveBtn.addEventListener('click', () => {
-      p.nome = $('#qf-nome', root).value.trim() || p.nome;
-      p.cpf = $('#qf-cpf', root).value.trim();
-      p.instrumento = $('#qf-instrumento', root).value.trim() || p.instrumento;
-      p.nascimento = $('#qf-nascimento', root).value;
-      p.telefone = phoneDigits($('#qf-telefone', root).value) || p.telefone;
-      p.email = $('#qf-email', root).value.trim();
-      
-      p.dias = $$('.checkbox-select-box[data-group="dias"] input:checked', root).map(cb => cb.value);
-      p.horarios = $$('.checkbox-select-box[data-group="horas"] input:checked', root).map(cb => cb.value);
+    saveBtn.addEventListener('click', async () => {
+      saveBtn.disabled = true;
+      const selDias = $$('.checkbox-select-box[data-group="dias"] input:checked', root).map(cb => cb.value);
+      const selHoras = $$('.checkbox-select-box[data-group="horas"] input:checked', root).map(cb => cb.value);
 
-      saveData("edmusys_professores", professores);
-      closeProfile();
-      renderView();
+      try {
+        await apiRequest(`/api/professores/${p.id}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            nome: $('#qf-nome', root).value.trim() || p.nome,
+            cpf: $('#qf-cpf', root).value.trim(),
+            especialidade: $('#qf-instrumento', root).value.trim() || p.instrumento,
+            dataNascimento: $('#qf-nascimento', root).value,
+            telefone: $('#qf-telefone', root).value.trim() || p.telefone,
+            email: $('#qf-email', root).value.trim(),
+            diasDisponiveis: selDias,
+            horariosDisponiveis: selHoras
+          })
+        });
+
+        await carregarDadosDoBanco();
+        closeProfile();
+        renderView();
+      } catch (err) {
+        alert(err.message);
+        saveBtn.disabled = false;
+      }
     });
   }
 
@@ -1056,20 +1221,23 @@
   }
 
   /* 12. INICIALIZAÇÃO DOS EVENTOS GLOBAIS E EXECUÇÃO */
-  function init() {
+  async function init() {
     protegerPainel();
     window.addEventListener("pageshow", protegerPainel);
 
     initTheme();
 
-    $('#logout-btn')?.addEventListener('click', () => { 
-      localStorage.removeItem("adminLogado"); 
-      window.location.replace("landing_page_edmusys_2.html"); 
+    $('#logout-btn')?.addEventListener('click', () => {
+      localStorage.removeItem("adminLogado");
+      localStorage.removeItem("edmusys_token");
+      localStorage.removeItem("edmusys_role");
+      localStorage.removeItem("edmusys_user");
+      window.location.replace("landing_page_edmusys.html");
     });
 
     $$('.nav-btn').forEach(btn => btn.addEventListener('click', () => {
       state.view = btn.dataset.view;
-      
+
       if (window.innerWidth <= 860) {
         $('#sidebar')?.classList.add('closed');
         $('.main')?.classList.add('full-width');
@@ -1105,6 +1273,7 @@
 
     $('#fab-calendar')?.addEventListener('click', renderCalendarOverlay);
 
+    await carregarDadosDoBanco();
     renderView();
   }
 
