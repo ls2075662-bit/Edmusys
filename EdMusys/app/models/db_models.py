@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Date, Time, ForeignKey
 from app.database import Base
 
+
 class AdministradorModel(Base):
     __tablename__ = "administrador"
 
@@ -13,6 +14,7 @@ class AdministradorModel(Base):
     @property
     def id(self):
         return self.id_administrador
+
 
 class AlunoModel(Base):
     __tablename__ = "aluno"
@@ -33,6 +35,7 @@ class AlunoModel(Base):
     def id(self):
         return self.id_aluno
 
+
 class ProfessorModel(Base):
     __tablename__ = "professor"
 
@@ -51,6 +54,7 @@ class ProfessorModel(Base):
     def id(self):
         return self.id_professor
 
+
 class AgendamentoModel(Base):
     __tablename__ = "agendamento"
 
@@ -60,4 +64,8 @@ class AgendamentoModel(Base):
     horario = Column(Time, nullable=False)
     id_professor = Column(Integer, ForeignKey("professor.id_professor"), nullable=False)
     id_aluno = Column(Integer, ForeignKey("aluno.id_aluno"), nullable=False)
-    id_administrador = Column(Integer, ForeignKey("administrador.id_administrador"), nullable=True)
+    id_administrador = Column(
+        Integer,
+        ForeignKey("administrador.id_administrador", ondelete="SET NULL"),
+        nullable=True,
+    )
