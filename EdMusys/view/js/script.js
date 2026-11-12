@@ -486,8 +486,97 @@
     }));
   }
 
-  /* 9. MODAIS DE CADASTRO E EDIÇÃO DE HORÁRIOS / ALUNOS / PROFESSORES */
+  /* 9. MODAIS DE CADASTRO, EDIÇÃO E CONFIGURAÇÕES DA CONTA ADMIN */
   function closeModal() { $('#modal-root').innerHTML = ''; }
+
+  async function abrirConfiguracoesContaAdmin() {
+    try {
+      const admin = await apiRequest("/api/admins/me");
+
+      $('#modal-root').innerHTML = `
+        <div class="modal-overlay" id="modal-overlay">
+          <div class="modal modal-wide">
+            <div class="modal-head">
+              <h3>Configurações da Conta de Administrador</h3>
+              <button class="modal-close" id="cfg-close">${ICON.x}</button>
+            </div>
+            <div class="modal-body">
+              <div class="field-row">
+                ${ifield({ id: 'cfg-nome', label: 'Nome', icon: ICON.user, value: admin.nome })}
+                ${ifield({ id: 'cfg-cpf', label: 'CPF', icon: ICON.user, value: admin.cpf, errorId: 'err-cfg-cpf' })}
+              </div>
+              <div class="field-row">
+                ${ifield({ id: 'cfg-email', label: 'E-mail', icon: ICON.mail, type: 'email', value: admin.email })}
+                ${ifield({ id: 'cfg-senha', label: 'Nova Senha (opcional)', icon: ICON.user, type: 'password', placeholder: 'Mínimo 8 caracteres' })}
+              </div>
+
+              <div style="margin-top: 16px; padding: 14px; border: 1px solid #ef4444; border-radius: 10px; background: rgba(239, 68, 68, 0.08);">
+                <strong style="color: #ef4444; display: block; margin-bottom: 6px; font-size: 13px;">Zona de Perigo</strong>
+                <p style="font-size: 12.5px; margin-bottom: 12px; opacity: 0.9; line-height: 1.4;">
+                  Ao excluir sua conta de administrador, se não houver outro administrador cadastrado no banco, o sistema retornará ao modo de configuração inicial (sistema virgem) na tela de login.
+                </p>
+                <button type="button" class="btn btn-danger" id="btn-excluir-conta-admin">
+                  ${ICON.trash} Excluir minha conta de administrador
+                </button>
+              </div>
+            </div>
+            <div class="modal-foot">
+              <button class="btn btn-ghost" id="cfg-cancel">Cancelar</button>
+              <button class="btn btn-gold" id="cfg-save">Salvar alterações</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const root = $('#modal-root');
+      $('#cfg-close', root).addEventListener('click', closeModal);
+      $('#cfg-cancel', root).addEventListener('click', closeModal);
+      $('#modal-overlay', root).addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
+      configurarCpf(root, 'cfg-cpf', 'err-cfg-cpf');
+
+      $('#cfg-save', root).addEventListener('click', async () => {
+        const payload = {
+          nome: $('#cfg-nome', root).value.trim(),
+          cpf: $('#cfg-cpf', root).value.trim(),
+          email: $('#cfg-email', root).value.trim(),
+        };
+        const novaSenha = $('#cfg-senha', root).value;
+        if (novaSenha) payload.senha = novaSenha;
+
+        try {
+          await apiRequest("/api/admins/me", {
+            method: "PUT",
+            body: JSON.stringify(payload)
+          });
+          alert("Dados da conta atualizados com sucesso!");
+          closeModal();
+        } catch (err) {
+          alert(err.message);
+        }
+      });
+
+      $('#btn-excluir-conta-admin', root).addEventListener('click', async () => {
+        const confirmar = confirm(
+          "Tem certeza que deseja excluir permanentemente sua conta de administrador?"
+        );
+        if (!confirmar) return;
+
+        try {
+          await apiRequest("/api/admins/me", { method: "DELETE" });
+          localStorage.removeItem("adminLogado");
+          localStorage.removeItem("edmusys_token");
+          localStorage.removeItem("edmusys_role");
+          localStorage.removeItem("edmusys_user");
+          alert("Conta excluída com sucesso. Você será redirecionado para a tela inicial.");
+          window.location.replace("landing_page_edmusys.html");
+        } catch (err) {
+          alert(err.message);
+        }
+      });
+    } catch (err) {
+      alert(err.message);
+    }
+  }
 
   function openModalEditarHorario(id) {
     const h = horarios.find(x => x.id === id);
@@ -1226,6 +1315,8 @@
     window.addEventListener("pageshow", protegerPainel);
 
     initTheme();
+
+    $('#account-settings-btn')?.addEventListener('click', abrirConfiguracoesContaAdmin);
 
     $('#logout-btn')?.addEventListener('click', () => {
       localStorage.removeItem("adminLogado");
