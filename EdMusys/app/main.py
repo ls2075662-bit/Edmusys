@@ -1,15 +1,14 @@
+import os
+from datetime import date
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-import os
-from datetime import date
+from fastapi.responses import FileResponse, RedirectResponse
 
 from app.database import engine, Base, SessionLocal
 from app.models.db_models import AdministradorModel, AlunoModel, ProfessorModel
 from app.core.security import gerar_hash_senha
 
-# Imports dos controladores
 from app.controller.auth_controller import router as auth_router
 from app.controller.admin_controller import router as admin_router
 from app.controller.aluno_controller import router as aluno_router
@@ -25,13 +24,8 @@ def inicializar_banco():
         Base.metadata.create_all(bind=engine)
         db = SessionLocal()
 
-        if not db.query(AdministradorModel).filter(AdministradorModel.email == "admin@edmusys.com").first():
-            db.add(AdministradorModel(
-                nome="Administrador",
-                email="admin@edmusys.com",
-                cpf="000.000.000-00",
-                senha_hash=gerar_hash_senha("admin123")
-            ))
+        # NOTA: Nenhum administrador é criado automaticamente aqui para manter o sistema virgem (0 admins)
+        # até que o Administrador Mestre seja configurado pela primeira vez na tela inicial.
 
         if not db.query(AlunoModel).filter(AlunoModel.email == "luiz@email.com").first():
             db.add(AlunoModel(
@@ -44,7 +38,7 @@ def inicializar_banco():
                 horarios_disponiveis="18:00, 19:00",
                 plano="2",
                 data_nascimento=date(2011, 11, 11),
-                senha_hash=gerar_hash_senha("00000000")
+                senha_hash=gerar_hash_senha("00000000"),
             ))
 
         if not db.query(ProfessorModel).filter(ProfessorModel.email == "marcio34@gmail.com").first():
@@ -57,7 +51,7 @@ def inicializar_banco():
                 dias_disponiveis="Segunda, Sexta",
                 horarios_disponiveis="18:00, 19:00",
                 data_nascimento=date(2000, 9, 22),
-                senha_hash=gerar_hash_senha("88888888")
+                senha_hash=gerar_hash_senha("88888888"),
             ))
 
         db.commit()
@@ -74,14 +68,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Registar rotas
 app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(aluno_router)
 app.include_router(professor_router)
 app.include_router(agendamento_router)
 
-# Servir ficheiros estáticos
 base_dir = os.path.dirname(os.path.abspath(__file__))
 view_dir = os.path.abspath(os.path.join(base_dir, "..", "view"))
 
@@ -104,6 +96,17 @@ def read_root():
 
 @app.get("/{page_name}.html")
 def get_html_page(page_name: str):
+    # Se alguém tentar acessar /cadastro.html direto pela URL, verifica se o sistema ainda é virgem
+    if page_name.strip().lower() == "cadastro":
+        db = SessionLocal()
+        try:
+            total_admins = db.query(AdministradorModel).count()
+        finally:
+            db.close()
+
+        if total_admins > 0:
+            return RedirectResponse(url="/", status_code=302)
+
     file_path = os.path.join(view_dir, f"{page_name}.html")
     if os.path.exists(file_path):
         return FileResponse(file_path)
