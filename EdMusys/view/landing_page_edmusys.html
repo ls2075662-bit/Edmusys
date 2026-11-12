@@ -183,11 +183,16 @@
               </div>
             </div>
             <button type="submit" class="login-submit" id="enterBtn">Entrar no sistema</button>
+
+            <!-- AVISO E BOTÃO EXIBIDOS SOMENTE QUANDO O BANCO ESTIVER VIRGEM (0 ADMINS) -->
+            <div id="aviso-sistema-virgem" style="display: none; background: #FFF8E1; border: 1px solid #F0B90B; color: #5C4500; padding: 10px 12px; border-radius: 10px; font-size: 12.5px; margin-top: 10px; text-align: center; font-weight: 600;">
+              Bem-vindo ao EdMusys! Configure o Administrador Mestre para iniciar.
+            </div>
             <button type="button" class="novo-usuario" id="novoAdmin" style="display: none;" onclick="window.location.href='cadastro.html'">
               Cadastrar novo administrador
             </button>
           </form>
-          <p class="login-hint">Dados salvos localmente no navegador</p>
+          <p class="login-hint">Conectado ao servidor EdMusys</p>
         </div>
       </div>
 
