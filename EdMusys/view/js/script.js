@@ -16,7 +16,9 @@
     edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
     trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
     x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
-    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>'
+    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
+    eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+    eyeOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
   };
 
   const DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
@@ -245,14 +247,19 @@
   function ifield({ id, label, icon, type = 'text', value = '', placeholder = '', dark = false, readonly = false, options = null, errorId = null }) {
     const cls = ['ifield']; if (dark) cls.push('dark'); if (readonly) cls.push('readonly');
     let control;
+    let rightEl = icon ? `<span aria-hidden="true">${icon}</span>` : '';
+
     if (options) {
       control = `<select id="${id}" ${readonly ? 'disabled' : ''}>${options.map(o => `<option value="${escapeHtml(o.value)}" ${String(o.value) === String(value) ? 'selected' : ''}>${escapeHtml(o.label)}</option>`).join('')}</select>`;
     } else {
       control = `<input id="${id}" type="${type}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" ${readonly ? 'readonly' : ''} ${type === 'tel' ? 'inputmode="numeric"' : ''} ${id.includes('cpf') ? 'maxlength="14" inputmode="numeric"' : ''} autocomplete="off">`;
+      if (type === 'password' && !readonly) {
+        rightEl = `<button type="button" class="toggle-pass-btn" aria-label="Mostrar senha" title="Mostrar/ocultar senha">${ICON.eye}</button>`;
+      }
     }
     return `<div class="${cls.join(' ')}">
       <label for="${id}">${label}</label>
-      <div class="icontainer">${control}${icon ? `<span aria-hidden="true">${icon}</span>` : ''}</div>
+      <div class="icontainer">${control}${rightEl}</div>
       ${errorId ? `<div class="err" id="${errorId}"></div>` : ''}
     </div>`;
   }
@@ -507,7 +514,7 @@
               </div>
               <div class="field-row">
                 ${ifield({ id: 'cfg-email', label: 'E-mail', icon: ICON.mail, type: 'email', value: admin.email })}
-                ${ifield({ id: 'cfg-senha', label: 'Nova Senha (opcional)', icon: ICON.user, type: 'password', placeholder: 'Mínimo 8 caracteres' })}
+                ${ifield({ id: 'cfg-senha', label: 'Nova Senha (opcional)', type: 'password', placeholder: 'Mínimo 8 caracteres' })}
               </div>
 
               <div style="margin-top: 16px; padding: 14px; border: 1px solid #ef4444; border-radius: 10px; background: rgba(239, 68, 68, 0.08);">
@@ -668,7 +675,7 @@
           <div class="field-row">
             ${ifield({ id: 'na-telefone', label: 'Telefone', icon: ICON.phone, type: 'tel', placeholder: '(84) 90000-0000', errorId: 'err-na-telefone' })}
             ${ifield({ id: 'na-email', label: 'E-mail', icon: ICON.mail, type: 'email', errorId: 'err-na-email' })}
-            ${ifield({ id: 'na-senha', label: 'Senha', icon: ICON.user, type: 'password' })}
+            ${ifield({ id: 'na-senha', label: 'Senha', type: 'password', placeholder: 'Digite uma senha' })}
           </div>
           <div class="field-row">
             ${ifield({ id: 'na-instrumento', label: 'Instrumento', icon: ICON.music })}
@@ -825,7 +832,7 @@
           <div class="field-row">
             ${ifield({ id: 'np-telefone', label: 'Telefone', icon: ICON.phone, type: 'tel', placeholder: '(84) 90000-0000', errorId: 'err-np-telefone' })}
             ${ifield({ id: 'np-email', label: 'E-mail', icon: ICON.mail, type: 'email', errorId: 'err-np-email' })}
-            ${ifield({ id: 'np-senha', label: 'Senha', icon: ICON.user, type: 'password', placeholder: 'Digite uma senha' })}
+            ${ifield({ id: 'np-senha', label: 'Senha', type: 'password', placeholder: 'Digite uma senha' })}
             ${ifield({ id: 'np-instrumento', label: 'Especialidade', icon: ICON.music })}
           </div>
           <div class="field-row">
@@ -1315,6 +1322,19 @@
     window.addEventListener("pageshow", protegerPainel);
 
     initTheme();
+
+    // Alternar visibilidade de senha (mostrar/ocultar) em qualquer modal
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.toggle-pass-btn');
+      if (!btn) return;
+      const container = btn.closest('.icontainer');
+      const input = container ? container.querySelector('input') : null;
+      if (!input) return;
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      btn.innerHTML = isHidden ? ICON.eyeOff : ICON.eye;
+      btn.setAttribute('aria-label', isHidden ? 'Ocultar senha' : 'Mostrar senha');
+    });
 
     $('#account-settings-btn')?.addEventListener('click', abrirConfiguracoesContaAdmin);
 
