@@ -5,11 +5,9 @@
   const ICON = {
     music: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
     calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
-    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>',
     user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
     phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 2 .6 2.9a2 2 0 0 1-.4 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.4c.9.3 1.9.5 2.9.6a2 2 0 0 1 1.7 2Z"/></svg>',
     mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>',
-    cake: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16h16"/><path d="M12 3v4M8 3v2M16 3v2"/></svg>',
     tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m20.6 13.4-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg>',
     cash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>',
     plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
@@ -597,7 +595,7 @@
         </div>
         <div class="modal-body">
           <div class="field-row">
-            ${ifield({ id: 'eh-hora', label: 'Hora', icon: ICON.clock, type: 'time', value: h.hora })}
+            ${ifield({ id: 'eh-hora', label: 'Hora', type: 'time', value: h.hora })}
             ${ifield({ id: 'eh-dia', label: 'Dia da Semana', icon: ICON.calendar, options: DIAS.map(d => ({ value: d, label: d })), value: h.dia })}
           </div>
           ${ifield({ id: 'eh-instrumento', label: 'Instrumento', icon: ICON.music, value: h.instrumento })}
@@ -670,7 +668,7 @@
           <div class="field-row">
             ${ifield({ id: 'na-nome', label: 'Nome', icon: ICON.user })}
             ${ifield({ id: 'na-cpf', label: 'CPF', icon: ICON.user, placeholder: '000.000.000-00', errorId: 'err-na-cpf' })}
-            ${ifield({ id: 'na-nascimento', label: 'Data de nascimento', icon: ICON.cake, type: 'date' })}
+            ${ifield({ id: 'na-nascimento', label: 'Data de nascimento', type: 'date' })}
           </div>
           <div class="field-row">
             ${ifield({ id: 'na-telefone', label: 'Telefone', icon: ICON.phone, type: 'tel', placeholder: '(84) 90000-0000', errorId: 'err-na-telefone' })}
@@ -827,7 +825,7 @@
           <div class="field-row">
             ${ifield({ id: 'np-nome', label: 'Nome', icon: ICON.user })}
             ${ifield({ id: 'np-cpf', label: 'CPF', icon: ICON.user, placeholder: '000.000.000-00', errorId: 'err-np-cpf' })}
-            ${ifield({ id: 'np-nascimento', label: 'Data de nascimento', icon: ICON.cake, type: 'date' })}
+            ${ifield({ id: 'np-nascimento', label: 'Data de nascimento', type: 'date' })}
           </div>
           <div class="field-row">
             ${ifield({ id: 'np-telefone', label: 'Telefone', icon: ICON.phone, type: 'tel', placeholder: '(84) 90000-0000', errorId: 'err-np-telefone' })}
@@ -959,7 +957,7 @@
           ${ifield({ id: 'nh-professor', label: 'Professor', icon: ICON.user, options: professores.map(p => ({ value: p.id, label: p.nome })) })}
           ${ifield({ id: 'nh-instrumento', label: 'Instrumento', icon: ICON.music })}
           ${ifield({ id: 'nh-dia', label: 'Dia', icon: ICON.calendar, options: DIAS.map(d => ({ value: d, label: d })), value: defaultDia || DIAS[0] })}
-          ${ifield({ id: 'nh-hora', label: 'Hora', icon: ICON.clock, type: 'time', value: '09:00' })}
+          ${ifield({ id: 'nh-hora', label: 'Hora', type: 'time', value: '09:00' })}
         </div>
         <div class="modal-foot"><button class="btn btn-gold" id="nh-submit">${ICON.plus} Agendar aula</button></div>
       </div>
@@ -1044,7 +1042,7 @@
           <div class="field-row">
             ${ifield({ id: 'pf-nome', label: 'Nome', icon: ICON.user, value: a.nome })}
             ${ifield({ id: 'pf-cpf', label: 'CPF', icon: ICON.user, value: a.cpf || '', placeholder: '000.000.000-00', errorId: 'err-pf-cpf' })}
-            ${ifield({ id: 'pf-nascimento', label: 'Data de nascimento', icon: ICON.cake, type: 'date', value: a.nascimento })}
+            ${ifield({ id: 'pf-nascimento', label: 'Data de nascimento', type: 'date', value: a.nascimento })}
           </div>
           <div class="field-row">
             ${ifield({ id: 'pf-telefone', label: 'Telefone', icon: ICON.phone, type: 'tel', value: maskPhone(a.telefone), errorId: 'err-pf-telefone' })}
@@ -1198,7 +1196,7 @@
             ${ifield({ id: 'qf-instrumento', label: 'Instrumento / especialidade', icon: ICON.music, value: p.instrumento })}
           </div>
           <div class="field-row">
-            ${ifield({ id: 'qf-nascimento', label: 'Data de nascimento', icon: ICON.cake, type: 'date', value: p.nascimento })}
+            ${ifield({ id: 'qf-nascimento', label: 'Data de nascimento', type: 'date', value: p.nascimento })}
           </div>
           <div class="field-row">
             ${ifield({ id: 'qf-telefone', label: 'Telefone', icon: ICON.phone, type: 'tel', value: maskPhone(p.telefone), errorId: 'err-qf-telefone' })}
