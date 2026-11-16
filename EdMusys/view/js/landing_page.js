@@ -1,5 +1,14 @@
 let sistemaVirgem = false;
 
+function isModoAdminAtivo() {
+  const btnAdmin = document.getElementById('btn-administrador');
+  const adminFields = document.getElementById('adminLoginFields');
+  return Boolean(
+    (btnAdmin && btnAdmin.classList.contains('on')) ||
+    (adminFields && adminFields.style.display !== 'none')
+  );
+}
+
 // Rolar suavemente até a caixa de login
 function scrollToLogin() {
   const loginSection = document.getElementById('login-section');
@@ -20,14 +29,10 @@ function fecharLogin() {
 function aplicarEstadoSistemaVirgem() {
   const avisoVirgem = document.getElementById('aviso-sistema-virgem');
   const btnNovoAdmin = document.getElementById('novoAdmin');
+  const exibir = sistemaVirgem && isModoAdminAtivo();
 
-  if (sistemaVirgem) {
-    if (avisoVirgem) avisoVirgem.style.display = 'block';
-    if (btnNovoAdmin) btnNovoAdmin.style.display = 'block';
-  } else {
-    if (avisoVirgem) avisoVirgem.style.display = 'none';
-    if (btnNovoAdmin) btnNovoAdmin.style.display = 'none';
-  }
+  if (avisoVirgem) avisoVirgem.style.display = exibir ? 'block' : 'none';
+  if (btnNovoAdmin) btnNovoAdmin.style.display = exibir ? 'block' : 'none';
 }
 
 async function verificarSistemaVirgem() {
@@ -53,16 +58,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Garante que o botão #novoAdmin nunca apareça se já existir administrador cadastrado,
-  // mesmo quando o usuário clicar na aba "Administrador"
+  // Impede que o botão #novoAdmin apareça fora da aba Administrador ou quando já houver admin cadastrado
   const btnNovoAdmin = document.getElementById('novoAdmin');
   if (btnNovoAdmin) {
     const observer = new MutationObserver(() => {
-      if (!sistemaVirgem && btnNovoAdmin.style.display !== 'none') {
+      const podeExibir = sistemaVirgem && isModoAdminAtivo();
+      if (!podeExibir && btnNovoAdmin.style.display !== 'none') {
         btnNovoAdmin.style.display = 'none';
       }
     });
     observer.observe(btnNovoAdmin, { attributes: true, attributeFilter: ['style'] });
+  }
+
+  // Atualiza automaticamente sempre que a aba Administrador for ativada ou desativada
+  const btnAdmin = document.getElementById('btn-administrador');
+  if (btnAdmin) {
+    const tabObserver = new MutationObserver(aplicarEstadoSistemaVirgem);
+    tabObserver.observe(btnAdmin, { attributes: true, attributeFilter: ['class'] });
   }
 
   document.getElementById('roleGroup')?.addEventListener('click', () => {
