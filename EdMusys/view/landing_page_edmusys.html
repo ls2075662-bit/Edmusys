@@ -16,6 +16,49 @@
   <link rel="stylesheet" href="css/homepage.css">
   <link rel="stylesheet" href="css/landing_page.css">
 
+  <style>
+    .login-card .icontainer {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .login-card .icontainer input[type="password"],
+    .login-card .icontainer input[type="text"] {
+      width: 100%;
+    }
+    .login-card .icontainer input.has-toggle-pass {
+      padding-right: 40px;
+    }
+    .login-card .icontainer input::-ms-reveal,
+    .login-card .icontainer input::-ms-clear {
+      display: none;
+    }
+    .login-card .toggle-pass-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      padding: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #6B655B;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: color 0.15s ease, background-color 0.15s ease;
+    }
+    .login-card .toggle-pass-btn:hover {
+      color: #C99400;
+      background: rgba(240, 185, 11, 0.15);
+    }
+    .login-card .toggle-pass-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+  </style>
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -169,22 +212,28 @@
               </div>
               <label for="userPassword">Senha</label>
               <div class="icontainer">
-                <input type="password" id="userPassword" placeholder="Digite sua senha">
+                <input type="password" id="userPassword" class="has-toggle-pass" placeholder="Digite sua senha">
+                <button type="button" class="toggle-pass-btn" aria-label="Mostrar senha" title="Mostrar/ocultar senha">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
               </div>
             </div>
             <div class="ifield" id="adminLoginFields" style="display: none;">
               <label for="adminUser">Nome, CPF ou E-mail</label>
               <div class="icontainer">
-                  <input type="text" id="adminUser" placeholder="Digite seu nome, CPF ou e-mail">
+                <input type="text" id="adminUser" placeholder="Digite seu nome, CPF ou e-mail">
               </div>
               <label for="adminPass">Senha</label>
               <div class="icontainer">
-                  <input type="password" id="adminPass" placeholder="Digite sua senha">
+                <input type="password" id="adminPass" class="has-toggle-pass" placeholder="Digite sua senha">
+                <button type="button" class="toggle-pass-btn" aria-label="Mostrar senha" title="Mostrar/ocultar senha">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
               </div>
             </div>
             <button type="submit" class="login-submit" id="enterBtn">Entrar no sistema</button>
 
-            <!-- AVISO E BOTÃO EXIBIDOS SOMENTE QUANDO O BANCO ESTIVER VIRGEM (0 ADMINS) -->
+            <!-- AVISO E BOTÃO EXIBIDOS SOMENTE QUANDO O BANCO ESTIVER VIRGEM (0 ADMINS) E ABA ADMINISTRADOR ATIVA -->
             <div id="aviso-sistema-virgem" style="display: none; background: #FFF8E1; border: 1px solid #F0B90B; color: #5C4500; padding: 10px 12px; border-radius: 10px; font-size: 12.5px; margin-top: 10px; text-align: center; font-weight: 600;">
               Bem-vindo ao EdMusys! Configure o Administrador Mestre para iniciar.
             </div>
@@ -277,7 +326,7 @@
 
   <!-- Importação dos Scripts JS Separados -->
   <script src="js/homepage.js"></script>
-  <script src="js/landing_page.js"></script>
+  <script src="js/landing_page.js?v=2"></script>
 
 </body>
 </html>
