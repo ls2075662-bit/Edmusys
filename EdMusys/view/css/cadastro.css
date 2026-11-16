@@ -9,37 +9,38 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 24px 0;
   background: linear-gradient(135deg, #171711 0%, #111110 100%);
   font-family: Arial, Helvetica, sans-serif;
   color: #171514;
 }
 
 .cadastro-card {
-  width: 400px;
-  min-height: 560px;
+  width: 92%;
+  max-width: 960px;
   background: #faf8f3;
-  border-radius: 18px;
-  border-top: 5px solid #e5b400;
-  padding: 38px 36px 32px;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+  border-radius: 20px;
+  border-top: 6px solid #e5b400;
+  padding: 44px 56px 38px;
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.35);
 }
 
 .cadastro-header {
   text-align: center;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
 }
 
 .logo {
-  width: 56px;
-  height: 56px;
-  margin: 0 auto 15px;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
+  border-radius: 16px;
   background: #11100f;
   color: #f2c000;
-  font-size: 29px;
+  font-size: 32px;
   font-weight: bold;
 }
 
@@ -50,27 +51,27 @@ body {
 
 .cadastro-header h1 {
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 27px;
+  font-size: 32px;
   font-weight: 700;
   color: #11100f;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .cadastro-header p {
   color: #8c8178;
-  font-size: 13px;
-  letter-spacing: 0.3px;
+  font-size: 13.5px;
+  letter-spacing: 0.8px;
 }
 
 .form-group {
-  margin-bottom: 17px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 7px;
+  margin-bottom: 8px;
   color: #756b63;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 0.6px;
 }
@@ -81,29 +82,29 @@ body {
 
 .input-icon {
   position: absolute;
-  left: 14px;
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
   color: #8e887f;
-  font-size: 17px;
+  font-size: 18px;
   pointer-events: none;
 }
 
 .input-wrapper input {
   width: 100%;
-  height: 42px;
-  padding: 0 13px 0 38px;
+  height: 48px;
+  padding: 0 16px 0 44px;
   border: 1px solid #ddd7ce;
-  border-radius: 8px;
+  border-radius: 10px;
   outline: none;
   background: #fffefa;
   color: #4d4843;
-  font-size: 14px;
+  font-size: 15px;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input-wrapper input.has-toggle-pass {
-  padding-right: 40px;
+  padding-right: 44px;
 }
 
 .input-wrapper input::-ms-reveal,
@@ -117,12 +118,12 @@ body {
 
 .input-wrapper input:focus {
   border-color: #d7a900;
-  box-shadow: 0 0 0 2px rgba(229, 180, 0, 0.12);
+  box-shadow: 0 0 0 3px rgba(229, 180, 0, 0.14);
 }
 
 .toggle-pass-btn {
   position: absolute;
-  right: 10px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
@@ -143,19 +144,19 @@ body {
 }
 
 .toggle-pass-btn svg {
-  width: 17px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
 }
 
 .btn-cadastrar {
   width: 100%;
-  height: 48px;
-  margin-top: 6px;
+  height: 52px;
+  margin-top: 10px;
   border: 0;
   border-radius: 12px;
   background: #11100f;
   color: #f2c000;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s, transform 0.2s;
@@ -169,11 +170,11 @@ body {
 .btn-voltar {
   display: block;
   width: fit-content;
-  margin: 18px auto 0;
+  margin: 20px auto 0;
   border: 0;
   background: transparent;
   color: #8c8178;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
 }
 
@@ -183,11 +184,11 @@ body {
 
 .mensagem {
   display: none;
-  margin-top: 12px;
-  padding: 9px 11px;
-  border-radius: 7px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
   text-align: center;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .mensagem.erro {
@@ -202,9 +203,9 @@ body {
   color: #48743c;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .cadastro-card {
-    width: calc(100% - 32px);
-    padding: 34px 25px 28px;
+    width: calc(100% - 24px);
+    padding: 32px 22px 26px;
   }
 }
