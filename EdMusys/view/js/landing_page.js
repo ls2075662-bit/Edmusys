@@ -12,6 +12,14 @@ function isModoAdminAtivo() {
   );
 }
 
+function isCpfOuEmailValido(valor) {
+  const v = (valor || '').trim();
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  const digitosCpf = v.replace(/\D/g, '');
+  const isCpf = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/.test(v) && digitosCpf.length === 11;
+  return isEmail || isCpf;
+}
+
 // Rolar suavemente até a caixa de login
 function scrollToLogin() {
   const loginSection = document.getElementById('login-section');
@@ -59,6 +67,42 @@ document.addEventListener('DOMContentLoaded', () => {
     mobileMenuBtn.addEventListener('click', () => {
       mobileMenu.classList.toggle('hidden');
     });
+  }
+
+  // Bloqueia login por nome: exige CPF (11 dígitos) ou E-mail em Admin, Professor e Aluno
+  const loginForm = document.getElementById('loginForm');
+  const loginError = document.getElementById('loginError');
+
+  if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+      const modoAdmin = isModoAdminAtivo();
+      const identificador = (modoAdmin
+        ? document.getElementById('adminUser')?.value
+        : document.getElementById('userLogin')?.value || ''
+      ).trim();
+      const senha = modoAdmin
+        ? document.getElementById('adminPass')?.value || ''
+        : document.getElementById('userPassword')?.value || '';
+
+      if (!identificador || !senha) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (loginError) {
+          loginError.textContent = 'Preencha seu CPF ou e-mail e sua senha.';
+          loginError.style.display = 'block';
+        }
+        return;
+      }
+
+      if (!isCpfOuEmailValido(identificador)) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (loginError) {
+          loginError.textContent = 'Acesso permitido apenas com CPF (11 dígitos) ou e-mail válido.';
+          loginError.style.display = 'block';
+        }
+      }
+    }, true);
   }
 
   // Alternar visibilidade da senha nos logins de Administrador, Professor e Aluno
