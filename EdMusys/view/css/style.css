@@ -629,3 +629,18 @@ input, select { font-family: inherit; }
   padding-top: 16px;
   border-top: 1px solid var(--border-main);
 }
+
+.ifield .icontainer input[type="date"],
+.ifield .icontainer input[type="time"] {
+  color-scheme: light;
+}
+
+body.dark-mode .ifield .icontainer input[type="date"],
+body.dark-mode .ifield .icontainer input[type="time"] {
+  color-scheme: dark;
+}
+
+.ifield .icontainer input[type="date"]::-webkit-calendar-picker-indicator,
+.ifield .icontainer input[type="time"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
