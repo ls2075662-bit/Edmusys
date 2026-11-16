@@ -196,7 +196,7 @@
             <p>Sistema de Gestão</p>
           </div>
           <form class="login-form" id="loginForm">
-            <div class="login-error" id="loginError">Selecione seu nome antes de entrar.</div>
+            <div class="login-error" id="loginError">Informe seu CPF ou e-mail e senha.</div>
             <div>
               <span class="field-group-lbl">Entrar como</span>
               <div class="pill-select" id="roleGroup">
@@ -206,26 +206,26 @@
               </div>
             </div>
             <div class="ifield" id="userLoginFields">
-              <label for="userLogin">Nome, CPF ou E-mail</label>
+              <label for="userLogin">CPF ou E-mail</label>
               <div class="icontainer">
-                <input type="text" id="userLogin" placeholder="Digite seu nome, CPF ou e-mail">
+                <input type="text" id="userLogin" placeholder="Digite seu CPF ou e-mail" autocomplete="username">
               </div>
               <label for="userPassword">Senha</label>
               <div class="icontainer">
-                <input type="password" id="userPassword" class="has-toggle-pass" placeholder="Digite sua senha">
+                <input type="password" id="userPassword" class="has-toggle-pass" placeholder="Digite sua senha" autocomplete="current-password">
                 <button type="button" class="toggle-pass-btn" aria-label="Mostrar senha" title="Mostrar/ocultar senha">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
               </div>
             </div>
             <div class="ifield" id="adminLoginFields" style="display: none;">
-              <label for="adminUser">Nome, CPF ou E-mail</label>
+              <label for="adminUser">CPF ou E-mail</label>
               <div class="icontainer">
-                <input type="text" id="adminUser" placeholder="Digite seu nome, CPF ou e-mail">
+                <input type="text" id="adminUser" placeholder="Digite seu CPF ou e-mail" autocomplete="username">
               </div>
               <label for="adminPass">Senha</label>
               <div class="icontainer">
-                <input type="password" id="adminPass" class="has-toggle-pass" placeholder="Digite sua senha">
+                <input type="password" id="adminPass" class="has-toggle-pass" placeholder="Digite sua senha" autocomplete="current-password">
                 <button type="button" class="toggle-pass-btn" aria-label="Mostrar senha" title="Mostrar/ocultar senha">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
@@ -326,7 +326,7 @@
 
   <!-- Importação dos Scripts JS Separados -->
   <script src="js/homepage.js"></script>
-  <script src="js/landing_page.js?v=2"></script>
+  <script src="js/landing_page.js?v=3"></script>
 
 </body>
 </html>
